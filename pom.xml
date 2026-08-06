@@ -27,13 +27,13 @@
     </properties>
 
     <dependencies>
-        <!-- Suficiente para levantar un endpoint REST minimo -->
+  
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Suficiente para que 'mvn test' tenga algo que ejecutar -->
+   
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
