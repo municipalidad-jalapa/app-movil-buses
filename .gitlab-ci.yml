@@ -1,0 +1,37 @@
+include:
+  - project: 'municipalidad-jalapa/ci-templates/pipeline-templates'
+    ref: main
+    file: 'docker-build-push.yml'
+
+stages:
+  - build
+  - test
+  - package
+
+maven-build:
+  stage: build
+  image: maven:3.9-eclipse-temurin-21
+  script:
+    - mvn compile
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - .m2/repository
+
+maven-test:
+  stage: test
+  image: maven:3.9-eclipse-temurin-21
+  script:
+    - mvn test
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - target/surefire-reports/*.xml
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - .m2/repository
+
+docker-build-push:
+  extends: .docker_build_push_template
