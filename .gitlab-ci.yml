@@ -7,6 +7,8 @@ stages:
   - build
   - test
   - package
+  - deploy-qa
+  - deploy-production
 
 maven-build:
   stage: build
