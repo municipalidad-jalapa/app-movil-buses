@@ -7,8 +7,7 @@ stages:
   - build
   - test
   - package
-  - deploy-qa
-  - deploy-production
+  - deploy
 
 maven-build:
   stage: build
@@ -37,3 +36,28 @@ maven-test:
 
 docker-build-push:
   extends: .docker_build_push_template
+
+deploy-qa:
+  stage: deploy
+  image: image: alpine:latest
+  environment:
+    name: qa
+    url: https://qa.buses.jalapa.gob.gt
+  script:
+    - echo "Placeholder del Paso 8, aqui ira el comando kubectl apply para el namespace qa"
+    - echo "Por ahora este job solo simula el despliegue para validar la logica del pipeline"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+deploy-production:
+  stage: deploy
+  image: image: alpine:latest
+  environment:
+    name: production
+    url: https://buses.jalapa.gob.gt
+  script:
+    - echo "Placeholder del Paso 8, aqui ira el comando kubectl apply para el namespace production"
+    - echo "Por ahora este job solo simula el despliegue para validar la logica del pipeline"
+  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
