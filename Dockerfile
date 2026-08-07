@@ -1,6 +1,7 @@
 # ---------- Etapa 1: Build ----------
 # Compila el proyecto con Maven dentro de un contenedor temporal.
 # Esta etapa NO forma parte de la imagen final (reduce el tamano).
+# Cambio 2 :) 
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .
