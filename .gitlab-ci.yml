@@ -7,8 +7,7 @@ stages:
   - build
   - test
   - package
-  - deploy-qa
-  - deploy-production
+  - deploy
 
 maven-build:
   stage: build
@@ -37,3 +36,28 @@ maven-test:
 
 docker-build-push:
   extends: .docker_build_push_template
+
+deploy-qa:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  environment:
+    name: qa
+    url: https://qa.buses.jalapa.gob.gt
+  script:
+    - echo "PLACEHOLDER - Paso 8: aqui ira 'kubectl apply' apuntando al namespace 'qa' del cluster AKS"
+    - echo "Por ahora solo simula el despliegue para validar la logica del pipeline"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+deploy-production:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  environment:
+    name: production
+    url: https://buses.jalapa.gob.gt
+  script:
+    - echo "PLACEHOLDER - Paso 8: aqui ira 'kubectl apply' apuntando al namespace 'production' del cluster AKS"
+    - echo "Por ahora solo simula el despliegue para validar la logica del pipeline"
+  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
