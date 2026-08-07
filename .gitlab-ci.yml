@@ -39,10 +39,10 @@ docker-build-push:
 
 deploy-qa:
   stage: deploy
-  image: image: alpine:latest
+  image: alpine:latest
   environment:
     name: qa
-    url: https://qa.buses.jalapa.gob.gt
+    url: "https://qa.buses.jalapa.gob.gt"
   script:
     - echo "Placeholder del Paso 8, aqui ira el comando kubectl apply para el namespace qa"
     - echo "Por ahora este job solo simula el despliegue para validar la logica del pipeline"
@@ -51,10 +51,10 @@ deploy-qa:
 
 deploy-production:
   stage: deploy
-  image: image: alpine:latest
+  image: alpine:latest
   environment:
     name: production
-    url: https://buses.jalapa.gob.gt
+    url: "https://buses.jalapa.gob.gt"
   script:
     - echo "Placeholder del Paso 8, aqui ira el comando kubectl apply para el namespace production"
     - echo "Por ahora este job solo simula el despliegue para validar la logica del pipeline"
