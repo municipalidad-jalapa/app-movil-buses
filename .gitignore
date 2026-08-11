@@ -1,0 +1,27 @@
+# Dependencias y build
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Cache de herramientas
+.vite/
+coverage/
+*.tsbuildinfo
+
+# Secretos - NUNCA subir
+.env
+.env.*
+!.env.example
+# La llave de Google Maps (HU-27/HU-50) va por entorno, jamas en el repositorio
+
+# IDE / SO
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

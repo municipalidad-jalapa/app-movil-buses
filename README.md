@@ -1,93 +1,93 @@
-# app-movil-buses
+# EcoRuta — App web
 
+App web del bus eléctrico municipal de Jalapa. El pasajero abre la página, ve dónde viene el bus
+y cuántos faltan para que salga. Sin instalar nada y sin crear cuenta.
 
+React + TypeScript sobre Vite. **Diseño móvil primero**: la pantalla de referencia es un teléfono
+de 360 px, no un escritorio.
 
-## Getting started
+## Requisitos
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- Node.js 20 o superior
+- El backend corriendo (repositorio `backend/api-buses-jalapa`, `docker compose up`)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Arrancar
 
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/municipalidad-jalapa/frontend/app-movil-buses.git
-git branch -M main
-git push -uf origin main
+```bash
+npm install
+npm run dev
 ```
 
-## Integrate with your tools
+Abre `http://localhost:5173`. El servidor de desarrollo escucha en toda la red, así que podés
+abrirlo desde tu teléfono con la IP de la máquina — conviene, porque el diseño es móvil primero.
 
-* [Set up project integrations](https://gitlab.com/municipalidad-jalapa/frontend/app-movil-buses/-/settings/integrations)
+## Comandos
 
-## Collaborate with your team
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` | Servidor de desarrollo con recarga en caliente |
+| `npm run build` | Verifica tipos y genera el build de producción en `dist/` |
+| `npm run preview` | Sirve `dist/` para probar el build de producción |
+| `npm test` | Pruebas con Vitest |
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## Configuración por entorno
 
-## Test and Deploy
+**La URL del backend se cambia sin recompilar.** Es un criterio de aceptación de HU-26, y por eso
+*no* usamos `VITE_*` para esto: esas variables se incrustan en el bundle al compilar.
 
-Use the built-in continuous integration in GitLab.
+La fuente real es `public/config.js`, que Vite copia tal cual a `dist/`:
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+```js
+window.__ECORUTA__ = {
+  apiUrl: 'https://api.ecoruta.jalapa.gob.gt',
+};
+```
 
-***
+Para apuntar a otro backend se edita `dist/config.js` en el servidor y se recarga la página. En
+producción lo habitual es que el contenedor genere ese archivo al arrancar, desde una variable de
+entorno.
 
-# Editing this README
+Orden de precedencia que aplica `src/core/config.ts`:
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+1. `window.__ECORUTA__.apiUrl` — configuración de runtime
+2. `VITE_API_URL` — comodidad para desarrollo local (copiá `.env.example` a `.env`)
+3. `http://localhost:8080` — el backend de `docker compose`
 
-## Suggestions for a good README
+## Estructura
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+```
+src/
+  core/          config, cliente HTTP, errores y tipos de la API
+  componentes/   Layout, Cargando, MensajeError
+  paginas/       Mapa (placeholder), NoEncontrada
+  estilos/       tema.css (tokens, claro/oscuro), global.css
+public/config.js configuración de tiempo de ejecución
+```
 
-## Name
-Choose a self-explaining name for your project.
+## Capa de red
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Todo acceso al backend pasa por `src/core/apiClient.ts`. Centraliza la URL base, un timeout de 10 s
+(la ruta tiene cobertura irregular) y la traducción de errores.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Cualquier falla —HTTP o red caída— llega a la interfaz como un `ErrorApi`. Las pantallas **nunca**
+muestran el `ApiError` crudo ni un código de estado: usan `error.mensajeParaUsuario()`, o
+directamente el componente `<MensajeError />`.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+```ts
+import { apiClient } from './core/apiClient';
+import type { Ruta } from './core/tipos';
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+const rutas = await apiClient.get<Ruta[]>('/api/v1/rutas');
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Los tipos de `src/core/tipos.ts` reflejan los records del backend. Ojo con las coordenadas: la API
+expone `latitud`/`longitud` con nombre, pero PostGIS y Google Maps usan orden `(lon, lat)`.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Convenciones
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Código y comentarios en español, igual que el backend. Ver las convenciones de código del proyecto.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## Estado
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Esqueleto de **HU-26**. Lo que sigue: HU-27 (spike del mapa), HU-50 (mapa de la ruta),
+HU-51 (bus en tiempo real con `EventSource`), HU-52 (contador), HU-53 (registro desde la app).
