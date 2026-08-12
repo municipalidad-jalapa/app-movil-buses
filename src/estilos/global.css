@@ -1,0 +1,70 @@
+@import './tema.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Evita que iOS agrande el texto al girar el telefono */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--fuente);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-texto);
+  background: var(--color-fondo);
+  /* El mapa se arrastra con el dedo: nada de rebote de la pagina entera */
+  overscroll-behavior-y: none;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 var(--esp-3);
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.375rem;
+}
+
+a {
+  color: var(--color-marca);
+}
+
+button {
+  font: inherit;
+  min-height: 44px; /* objetivo tactil minimo */
+  padding: var(--esp-3) var(--esp-4);
+  border: 1px solid transparent;
+  border-radius: var(--radio);
+  background: var(--color-marca);
+  color: #fff;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--color-marca);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

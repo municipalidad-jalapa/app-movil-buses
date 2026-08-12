@@ -1,0 +1,64 @@
+include:
+  - project: 'municipalidad-jalapa/ci-templates/pipeline-templates'
+    ref: main
+    file: 'docker-build-push.yml'
+
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+npm-build:
+  stage: build
+  image: node:20-alpine
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - node_modules/
+
+npm-test:
+  stage: test
+  image: node:20-alpine
+  script:
+    - npm ci
+    - npm test
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - node_modules/
+
+docker-build-push:
+  extends: .docker_build_push_template
+
+deploy-qa:
+  stage: deploy
+  image: alpine:latest
+  environment:
+    name: qa
+    url: "https://qa-app.buses.jalapa.gob.gt"
+  script:
+    - echo "Placeholder del Paso 8, aqui ira kubectl apply para namespace qa"
+    - echo "Por ahora este job solo simula el despliegue para validar la logica del pipeline"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+deploy-production:
+  stage: deploy
+  image: alpine:latest
+  environment:
+    name: production
+    url: "https://app.buses.jalapa.gob.gt"
+  script:
+    - echo "Placeholder del Paso 8, aqui ira kubectl apply para namespace production"
+    - echo "Por ahora este job solo simula el despliegue para validar la logica del pipeline"
+  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
