@@ -1,0 +1,8 @@
+target/
+*.class
+.mvn/
+.idea/
+*.iml
+google-services.json
+*serviceAccount*.json
+.env
