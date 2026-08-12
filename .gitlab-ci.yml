@@ -17,7 +17,7 @@ npm-build:
     - npm run build
   artifacts:
     paths:
-      - build/
+      - dist/
     expire_in: 1 hour
   cache:
     key: "$CI_COMMIT_REF_SLUG"
@@ -29,7 +29,7 @@ npm-test:
   image: node:20-alpine
   script:
     - npm ci
-    - npm test -- --watchAll=false
+    - npm test
   cache:
     key: "$CI_COMMIT_REF_SLUG"
     paths:
@@ -46,6 +46,7 @@ deploy-qa:
     url: "https://qa-app.buses.jalapa.gob.gt"
   script:
     - echo "Placeholder del Paso 8, aqui ira kubectl apply para namespace qa"
+    - echo "Por ahora este job solo simula el despliegue para validar la logica del pipeline"
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
@@ -57,6 +58,7 @@ deploy-production:
     url: "https://app.buses.jalapa.gob.gt"
   script:
     - echo "Placeholder del Paso 8, aqui ira kubectl apply para namespace production"
+    - echo "Por ahora este job solo simula el despliegue para validar la logica del pipeline"
   when: manual
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
