@@ -68,191 +68,45 @@ Desde el monorepo, con `docker-compose.yml`:
 docker compose up --build
 ```
 
-Levanta PostgreSQL 17 con PostGIS y el backend. Flyway aplica las migraciones solo al arrancar.
+Levanta PostGIS y el backend en `http://localhost:8080`. Flyway aplica las migraciones al arrancar.
 
-Verificá que respondió:
-
-```bash
-curl http://localhost:8080/actuator/health
-# {"status":"UP"}
-```
-
-Ese es el único endpoint público mientras no esté integrado el login (HU-39). El resto responde
-401 — ver la sección de problemas comunes.
-
-### App web
+Sin Docker (requiere PostGIS local):
 
 ```bash
-cd app-movil-buses
-npm install
-npm run dev
+mvn spring-boot:run
 ```
 
-Abre `http://localhost:5173`. Apunta a `http://localhost:8080` por defecto.
+## Documentación de la API
 
-El servidor de desarrollo escucha en toda la red, así que podés abrirlo desde tu teléfono con la IP
-de tu máquina. Conviene: **el diseño es móvil primero**, la pantalla de referencia es un teléfono de
-360 px, no tu monitor.
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- Colección de Postman: `docs/postman/EcoRuta.postman_collection.json` (importar en Postman;
+  la variable `baseUrl` apunta a `http://localhost:8080`).
 
----
+## Endpoints principales
 
-## 4. Estructura
+| Método | Ruta | Acceso |
+|---|---|---|
+| `GET` | `/api/v1/rutas` | público |
+| `POST` | `/api/v1/demanda/registros` | público (UUID de dispositivo) |
+| `GET` | `/api/v1/demanda/estado` | público |
+| `POST` | `/api/v1/auth/login` | público |
+| `POST` | `/api/v1/telemetria/posiciones` | rol `CONDUCTOR` |
+| `GET` | `/api/v1/telemetria/posicion` | público |
+| `GET` | `/api/v1/telemetria/stream` | público (SSE) |
 
-### Monorepo
+## Configuración
 
-```
-docs/adr/           Decisiones de arquitectura. LEER ANTES DE CAMBIAR DISEÑO
-docs/postman/       Colección de pruebas de la API
-docs/PRUEBAS.md     Guía de pruebas manuales
-docker-compose.yml  Entorno de desarrollo completo
-```
+Por variables de entorno: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET`.
+El `JWT_SECRET` del compose es solo de desarrollo.
 
-### Backend (`api-buses-jalapa`)
+Reglas de negocio configurables en `application.yml`: `ecoruta.demanda.umbral-salida` (10),
+`ttl-minutos` (20), `geocerca-metros` (150).
 
-Monolito modular: un solo despliegue, un paquete por módulo de negocio, **un dev dueño por módulo**.
-
-```
-src/main/java/gt/muni/jalapa/ecoruta/
-  catalogo/        Rutas y paradas (PostGIS)
-  demanda/         Registro de pasajeros y contador hacia 10  <- corazón del producto
-  telemetria/      Ingesta GPS por lotes + SSE
-  identidad/       JWT para conductor y admin (los pasajeros son anónimos)
-  notificaciones/  Puerto de push (adaptador FCM pendiente)
-  config/          Security, OpenAPI
-  common/          Errores uniformes (ApiError)
-src/main/resources/db/migration/   Migraciones Flyway: el esquema vive AQUÍ
-```
-
-**Regla de propiedad: un módulo no toca los repositories de otro.** La comunicación entre módulos
-pasa por los services públicos.
-
-### App web (`app-movil-buses`)
-
-```
-src/core/          config, cliente HTTP, errores y tipos de la API
-src/componentes/   Layout, Cargando, MensajeError
-src/paginas/       Pantallas
-src/estilos/       tema.css (tokens, claro/oscuro), global.css
-public/config.js   URL del backend, editable SIN recompilar
-```
-
----
-
-## 5. Cómo trabajamos
-
-- **Una rama por historia**: `feature/hu-XX-nombre-corto`.
-- **`main` y `develop` están protegidas.** No se puede hacer push directo: se abre MR hacia
-  `develop` con al menos una revisión.
-- Commits con Conventional Commits, **en español**, cortos, con la clave de la historia entre
-  paréntesis: `feat: consulta de rutas y paradas (HU-35)`.
-- **Código y comentarios en español.** Nombres de clases, mensajes de error, documentación.
-- DTOs como `record` de Java; entidades con Lombok.
-- Todo error de la API sale por `GlobalExceptionHandler` con formato `ApiError`. No inventar
-  formatos nuevos.
-- Endpoints bajo `/api/v1/`, anotados con `@Tag` y `@Operation`.
-
----
-
-## 6. Reglas de negocio (no romper)
-
-1. **Umbral de salida: 10** registros activos (`ecoruta.demanda.umbral-salida`).
-2. **Geocerca de 150 m**: un registro solo vale si el dispositivo está a ≤150 m de la parada
-   (`ST_DWithin` sobre `geography`).
-3. **Un registro activo por dispositivo**: validado en el service **y** con índice único parcial en
-   la base.
-4. **TTL de 20 min**: un job expira los registros vencidos cada 60 s. Los expirados no cuentan.
-5. **Telemetría ordenada por el timestamp del dispositivo**, no por el de llegada. El equipo a bordo
-   acumula posiciones sin señal y las manda en lote. No "simplificar" esto a la hora del servidor:
-   rompe la reconstrucción de recorridos offline.
-
-**Coordenadas:** SRID 4326, orden `(lon, lat)` en PostGIS y JTS, pero los DTO exponen `latitud` y
-`longitud` con nombre. Invertirlas es el error clásico de este dominio.
-
----
-
-## 7. Pruebas
-
-Colección de Postman, con asserts automáticos:
+## Pruebas
 
 ```bash
-npx newman run docs/postman/EcoRuta.postman_collection.json \
-  --folder "Fase 1 — Levanta" \
-  --folder "Fase 2 — El contador (el corazon)" \
-  --folder "Fase 3 — Seguridad y telemetria"
+mvn test
 ```
 
-Dejá fuera la carpeta **Extras**: el request de SSE no cierra la conexión y bloquea al runner.
-
-Pruebas de integración del backend (Testcontainers, **requiere Docker corriendo**):
-
-```bash
-cd api-buses-jalapa && mvn verify
-```
-
-App web:
-
-```bash
-cd app-movil-buses && npm test
-```
-
-Los pasos manuales están en [`docs/PRUEBAS.md`](docs/PRUEBAS.md), con las particularidades de
-PowerShell en Windows.
-
----
-
-## 8. Problemas comunes
-
-**`cannot find symbol: log` o setters que no existen, al compilar el backend**
-Lombok no está procesando anotaciones. Pasa con JDK 23 o superior: esas versiones ignoran los
-procesadores que solo están en el classpath. El `pom.xml` ya lo resuelve declarando Lombok en
-`annotationProcessorPaths`. Si te aparece, tu rama no tiene ese `pom.xml` actualizado.
-
-**`Could not find a valid Docker environment` al correr `mvn verify`**
-Docker Desktop no está levantado. Las pruebas de integración usan Testcontainers con PostGIS real;
-no se puede usar H2 porque no soporta PostGIS.
-
-**Todo responde 401 menos `/actuator/health`**
-Es lo esperado hasta que se integre el login (HU-39). Spring Security protege todo por defecto.
-Para probar otro endpoint, usá el usuario `user` y la clave que aparece en el log de arranque:
-`Using generated security password: ...`. Cambia en cada arranque.
-
-**`You are not allowed to push code to protected branches`**
-`main` y `develop` están protegidas. Creá una rama `feature/hu-XX-...`, subila y abrí un MR.
-
-**El puerto 8080 ya está en uso**
-Otra instancia quedó corriendo. En Windows: `netstat -ano | findstr :8080` y después
-`taskkill /F /PID <pid>`.
-
-**`npm ci` falla por la versión de Node**
-Vite 7 pide Node 20.19+ o 22.12+. Actualizá Node.
-
-**Cambié la URL del backend en la app web y no toma efecto**
-No uses variables `VITE_*` para eso: se incrustan al compilar. La URL sale de `public/config.js` en
-tiempo de ejecución. Si ya compilaste, editá `dist/config.js` y recargá.
-
-**El emulador o el teléfono no alcanzan `localhost`**
-`localhost` es la máquina donde corre el navegador. Desde otro dispositivo usá la IP de tu máquina
-en la red local, y ajustá `apiUrl` en `config.js`.
-
----
-
-## 9. Estado actual
-
-Sprint 2. El backend está migrando del esqueleto de CI/CD al proyecto EcoRuta real: las historias
-HU-17 (proyecto base), HU-18 (esquema Flyway), HU-19 (errores uniformes) y HU-25 (documentación de
-la API) entran en estos días. Si clonás y no encontrás los módulos de negocio, es porque todavía no
-se mergearon.
-
-La app web tiene su esqueleto (HU-26). El mapa, el contador en pantalla y el registro llegan en los
-sprints siguientes.
-
-Fechas que condicionan todo: congelamiento de funciones el **15/09**, entrega en producción con
-usuarios reales el **31/10/2026**.
-
----
-
-## 10. Si algo no cuadra
-
-Este documento se prueba con gente que no participó del setup. Si seguiste los pasos y te
-trabaste, es un defecto acá: decile al dueño de HU-24 qué paso falló y qué esperabas. Es la forma
-en que se mantiene útil.
+Integración con Testcontainers e imagen `postgis/postgis:17-3.5` (requiere Docker en ejecución).
