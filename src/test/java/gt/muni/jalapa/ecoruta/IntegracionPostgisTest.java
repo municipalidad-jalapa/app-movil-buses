@@ -62,7 +62,7 @@ public abstract class IntegracionPostgisTest {
      * fuera hacia dentro para no violar las claves foraneas.
      */
     @BeforeEach
-    void limpiarDatosDePrueba() {
+    protected void limpiarDatosDePrueba() {
         jdbc.execute("TRUNCATE posiciones_historicas RESTART IDENTITY CASCADE");
         jdbc.execute("TRUNCATE registros_espera RESTART IDENTITY CASCADE");
         jdbc.execute("TRUNCATE equipos RESTART IDENTITY CASCADE");

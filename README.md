@@ -108,6 +108,34 @@ Las pruebas `*IT` corren con surefire, no con failsafe, porque el pipeline ejecu
 y no `mvn verify`. Están declaradas en los `includes` del plugin: si se quitan de ahí se
 compilan pero no se ejecutan, y el build sale verde igual.
 
+### Pruebas de aceptación en Gherkin
+
+Los criterios de aceptación de Jira están escritos como escenarios ejecutables en
+`src/test/resources/features/*.feature`, en español, con Cucumber. Cada escenario lleva la
+etiqueta de su historia (`@SCRUM-142`) y de su criterio (`@criterio-c`), así que la matriz de
+trazabilidad de HU-33 sale del propio código en vez de mantenerse a mano.
+
+```bash
+mvn test -Dtest=PruebasDeAceptacionTest          # solo los escenarios
+mvn test -Dcucumber.filter.tags="@criterio-c"    # solo un criterio
+```
+
+Deja dos reportes en `target/cucumber/`: `cucumber.xml`, que GitLab publica en el Merge Request
+con el nombre de cada escenario en español, y `reporte.html` para abrir en el navegador.
+
+Convenciones al escribir escenarios:
+
+- **Gherkin es para los criterios de aceptación, no para todo.** Si un escenario no se le puede
+  leer en voz alta al product owner, va como prueba JUnit. Lo técnico —el orden `(lat, lon)` de
+  PostGIS, el parseo del token— vive en `*Test`/`*IT`.
+- **Cuidado con los números.** Con `# language: es`, Cucumber interpreta `{double}` en locale
+  español, donde el punto es separador de **miles**: `14.6335` se convierte en `146335`. Por eso
+  los escenarios no llevan coordenadas.
+- El runner **debe** llamarse `*Test` o `*IT`, por los `includes` de surefire.
+- `@CucumberContextConfiguration` va en una sola clase, y hereda de `IntegracionPostgisTest`
+  para compartir el contenedor: si declarara sus propias anotaciones, Spring levantaría un
+  segundo contexto con un segundo PostGIS.
+
 Prueba manual del stream SSE con `curl` (pendiente de SCRUM-140):
 
 ```bash
