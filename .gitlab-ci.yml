@@ -22,6 +22,26 @@ maven-build:
 maven-test:
   stage: test
   image: maven:3.9-eclipse-temurin-21
+  # Las pruebas de integracion levantan PostGIS con Testcontainers (SCRUM-127):
+  # H2 no sirve porque no tiene PostGIS y medio dominio son columnas geometry.
+  # Sin este servicio el job no encuentra un daemon de Docker y todas fallan.
+  #
+  # Requiere un runner PRIVILEGIADO. Si el runner de la municipalidad no lo es,
+  # el plan B es etiquetar las pruebas de integracion con @Tag("integracion") y
+  # excluirlas con -Dgrupos.excluidos=integracion hasta que lo sea.
+  services:
+    - name: docker:27-dind
+      alias: docker
+      command: ["--tls=false"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    # El contenedor de Testcontainers vive en el dind, no en el job: sin esto
+    # las pruebas intentan conectarse a "localhost" y no encuentran nada.
+    TESTCONTAINERS_HOST_OVERRIDE: docker
+    # Ryuk (el recolector de contenedores) no alcanza al dind efimero, que se
+    # destruye completo al terminar el job.
+    TESTCONTAINERS_RYUK_DISABLED: "true"
   script:
     - mvn test
   artifacts:

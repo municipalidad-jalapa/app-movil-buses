@@ -170,6 +170,13 @@
           <systemPropertyVariables>
             <api.version>1.44</api.version>
           </systemPropertyVariables>
+          <!-- El pipeline corre "mvn test", no "mvn verify", asi que no hay
+               failsafe: las pruebas *IT tienen que correr aqui o no corren nunca.
+               Sin esto se compilan, no se ejecutan y el build sale verde igual. -->
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*IT.java</include>
+          </includes>
         </configuration>
       </plugin>
     </plugins>
