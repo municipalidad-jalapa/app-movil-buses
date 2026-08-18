@@ -588,8 +588,8 @@
                   "pm.test('201 creado', () => pm.response.to.have.status(201));",
                   "const r = pm.response.json();",
                   "pm.test('la credencial tiene el formato eq_<codigo>.<secreto>', () =>",
-                  "pm.test('queda atribuida al BUS-01', () => pm.expect(r.vehiculo).to.eql('BUS-01'));",
                   "    pm.expect(r.credencial).to.match(/^eq_[A-Za-z0-9_-]{12}\\.[A-Za-z0-9_-]{43}$/));",
+                  "pm.test('queda atribuida al BUS-01', () => pm.expect(r.vehiculo).to.eql('BUS-01'));",
                   "pm.collectionVariables.set('equipoToken', r.credencial);",
                   "pm.collectionVariables.set('equipoId', r.id);"
                 ]
