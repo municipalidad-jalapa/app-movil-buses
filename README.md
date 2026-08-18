@@ -134,8 +134,9 @@ etiqueta de su historia (`@SCRUM-142`) y de su criterio (`@criterio-c`), así qu
 trazabilidad de HU-33 sale del propio código en vez de mantenerse a mano.
 
 ```bash
-mvn test -Dtest=PruebasDeAceptacionTest          # solo los escenarios
-mvn test -Dcucumber.filter.tags="@criterio-c"    # solo un criterio
+mvn test -Dtest=PruebasDeAceptacionTest              # solo los escenarios
+mvn test -Dcucumber.filter.tags="@SCRUM-143"         # solo los de una historia
+mvn test -Dcucumber.filter.tags="@criterio-c"        # solo los de un criterio
 ```
 
 Deja dos reportes en `target/cucumber/`: `cucumber.xml`, que GitLab publica en el Merge Request

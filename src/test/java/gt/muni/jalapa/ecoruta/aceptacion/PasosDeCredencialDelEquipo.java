@@ -1,6 +1,8 @@
 package gt.muni.jalapa.ecoruta.aceptacion;
 
+import gt.muni.jalapa.ecoruta.flota.dominio.Vehiculo;
 import gt.muni.jalapa.ecoruta.flota.servicio.AltaDeEquipo;
+import gt.muni.jalapa.ecoruta.flota.repositorio.VehiculoRepository;
 import gt.muni.jalapa.ecoruta.flota.servicio.EquipoService;
 import io.cucumber.java.es.Cuando;
 import io.cucumber.java.es.Dado;
@@ -49,6 +51,9 @@ public class PasosDeCredencialDelEquipo {
     private EquipoService equipoService;
 
     @Autowired
+    private VehiculoRepository vehiculos;
+
+    @Autowired
     private ContextoDelEscenario contexto;
 
     @Autowired
@@ -58,12 +63,18 @@ public class PasosDeCredencialDelEquipo {
 
     @Dado("un equipo {string} con credencial vigente")
     public void un_equipo_con_credencial_vigente(String etiqueta) {
-        contexto.registrarEquipo(equipoService.emitir(etiqueta));
+        contexto.registrarEquipo(equipoService.emitir(busPiloto(), etiqueta));
     }
 
+    /** Va en otro bus: un vehiculo no admite dos equipos activos a la vez. */
     @Dado("otro equipo {string} con credencial vigente")
     public void otro_equipo_con_credencial_vigente(String etiqueta) {
-        contexto.registrarEquipo(equipoService.emitir(etiqueta));
+        Long otroBus = vehiculos.save(new Vehiculo("BUS-02", "P-222DDD")).getId();
+        contexto.registrarEquipo(equipoService.emitir(otroBus, etiqueta));
+    }
+
+    private Long busPiloto() {
+        return vehiculos.findByIdentificador("BUS-01").orElseThrow().getId();
     }
 
     @Dado("el equipo ya reportó su posición correctamente")
@@ -79,7 +90,8 @@ public class PasosDeCredencialDelEquipo {
         contexto.guardarRespuesta(mockMvc.perform(post("/api/v1/admin/equipos")
                 .header("X-Admin-Token", ADMIN)
                 .contentType(APPLICATION_JSON)
-                .content("{\"etiqueta\": \"%s\"}".formatted(etiqueta))));
+                .content("{\"vehiculoId\": %d, \"etiqueta\": \"%s\"}"
+                        .formatted(busPiloto(), etiqueta))));
     }
 
     @Cuando("el equipo reporta su posición")
