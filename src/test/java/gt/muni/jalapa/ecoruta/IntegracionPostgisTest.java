@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -19,7 +20,14 @@ import org.testcontainers.utility.DockerImageName;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+// El token de admin se declara aqui y no en cada clase para que toda la suite
+// comparta un solo contexto de Spring: una propiedad distinta obligaria a
+// levantar otro, y arrancar el contexto es lo caro de estas pruebas.
+@TestPropertySource(properties = "ecoruta.admin.bootstrap-token=" + IntegracionPostgisTest.ADMIN)
 public abstract class IntegracionPostgisTest {
+
+    /** Mecanismo provisional de SCRUM-142 - TODO(SCRUM-134). */
+    public static final String ADMIN = "token-de-pruebas-con-mas-de-32-caracteres";
 
     /**
      * Contenedor SINGLETON: se arranca una sola vez para toda la suite y lo apaga
