@@ -1,4 +1,4 @@
-package gt.gob.jalapa.buses.config;
+package gt.muni.jalapa.ecoruta.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
