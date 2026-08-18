@@ -58,13 +58,16 @@ public abstract class IntegracionPostgisTest {
      * Deja la base como la dejo Flyway. No se tocan las tablas sembradas por las
      * migraciones: las pruebas cuentan con esos datos.
      *
-     * <p>El orden importa: las posiciones apuntan a equipos, asi que se borra de
-     * fuera hacia dentro para no violar las claves foraneas.
+     * <p>El orden importa: las posiciones apuntan a equipos y los equipos a
+     * vehiculos, asi que se borra de fuera hacia dentro para no violar las claves
+     * foraneas. El BUS-01 que siembra V5 se queda; los vehiculos que cree una
+     * prueba se van.
      */
     @BeforeEach
     protected void limpiarDatosDePrueba() {
         jdbc.execute("TRUNCATE posiciones_historicas RESTART IDENTITY CASCADE");
         jdbc.execute("TRUNCATE registros_espera RESTART IDENTITY CASCADE");
         jdbc.execute("TRUNCATE equipos RESTART IDENTITY CASCADE");
+        jdbc.update("DELETE FROM vehiculos WHERE identificador <> 'BUS-01'");
     }
 }

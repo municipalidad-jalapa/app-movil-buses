@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Telemetria", description = "Ingesta y consulta de la posicion del bus")
@@ -41,7 +42,7 @@ public class TelemetriaController {
                     juntas, posiblemente desordenadas. Se responde 202 aunque alguna se
                     descarte por tener el reloj fuera de la ventana de mas/menos 12 h.
 
-                    Ya no interviene ningun rol de persona: basta la credencial del equipo.""")
+                    El vehiculo al que se atribuyen sale de la credencial, no del cuerpo.""")
     @SecurityRequirement(name = "credencialEquipo")
     @ApiResponses({
             @ApiResponse(responseCode = "202", description = "Lote aceptado"),
@@ -50,6 +51,8 @@ public class TelemetriaController {
             @ApiResponse(responseCode = "401",
                     description = "Credencial ausente, invalida o revocada",
                     content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "422", description = "El equipo no tiene vehiculo asignado",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     @PostMapping("/posiciones")
     public ResponseEntity<LoteAceptadoResponse> ingestar(
@@ -61,14 +64,18 @@ public class TelemetriaController {
     }
 
     @Operation(summary = "Ultima posicion conocida del bus",
-            description = "Publico. Responde 204 mientras no haya llegado ninguna posicion.")
+            description = """
+                    Publico. Responde 204 mientras no haya llegado ninguna posicion.
+                    Sin vehiculoId devuelve la mas reciente de la flota.""")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Posicion vigente"),
             @ApiResponse(responseCode = "204", description = "Todavia no hay ninguna posicion")
     })
     @GetMapping("/posicion")
-    public ResponseEntity<PosicionActualResponse> posicionVigente() {
-        return telemetriaService.posicionVigente()
+    public ResponseEntity<PosicionActualResponse> posicionVigente(
+            @RequestParam(required = false) Long vehiculoId) {
+
+        return telemetriaService.posicionVigente(vehiculoId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
     }

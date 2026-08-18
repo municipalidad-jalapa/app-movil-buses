@@ -1,6 +1,7 @@
 package gt.muni.jalapa.ecoruta.telemetria.servicio;
 
 import gt.muni.jalapa.ecoruta.common.RecursoNoEncontradoException;
+import gt.muni.jalapa.ecoruta.common.ReglaDeNegocioException;
 import gt.muni.jalapa.ecoruta.flota.dominio.Equipo;
 import gt.muni.jalapa.ecoruta.flota.repositorio.EquipoRepository;
 import gt.muni.jalapa.ecoruta.flota.servicio.EquipoAutenticado;
@@ -36,6 +37,9 @@ public class TelemetriaService {
     /**
      * Recibe un lote de posiciones de un equipo ya autenticado.
      *
+     * <p>El vehiculo sale del principal, nunca del cuerpo: por eso un equipo no
+     * puede reportar posiciones a nombre de otro bus.
+     *
      * <p>Las lecturas con el reloj fuera de la ventana de tolerancia se descartan
      * en silencio y el lote se acepta igual. Rechazar el lote entero no ayudaria:
      * el equipo no puede corregir su reloj a partir del rechazo y reintentaria en
@@ -44,6 +48,11 @@ public class TelemetriaService {
     @Transactional
     public LoteAceptadoResponse ingestar(EquipoAutenticado autenticado,
                                          List<PosicionRequest> lote) {
+        if (!autenticado.tieneVehiculoAsignado()) {
+            throw new ReglaDeNegocioException(
+                    "El equipo no tiene un vehiculo asignado: no se puede atribuir la posicion.");
+        }
+
         Equipo equipo = equipos.findById(autenticado.equipoId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Equipo", autenticado.equipoId()));
         Instant ahora = Instant.now();
@@ -62,31 +71,39 @@ public class TelemetriaService {
                 Geo.punto(posicion.latitud(), posicion.longitud()),
                 posicion.velocidadKmh(),
                 posicion.timestamp(),
-                equipo)));
+                equipo,
+                equipo.getVehiculo())));
 
         equipo.setUltimoUsoEn(ahora);
 
         // La posicion vigente es la de timestamp mas reciente del lote, no la
         // ultima del array: un lote acumulado sin cobertura llega desordenado.
-        if (!aceptables.isEmpty()) {
-            aceptables.stream().max(Comparator.comparing(PosicionRequest::timestamp))
-                    .flatMap(masReciente -> posiciones.findFirstByOrderByRegistradoEnDescIdDesc())
-                    .ifPresent(vigente -> eventos.publishEvent(new PosicionVigenteActualizada(vigente)));
-        }
+        aceptables.stream()
+                .max(Comparator.comparing(PosicionRequest::timestamp))
+                .flatMap(masReciente -> posiciones
+                        .findFirstByVehiculoIdOrderByRegistradoEnDescIdDesc(autenticado.vehiculoId()))
+                .ifPresent(vigente -> eventos.publishEvent(new PosicionVigenteActualizada(vigente)));
 
         return new LoteAceptadoResponse(lote.size(), aceptables.size(), descartadas);
     }
 
     /** Simetrica, tal como la fija SCRUM-138. */
     private boolean dentroDeLaVentana(Instant registradoEn, Instant ahora) {
-        return Duration.between(registradoEn, ahora).abs()
-                .compareTo(propiedades.ventana()) <= 0;
+        Duration desfase = Duration.between(registradoEn, ahora).abs();
+        return desfase.compareTo(propiedades.ventana()) <= 0;
     }
 
     @Transactional(readOnly = true)
-    public Optional<PosicionActualResponse> posicionVigente() {
-        // El DTO se arma aqui dentro: open-in-view esta en false.
-        return posiciones.findFirstByOrderByRegistradoEnDescIdDesc()
-                .map(PosicionActualResponse::de);
+    public Optional<PosicionActualResponse> posicionVigente(Long vehiculoId) {
+        Optional<PosicionHistorica> vigente = vehiculoId == null
+                ? posiciones.findFirstByOrderByRegistradoEnDescIdDesc()
+                : posiciones.findFirstByVehiculoIdOrderByRegistradoEnDescIdDesc(vehiculoId);
+
+        // El DTO se arma aqui dentro: open-in-view esta en false y el vehiculo es
+        // una relacion LAZY que fuera de la transaccion ya no se puede navegar.
+        return vigente.map(posicion -> PosicionActualResponse.de(posicion,
+                posicion.getVehiculo() != null
+                        ? posicion.getVehiculo().getIdentificador()
+                        : null));
     }
 }

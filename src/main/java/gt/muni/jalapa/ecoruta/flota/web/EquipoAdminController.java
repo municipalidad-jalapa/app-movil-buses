@@ -1,12 +1,16 @@
 package gt.muni.jalapa.ecoruta.flota.web;
 
+import gt.muni.jalapa.ecoruta.common.ApiError;
 import gt.muni.jalapa.ecoruta.flota.servicio.AltaDeEquipo;
 import gt.muni.jalapa.ecoruta.flota.servicio.EquipoService;
 import gt.muni.jalapa.ecoruta.flota.web.dto.EmitirEquipoRequest;
 import gt.muni.jalapa.ecoruta.flota.web.dto.EquipoCreadoResponse;
 import gt.muni.jalapa.ecoruta.flota.web.dto.EquipoResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +41,15 @@ public class EquipoAdminController {
 
                     El mecanismo de autenticacion de administradores es provisional
                     hasta SCRUM-134 (Firebase).""")
-    @ApiResponse(responseCode = "201", description = "Credencial emitida")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Credencial emitida"),
+            @ApiResponse(responseCode = "422",
+                    description = "El vehiculo ya tiene un equipo activo",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
     @PostMapping
     public ResponseEntity<EquipoCreadoResponse> emitir(@Valid @RequestBody EmitirEquipoRequest peticion) {
-        AltaDeEquipo alta = equipoService.emitir(peticion.etiqueta());
+        AltaDeEquipo alta = equipoService.emitir(peticion.vehiculoId(), peticion.etiqueta());
         return ResponseEntity.status(HttpStatus.CREATED).body(EquipoCreadoResponse.de(alta));
     }
 

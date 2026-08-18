@@ -2,6 +2,7 @@ package gt.muni.jalapa.ecoruta.seguridad;
 
 import gt.muni.jalapa.ecoruta.IntegracionPostgisTest;
 import gt.muni.jalapa.ecoruta.flota.servicio.AltaDeEquipo;
+import gt.muni.jalapa.ecoruta.flota.repositorio.VehiculoRepository;
 import gt.muni.jalapa.ecoruta.flota.servicio.EquipoService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,8 +30,12 @@ class SecretoNoSeFiltraIT extends IntegracionPostgisTest {
     @Autowired
     private EquipoService equipoService;
 
+    @Autowired
+    private VehiculoRepository vehiculos;
+
     private AltaDeEquipo emitir() {
-        return equipoService.emitir("Tableta de pruebas");
+        Long bus = vehiculos.findByIdentificador("BUS-01").orElseThrow().getId();
+        return equipoService.emitir(bus, "Tableta de pruebas");
     }
 
     @Test

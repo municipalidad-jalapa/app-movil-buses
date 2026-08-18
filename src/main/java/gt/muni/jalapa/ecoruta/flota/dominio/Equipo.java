@@ -4,9 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,6 +65,11 @@ public class Equipo {
     @ToString.Include
     private String etiqueta;
 
+    /** El bus en el que va montado. NULL = en bodega, sin asignar (SCRUM-143). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehiculo_id")
+    private Vehiculo vehiculo;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false, length = 20)
     @ToString.Include
@@ -77,10 +85,11 @@ public class Equipo {
     @Column(name = "ultimo_uso_en")
     private Instant ultimoUsoEn;
 
-    public Equipo(String codigoPublico, String secretoHash, String etiqueta) {
+    public Equipo(String codigoPublico, String secretoHash, String etiqueta, Vehiculo vehiculo) {
         this.codigoPublico = codigoPublico;
         this.secretoHash = secretoHash;
         this.etiqueta = etiqueta;
+        this.vehiculo = vehiculo;
     }
 
     public boolean estaActivo() {

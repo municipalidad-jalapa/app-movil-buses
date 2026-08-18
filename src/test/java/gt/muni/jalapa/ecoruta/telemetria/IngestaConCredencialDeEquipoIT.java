@@ -2,6 +2,7 @@ package gt.muni.jalapa.ecoruta.telemetria;
 
 import gt.muni.jalapa.ecoruta.IntegracionPostgisTest;
 import gt.muni.jalapa.ecoruta.flota.servicio.AltaDeEquipo;
+import gt.muni.jalapa.ecoruta.flota.repositorio.VehiculoRepository;
 import gt.muni.jalapa.ecoruta.flota.servicio.EquipoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,15 @@ class IngestaConCredencialDeEquipoIT extends IntegracionPostgisTest {
     @Autowired
     private EquipoService equipoService;
 
+    @Autowired
+    private VehiculoRepository vehiculos;
+
+    private Long busPiloto() {
+        return vehiculos.findByIdentificador("BUS-01").orElseThrow().getId();
+    }
+
     private AltaDeEquipo emitir() {
-        return equipoService.emitir("Tableta de pruebas");
+        return equipoService.emitir(busPiloto(), "Tableta de pruebas");
     }
 
     private static String bearer(AltaDeEquipo alta) {
@@ -53,6 +61,9 @@ class IngestaConCredencialDeEquipoIT extends IntegracionPostgisTest {
         assertThat(jdbc.queryForObject(
                 "SELECT equipo_id FROM posiciones_historicas", Long.class))
                 .isEqualTo(equipo.equipoId());
+        assertThat(jdbc.queryForObject(
+                "SELECT vehiculo_id FROM posiciones_historicas", Long.class))
+                .isEqualTo(busPiloto());
     }
 
     @Test
@@ -143,7 +154,9 @@ class IngestaConCredencialDeEquipoIT extends IntegracionPostgisTest {
     void revocar_un_equipo_no_corta_a_los_demas() throws Exception {
         // "poder revocar un solo equipo" del enunciado de la historia.
         AltaDeEquipo uno = emitir();
-        AltaDeEquipo otro = equipoService.emitir("Tableta 2");
+        Long otroBus = vehiculos.save(new gt.muni.jalapa.ecoruta.flota.dominio.Vehiculo(
+                "BUS-96", "P-966XXX")).getId();
+        AltaDeEquipo otro = equipoService.emitir(otroBus, "Tableta 2");
 
         mockMvc.perform(post("/api/v1/admin/equipos/" + uno.equipoId() + "/revocacion")
                         .header("X-Admin-Token", ADMIN))
