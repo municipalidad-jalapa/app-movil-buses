@@ -34,7 +34,7 @@ mvn spring-boot:run
 | `POST` | `/api/v1/auth/login` | público — *pendiente, SCRUM-134 (Firebase)* |
 | `POST` | `/api/v1/telemetria/posiciones` | **credencial de equipo** (`Authorization: Bearer eq_…`) |
 | `GET` | `/api/v1/telemetria/posicion` | público |
-| `GET` | `/api/v1/telemetria/stream` | público (SSE) — *pendiente, SCRUM-140* |
+| `GET` | `/api/v1/telemetria/stream` | público (SSE) |
 | `POST` `GET` | `/api/v1/admin/vehiculos` | `ROLE_ADMIN` |
 | `POST` | `/api/v1/admin/vehiculos/{id}/equipos` | `ROLE_ADMIN` — cambia el equipo del bus |
 | `POST` `GET` | `/api/v1/admin/equipos` | `ROLE_ADMIN` |
@@ -100,6 +100,41 @@ Consultar la posición de un vehículo concreto: `GET /api/v1/telemetria/posicio
 > La credencial solo es confidencial sobre TLS. En producción el proxy inverso termina HTTPS
 > (ADR-006); en desarrollo local viaja en claro.
 
+## Ver el bus moverse en tiempo real
+
+El stream empuja cada posición apenas se ingesta, sin que el cliente pregunte (ADR-008). Al
+conectarse recibe de inmediato la posición vigente, para que el mapa no arranque en blanco.
+
+En una terminal, quedarse escuchando:
+
+```bash
+curl -N localhost:8080/api/v1/telemetria/stream
+```
+
+En otra, ingestar una posición (ver "Provisionar un equipo a bordo" para obtener `$CRED`). En la
+primera terminal aparece al instante:
+
+```
+id:1
+event:posicion
+retry:3000
+data:{"latitud":14.6335,"longitud":-89.9885,"velocidadKmh":18.0,...,"vehiculo":"BUS-01"}
+```
+
+Dejándola abierta sin ingestar nada, cada 25 s llega un `:latido`. Es un comentario SSE que el
+navegador ignora; existe porque Nginx cierra las conexiones inactivas a los 60 s y con el bus
+parado en la terminal no habría nada que difundir.
+
+Desde el navegador son tres líneas, sin librerías:
+
+```js
+const stream = new EventSource('/api/v1/telemetria/stream');
+stream.addEventListener('posicion', e => moverMarcador(JSON.parse(e.data)));
+```
+
+`EventSource` reconecta solo si se corta la conexión, que es la razón por la que ADR-008 eligió
+SSE sobre WebSocket.
+
 ## Configuración
 
 Por variables de entorno: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET`,
@@ -154,9 +189,3 @@ Convenciones al escribir escenarios:
 - `@CucumberContextConfiguration` va en una sola clase, y hereda de `IntegracionPostgisTest`
   para compartir el contenedor: si declarara sus propias anotaciones, Spring levantaría un
   segundo contexto con un segundo PostGIS.
-
-Prueba manual del stream SSE con `curl` (pendiente de SCRUM-140):
-
-```bash
-curl -N localhost:8080/api/v1/telemetria/stream
-```
