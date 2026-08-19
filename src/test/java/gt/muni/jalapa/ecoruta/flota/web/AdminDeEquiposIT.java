@@ -20,7 +20,7 @@ class AdminDeEquiposIT extends IntegracionPostgisTest {
         mockMvc.perform(post("/api/v1/admin/equipos")
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                {"etiqueta": "Tableta"}"""))
+                                {"vehiculoId": 1, "etiqueta": "Tableta"}"""))
                 .andExpect(status().isUnauthorized())
                 // Mismo formato ApiError que el resto de la API (SCRUM-114), pese a
                 // que este 401 lo decide un filtro y no el @RestControllerAdvice.
@@ -37,7 +37,7 @@ class AdminDeEquiposIT extends IntegracionPostgisTest {
                         .header(AdminBootstrapFilter.CABECERA, "token-que-no-es-el-bueno-pero-largo")
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                {"etiqueta": "Tableta"}"""))
+                                {"vehiculoId": 1, "etiqueta": "Tableta"}"""))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -47,7 +47,7 @@ class AdminDeEquiposIT extends IntegracionPostgisTest {
                         .header(AdminBootstrapFilter.CABECERA, ADMIN)
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                {"etiqueta": "Tableta cabina 1"}"""))
+                                {"vehiculoId": 1, "etiqueta": "Tableta cabina 1"}"""))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.credencial")
                         .value(matchesPattern("^eq_[A-Za-z0-9_-]{12}\\.[A-Za-z0-9_-]{43}$")))
@@ -73,7 +73,8 @@ class AdminDeEquiposIT extends IntegracionPostgisTest {
         mockMvc.perform(post("/api/v1/admin/equipos")
                         .header(AdminBootstrapFilter.CABECERA, ADMIN)
                         .contentType(APPLICATION_JSON)
-                        .content("{}"))
+                        .content("""
+                                {"vehiculoId": 1}"""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("etiqueta")));

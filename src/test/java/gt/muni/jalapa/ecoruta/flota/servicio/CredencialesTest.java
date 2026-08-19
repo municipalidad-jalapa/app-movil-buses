@@ -3,6 +3,7 @@ package gt.muni.jalapa.ecoruta.flota.servicio;
 import gt.muni.jalapa.ecoruta.IntegracionPostgisTest;
 import gt.muni.jalapa.ecoruta.flota.dominio.EstadoEquipo;
 import gt.muni.jalapa.ecoruta.flota.repositorio.EquipoRepository;
+import gt.muni.jalapa.ecoruta.flota.repositorio.VehiculoRepository;
 import gt.muni.jalapa.ecoruta.flota.seguridad.TokenDeEquipo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,13 @@ class CredencialesTest extends IntegracionPostgisTest {
 
     @Autowired
     private EquipoRepository equipos;
+
+    @Autowired
+    private VehiculoRepository vehiculos;
+
+    private Long busPiloto() {
+        return vehiculos.findByIdentificador("BUS-01").orElseThrow().getId();
+    }
 
     @Test
     void la_credencial_generada_calza_con_el_formato_publicado() {
@@ -55,7 +63,7 @@ class CredencialesTest extends IntegracionPostgisTest {
 
     @Test
     void el_secreto_en_claro_no_se_guarda_en_la_base() {
-        CredencialEmitida credencial = equipoService.emitir("Tableta de prueba").credencial();
+        CredencialEmitida credencial = equipoService.emitir(busPiloto(), "Tableta de prueba").credencial();
 
         String hashGuardado = equipos.findByCodigoPublico(credencial.codigoPublico())
                 .orElseThrow().getSecretoHash();
@@ -67,7 +75,7 @@ class CredencialesTest extends IntegracionPostgisTest {
 
     @Test
     void una_credencial_recien_emitida_autentica() {
-        CredencialEmitida credencial = equipoService.emitir("Tableta").credencial();
+        CredencialEmitida credencial = equipoService.emitir(busPiloto(), "Tableta").credencial();
 
         assertThat(equipoService.autenticar(tokenDe(credencial)))
                 .get()
@@ -77,7 +85,7 @@ class CredencialesTest extends IntegracionPostgisTest {
 
     @Test
     void un_codigo_valido_con_el_secreto_de_otro_no_autentica() {
-        CredencialEmitida buena = equipoService.emitir("Tableta").credencial();
+        CredencialEmitida buena = equipoService.emitir(busPiloto(), "Tableta").credencial();
         CredencialEmitida otra = generador.generar();
 
         assertThat(equipoService.autenticar(
@@ -92,7 +100,7 @@ class CredencialesTest extends IntegracionPostgisTest {
     @Test
     void una_credencial_revocada_deja_de_autenticar_de_inmediato() {
         // Criterio (c) de SCRUM-142, sin reiniciar contexto ni esperar expiracion.
-        AltaDeEquipo alta = equipoService.emitir("Tableta");
+        AltaDeEquipo alta = equipoService.emitir(busPiloto(), "Tableta");
         TokenDeEquipo token = tokenDe(alta.credencial());
 
         assertThat(equipoService.autenticar(token)).isPresent();
@@ -107,8 +115,10 @@ class CredencialesTest extends IntegracionPostgisTest {
     @Test
     void revocar_un_equipo_no_afecta_a_los_demas() {
         // "poder revocar un solo equipo" del enunciado de la historia.
-        AltaDeEquipo uno = equipoService.emitir("Tableta 1");
-        AltaDeEquipo otro = equipoService.emitir("Tableta 2");
+        AltaDeEquipo uno = equipoService.emitir(busPiloto(), "Tableta 1");
+        Long otroBus = vehiculos.save(new gt.muni.jalapa.ecoruta.flota.dominio.Vehiculo(
+                "BUS-97", "P-977XXX")).getId();
+        AltaDeEquipo otro = equipoService.emitir(otroBus, "Tableta 2");
 
         equipoService.revocar(uno.equipoId());
 
@@ -148,7 +158,7 @@ class CredencialesTest extends IntegracionPostgisTest {
     }
 
     @Test
-    void v4_no_sembro_ninguna_credencial() {
+    void las_migraciones_no_sembraron_ninguna_credencial() {
         // Sembrarla obligaria a publicar una credencial valida en git.
         assertThat(jdbc.queryForObject("SELECT count(*) FROM equipos", Long.class)).isZero();
     }

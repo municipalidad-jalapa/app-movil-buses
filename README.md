@@ -35,6 +35,8 @@ mvn spring-boot:run
 | `POST` | `/api/v1/telemetria/posiciones` | **credencial de equipo** (`Authorization: Bearer eq_…`) |
 | `GET` | `/api/v1/telemetria/posicion` | público |
 | `GET` | `/api/v1/telemetria/stream` | público (SSE) — *pendiente, SCRUM-140* |
+| `POST` `GET` | `/api/v1/admin/vehiculos` | `ROLE_ADMIN` |
+| `POST` | `/api/v1/admin/vehiculos/{id}/equipos` | `ROLE_ADMIN` — cambia el equipo del bus |
 | `POST` `GET` | `/api/v1/admin/equipos` | `ROLE_ADMIN` |
 | `POST` | `/api/v1/admin/equipos/{id}/revocacion` | `ROLE_ADMIN` |
 
@@ -48,13 +50,13 @@ revocar un solo equipo sin afectar a los demás.
 curl -X POST localhost:8080/api/v1/admin/equipos \
      -H "X-Admin-Token: $ECORUTA_ADMIN_TOKEN" \
      -H 'Content-Type: application/json' \
-     -d '{"etiqueta": "Tableta cabina 1"}'
+     -d '{"vehiculoId": 1, "etiqueta": "Tableta cabina BUS-01"}'
 ```
 
 ```json
 {"id":1,"codigoPublico":"eq_Uiay5Tc2kAB9",
  "credencial":"eq_Uiay5Tc2kAB9.gS1beUuHqfCxaNTVaCDDV2USfqkrU38y-RgtBI8pQZM",
- "etiqueta":"Tableta cabina 1"}
+ "etiqueta":"Tableta cabina BUS-01","vehiculo":"BUS-01"}
 ```
 
 **La credencial se muestra una sola vez.** En la base solo queda su hash bcrypt: no se puede
@@ -78,6 +80,22 @@ Revocar corta el acceso en la petición siguiente, sin esperar ninguna expiraci�
 ```bash
 curl -X POST localhost:8080/api/v1/admin/equipos/1/revocacion -H "X-Admin-Token: $ECORUTA_ADMIN_TOKEN"
 ```
+
+## Cambiar el equipo de un bus
+
+Cambiar el aparato físico es un trámite de datos, no una migración (SCRUM-143). Revoca el
+equipo activo y emite otro en una sola transacción, **sin perder el histórico del vehículo**:
+las posiciones ya escritas siguen atribuidas a ese bus.
+
+```bash
+curl -X POST localhost:8080/api/v1/admin/vehiculos/1/equipos \
+     -H "X-Admin-Token: $ECORUTA_ADMIN_TOKEN" \
+     -H 'Content-Type: application/json' \
+     -d '{"etiqueta": "Tableta de repuesto"}'
+```
+
+Un bus lleva un solo equipo activo a la vez, garantizado por un índice único parcial en la base.
+Consultar la posición de un vehículo concreto: `GET /api/v1/telemetria/posicion?vehiculoId=1`.
 
 > La credencial solo es confidencial sobre TLS. En producción el proxy inverso termina HTTPS
 > (ADR-006); en desarrollo local viaja en claro.
@@ -116,8 +134,9 @@ etiqueta de su historia (`@SCRUM-142`) y de su criterio (`@criterio-c`), así qu
 trazabilidad de HU-33 sale del propio código en vez de mantenerse a mano.
 
 ```bash
-mvn test -Dtest=PruebasDeAceptacionTest          # solo los escenarios
-mvn test -Dcucumber.filter.tags="@criterio-c"    # solo un criterio
+mvn test -Dtest=PruebasDeAceptacionTest              # solo los escenarios
+mvn test -Dcucumber.filter.tags="@SCRUM-143"         # solo los de una historia
+mvn test -Dcucumber.filter.tags="@criterio-c"        # solo los de un criterio
 ```
 
 Deja dos reportes en `target/cucumber/`: `cucumber.xml`, que GitLab publica en el Merge Request

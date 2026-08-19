@@ -1,6 +1,7 @@
 package gt.muni.jalapa.ecoruta.telemetria.dominio;
 
 import gt.muni.jalapa.ecoruta.flota.dominio.Equipo;
+import gt.muni.jalapa.ecoruta.flota.dominio.Vehiculo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,7 +20,13 @@ import org.locationtech.jts.geom.Point;
 
 import java.time.Instant;
 
-/** Una lectura de GPS ya persistida, con el equipo que la envio. */
+/**
+ * Una lectura de GPS ya persistida.
+ *
+ * <p>{@code vehiculo} es la atribucion duradera y se congela al insertar: por eso
+ * cambiar el equipo del bus no pierde su historial (SCRUM-143). {@code equipo}
+ * queda como dato forense de que aparato la envio, nunca como llave de consulta.
+ */
 @Entity
 @Table(name = "posiciones_historicas")
 @Getter
@@ -50,11 +57,16 @@ public class PosicionHistorica {
     @JoinColumn(name = "equipo_id")
     private Equipo equipo;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehiculo_id")
+    private Vehiculo vehiculo;
+
     public PosicionHistorica(Point ubicacion, Double velocidadKmh, Instant registradoEn,
-                             Equipo equipo) {
+                             Equipo equipo, Vehiculo vehiculo) {
         this.ubicacion = ubicacion;
         this.velocidadKmh = velocidadKmh;
         this.registradoEn = registradoEn;
         this.equipo = equipo;
+        this.vehiculo = vehiculo;
     }
 }

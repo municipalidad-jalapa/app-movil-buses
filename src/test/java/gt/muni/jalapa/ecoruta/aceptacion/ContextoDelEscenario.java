@@ -21,9 +21,21 @@ public class ContextoDelEscenario {
     private final List<AltaDeEquipo> equipos = new ArrayList<>();
     private ResultActions ultimaRespuesta;
 
+    /** Credencial de un equipo emitido por la API, no por el servicio (SCRUM-143). */
+    private String credencialCruda;
+
     public void reiniciar() {
         equipos.clear();
         ultimaRespuesta = null;
+        credencialCruda = null;
+    }
+
+    public void guardarCredencialCruda(String credencial) {
+        this.credencialCruda = credencial;
+    }
+
+    public String credencialCruda() {
+        return credencialCruda;
     }
 
     public void registrarEquipo(AltaDeEquipo alta) {

@@ -46,8 +46,10 @@ Rotar una credencial es revocar la fila vieja e insertar una nueva, nunca reescr
 Así la tabla `equipos` conserva el rastro de cada aparato que existió, y cada posición guarda el
 `equipo_id` que la envió.
 
-El vínculo entre un equipo y el vehículo en el que va montado es alcance de **SCRUM-143 (HU-48)**,
-que se apoya en esta decisión sin modificarla.
+El vínculo entre un equipo y el vehículo en el que va montado lo añade **SCRUM-143 (HU-48)** sobre
+esta decisión: un vehículo tiene un solo equipo activo, garantizado por un índice único parcial, y
+las posiciones se atribuyen al **vehículo**, congelado en el INSERT. Como rotar es revocar y crear,
+la tabla `equipos` es además el historial de qué aparato llevó cada bus, sin una segunda tabla.
 
 ## Consecuencias
 + La ingesta deja de depender de la sesión de una persona: el bus reporta aunque nadie haya
@@ -61,6 +63,9 @@ que se apoya en esta decisión sin modificarla.
   caché de credenciales**: sería exactamente lo que el criterio de revocación prohíbe.
 - El secreto es irrecuperable. Perderlo obliga a revocar y emitir de nuevo. Es intencional.
 - El token solo es confidencial sobre TLS. En producción lo termina el proxy inverso (ADR-009).
+- Con SCRUM-143 encima, no hay ventana de gracia para cambiar de equipo: el índice único parcial
+  impide dos activos en un mismo bus. Si en campo hiciera falta instalar y verificar la tableta
+  nueva antes de quitar la vieja, ese índice tiene que cambiar.
 
 ## Alternativas descartadas
 - **Reutilizar el JWT de personas.** Acopla la identidad de una máquina a la de un humano, que es
