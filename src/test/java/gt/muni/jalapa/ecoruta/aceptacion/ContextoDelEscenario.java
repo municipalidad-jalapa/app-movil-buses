@@ -2,6 +2,7 @@ package gt.muni.jalapa.ecoruta.aceptacion;
 
 import gt.muni.jalapa.ecoruta.flota.servicio.AltaDeEquipo;
 import org.springframework.stereotype.Component;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
@@ -24,10 +25,22 @@ public class ContextoDelEscenario {
     /** Credencial de un equipo emitido por la API, no por el servicio (SCRUM-143). */
     private String credencialCruda;
 
+    /** Conexiones SSE abiertas en el escenario (SCRUM-140). */
+    private final List<MvcResult> streams = new ArrayList<>();
+
     public void reiniciar() {
         equipos.clear();
         ultimaRespuesta = null;
         credencialCruda = null;
+        streams.clear();
+    }
+
+    public void registrarStream(MvcResult stream) {
+        streams.add(stream);
+    }
+
+    public MvcResult stream(int indice) {
+        return streams.get(indice);
     }
 
     public void guardarCredencialCruda(String credencial) {
