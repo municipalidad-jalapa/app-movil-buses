@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "EcoRuta — Pruebas",
-    "description": "Suite de pruebas del backend de EcoRuta, equivalente a docs/PRUEBAS.md.\n\nCada request lleva asserts en la pestaña Tests, asi que se puede correr entera con el Collection Runner y leer el resultado como un reporte.\n\nRequisitos: el stack levantado (`docker compose up`) y la base recien sembrada.\nPara reiniciar de cero entre corridas: `docker compose down -v && docker compose up`.\n\nOrden importante: las carpetas dependen de la anterior. No las reordenes.",
+    "description": "Pruebas de la API de EcoRuta.\n\nLa Fase 3 cubre HU-47 (SCRUM-142, credencial propia del equipo a bordo) y HU-48 (SCRUM-143, vinculo vehiculo-equipo), y corre completa.\n\nLas Fases 1.2, 1.3 y 2 todavia fallan: /api/v1/rutas (SCRUM-130) y /api/v1/demanda/** (SCRUM-131, 132, 133) aun no estan implementadas, pese a figurar como finalizadas en el tablero. No es una regresion.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -25,7 +25,31 @@
       "value": "-89.9890",
       "description": "Longitud del Parque Central."
     },
-    { "key": "token", "value": "", "description": "JWT del conductor. Lo llena el login." }
+    {
+      "key": "token",
+      "value": "",
+      "description": "Reservada para el JWT de personas de SCRUM-134 (Firebase). Sin uso hoy."
+    },
+    {
+      "key": "adminToken",
+      "value": "solo-para-desarrollo-local-no-usar-en-produccion",
+      "description": "Provisional de SCRUM-142, se retira con SCRUM-134 (Firebase)."
+    },
+    {
+      "key": "equipoToken",
+      "value": "",
+      "description": "Lo llena 3.0a. Credencial del equipo a bordo."
+    },
+    {
+      "key": "equipoId",
+      "value": "",
+      "description": "Lo llena 3.0a."
+    },
+    {
+      "key": "equipoToken2",
+      "value": "",
+      "description": "Lo llena 3.10, tras cambiar el equipo del bus."
+    }
   ],
   "item": [
     {
@@ -36,7 +60,16 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/actuator/health", "host": ["{{baseUrl}}"], "path": ["actuator", "health"] }
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
           },
           "event": [
             {
@@ -56,7 +89,17 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/rutas", "host": ["{{baseUrl}}"], "path": ["api", "v1", "rutas"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "rutas"
+              ]
+            }
           },
           "event": [
             {
@@ -78,7 +121,16 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/v3/api-docs", "host": ["{{baseUrl}}"], "path": ["v3", "api-docs"] },
+            "url": {
+              "raw": "{{baseUrl}}/v3/api-docs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v3",
+                "api-docs"
+              ]
+            },
             "description": "Este mismo endpoint es el que se importa en Postman para regenerar la coleccion desde el contrato."
           },
           "event": [
@@ -105,7 +157,18 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/estado", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "estado"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "estado"
+              ]
+            }
           },
           "event": [
             {
@@ -127,12 +190,28 @@
           "name": "2.2 Registro valido (dentro de la geocerca)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"dispositivoId\": \"test-001\",\n  \"paradaId\": {{paradaId}},\n  \"latitud\": {{latParada}},\n  \"longitud\": {{lonParada}}\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/registros", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "registros"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/registros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "registros"
+              ]
+            },
             "description": "Coordenadas exactas de la parada: el dispositivo esta 'en' la parada, dentro de los 150 m."
           },
           "event": [
@@ -155,12 +234,28 @@
           "name": "2.3 Geocerca rechaza a quien esta lejos",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"dispositivoId\": \"test-002\",\n  \"paradaId\": {{paradaId}},\n  \"latitud\": 14.7000,\n  \"longitud\": -90.1000\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/registros", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "registros"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/registros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "registros"
+              ]
+            },
             "description": "Regla anti-abuso #1: coordenadas a varios km de la parada."
           },
           "event": [
@@ -182,12 +277,28 @@
           "name": "2.4 No hay doble registro por dispositivo",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"dispositivoId\": \"test-001\",\n  \"paradaId\": {{paradaId}},\n  \"latitud\": {{latParada}},\n  \"longitud\": {{lonParada}}\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/registros", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "registros"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/registros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "registros"
+              ]
+            },
             "description": "Regla anti-abuso #2: mismo dispositivoId que 2.2, que sigue activo.\nValidado en DemandaService y respaldado por el indice unico parcial uq_registro_activo_por_dispositivo."
           },
           "event": [
@@ -207,12 +318,28 @@
           "name": "2.5 Parada inexistente",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"dispositivoId\": \"test-003\",\n  \"paradaId\": 999,\n  \"latitud\": {{latParada}},\n  \"longitud\": {{lonParada}}\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/registros", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "registros"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/registros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "registros"
+              ]
+            }
           },
           "event": [
             {
@@ -231,12 +358,28 @@
           "name": "2.6 Validacion de entrada (falta latitud)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"dispositivoId\": \"test-004\",\n  \"paradaId\": {{paradaId}},\n  \"longitud\": {{lonParada}}\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/registros", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "registros"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/registros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "registros"
+              ]
+            },
             "description": "Bean Validation debe rechazar antes de tocar la BD. 400, no 422: no es una regla de negocio sino entrada malformada."
           },
           "event": [
@@ -257,7 +400,19 @@
           "request": {
             "method": "DELETE",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/registros/test-001", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "registros", "test-001"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/registros/test-001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "registros",
+                "test-001"
+              ]
+            }
           },
           "event": [
             {
@@ -277,7 +432,19 @@
           "request": {
             "method": "DELETE",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/registros/test-001", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "registros", "test-001"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/registros/test-001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "registros",
+                "test-001"
+              ]
+            },
             "description": "Ya no queda registro activo para ese dispositivo."
           },
           "event": [
@@ -285,7 +452,9 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": ["pm.test('404', () => pm.response.to.have.status(404));"]
+                "exec": [
+                  "pm.test('404', () => pm.response.to.have.status(404));"
+                ]
               }
             }
           ]
@@ -294,12 +463,28 @@
           "name": "2.8 Umbral de 10 alcanzado",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"dispositivoId\": \"masa-{{_masaIdx}}\",\n  \"paradaId\": {{paradaId}},\n  \"latitud\": {{latParada}},\n  \"longitud\": {{lonParada}}\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/registros", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "registros"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/registros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "registros"
+              ]
+            },
             "description": "Este request se repite solo 10 veces con setNextRequest, registrando masa-1 .. masa-10.\nEn el Collection Runner el contador llega a 10 y faltanParaSalir baja a 0.\n\nSi lo ejecutas suelto (fuera del Runner) solo hace un registro: setNextRequest no aplica."
           },
           "event": [
@@ -341,7 +526,19 @@
           "request": {
             "method": "DELETE",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/registros/masa-{{_limpiaIdx}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "registros", "masa-{{_limpiaIdx}}"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/registros/masa-{{_limpiaIdx}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "registros",
+                "masa-{{_limpiaIdx}}"
+              ]
+            },
             "description": "Deja el contador en 0 para que la coleccion se pueda volver a correr sin recrear la BD."
           },
           "event": [
@@ -381,53 +578,134 @@
       "name": "Fase 3 — Seguridad y telemetria",
       "item": [
         {
+          "name": "3.0a Provisionar un equipo a bordo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 creado', () => pm.response.to.have.status(201));",
+                  "const r = pm.response.json();",
+                  "pm.test('la credencial tiene el formato eq_<codigo>.<secreto>', () =>",
+                  "    pm.expect(r.credencial).to.match(/^eq_[A-Za-z0-9_-]{12}\\.[A-Za-z0-9_-]{43}$/));",
+                  "pm.test('queda atribuida al BUS-01', () => pm.expect(r.vehiculo).to.eql('BUS-01'));",
+                  "pm.collectionVariables.set('equipoToken', r.credencial);",
+                  "pm.collectionVariables.set('equipoId', r.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Admin-Token",
+                "value": "{{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "equipos"
+              ]
+            },
+            "description": "HU-47 (SCRUM-142). El equipo a bordo se autentica con credencial propia, no con la sesion de un conductor. La credencial se devuelve UNA sola vez. Queda vinculada al vehiculo (HU-48, SCRUM-143).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehiculoId\": 1,\n  \"etiqueta\": \"Tableta de pruebas\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3.0b Sin token de admin no se puede emitir",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401', () => pm.response.to.have.status(401));",
+                  "pm.test('formato ApiError', () => pm.expect(pm.response.json()).to.have.all.keys(",
+                  "    'timestamp', 'status', 'error', 'message', 'path'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "equipos"
+              ]
+            },
+            "description": "Emitir credenciales exige ROLE_ADMIN. Mecanismo provisional hasta SCRUM-134 (Firebase).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehiculoId\": 1,\n  \"etiqueta\": \"No deberia crearse\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
           "name": "3.1 Sin token la ingesta se rechaza",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"posiciones\": [\n    {\n      \"latitud\": 14.633,\n      \"longitud\": -89.989,\n      \"velocidadKmh\": 20,\n      \"timestamp\": \"2026-07-28T10:00:00Z\"\n    }\n  ]\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/telemetria/posiciones", "host": ["{{baseUrl}}"], "path": ["api", "v1", "telemetria", "posiciones"] },
-            "description": "Solo el rol CONDUCTOR puede ingestar GPS."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": ["pm.test('401 o 403', () => pm.expect(pm.response.code).to.be.oneOf([401, 403]));"]
-              }
-            }
-          ]
-        },
-        {
-          "name": "3.2a Login con credenciales malas",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"username\": \"conductor1\",\n  \"password\": \"clave-incorrecta\"\n}" },
-            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "login"] }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": ["pm.test('401', () => pm.response.to.have.status(401));"]
-              }
-            }
-          ]
-        },
-        {
-          "name": "3.2b Login del conductor semilla",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"username\": \"conductor1\",\n  \"password\": \"conductor123\"\n}" },
-            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "login"] },
-            "description": "Credenciales de desarrollo de V2__datos_semilla.sql. Guarda el JWT en la variable {{token}} para los pasos siguientes."
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posiciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posiciones"
+              ]
+            },
+            "description": "Solo un equipo a bordo con credencial propia puede ingestar GPS (HU-47, SCRUM-142). El filtro no lanza ante un token ausente o malo: deja el contexto vacio y decide Security."
           },
           "event": [
             {
@@ -435,29 +713,42 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('200', () => pm.response.to.have.status(200));",
-                  "const r = pm.response.json();",
-                  "pm.test('devuelve token', () => pm.expect(r.token).to.be.a('string').and.not.empty);",
-                  "pm.test('rol CONDUCTOR', () => pm.expect(r.rol).to.eql('CONDUCTOR'));",
-                  "pm.collectionVariables.set('token', r.token);"
+                  "pm.test('401 o 403', () => pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "3.3 Ingesta con token",
+          "name": "3.3 Ingesta con la credencial del equipo",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{equipoToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"posiciones\": [\n    {\n      \"latitud\": 14.6335,\n      \"longitud\": -89.9885,\n      \"velocidadKmh\": 18,\n      \"timestamp\": \"{{_ahora}}\"\n    }\n  ]\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/telemetria/posiciones", "host": ["{{baseUrl}}"], "path": ["api", "v1", "telemetria", "posiciones"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posiciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posiciones"
+              ]
+            },
             "description": "El timestamp se genera en el pre-request con la hora actual en UTC, para caer dentro de la ventana de tolerancia de +/-12 h."
           },
           "event": [
@@ -474,7 +765,9 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": ["pm.test('202 aceptado', () => pm.response.to.have.status(202));"]
+                "exec": [
+                  "pm.test('202 aceptado', () => pm.response.to.have.status(202));"
+                ]
               }
             }
           ]
@@ -484,7 +777,18 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/telemetria/posicion", "host": ["{{baseUrl}}"], "path": ["api", "v1", "telemetria", "posicion"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posicion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posicion"
+              ]
+            },
             "description": "Publico: el pasajero anonimo consulta la ubicacion del bus. Antes de la primera ingesta devuelve 204."
           },
           "event": [
@@ -510,14 +814,31 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{equipoToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"posiciones\": [\n    { \"latitud\": 14.6301, \"longitud\": -89.9801, \"velocidadKmh\": 10, \"timestamp\": \"{{_tMedio}}\" },\n    { \"latitud\": 14.6399, \"longitud\": -89.9899, \"velocidadKmh\": 30, \"timestamp\": \"{{_tNuevo}}\" },\n    { \"latitud\": 14.6300, \"longitud\": -89.9800, \"velocidadKmh\": 5,  \"timestamp\": \"{{_tViejo}}\" }\n  ]\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/telemetria/posiciones", "host": ["{{baseUrl}}"], "path": ["api", "v1", "telemetria", "posiciones"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posiciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posiciones"
+              ]
+            },
             "description": "Offline-first: la tableta acumula posiciones sin senal y las manda en lote, posiblemente desordenadas.\nLa posicion vigente debe ser la de timestamp mas reciente, NO la ultima del array.\nAqui la mas reciente va en medio a proposito."
           },
           "event": [
@@ -537,7 +858,9 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": ["pm.test('202', () => pm.response.to.have.status(202));"]
+                "exec": [
+                  "pm.test('202', () => pm.response.to.have.status(202));"
+                ]
               }
             }
           ]
@@ -547,7 +870,18 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/telemetria/posicion", "host": ["{{baseUrl}}"], "path": ["api", "v1", "telemetria", "posicion"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posicion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posicion"
+              ]
+            }
           },
           "event": [
             {
@@ -570,14 +904,31 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{equipoToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"posiciones\": [\n    { \"latitud\": 14.5000, \"longitud\": -89.5000, \"velocidadKmh\": 40, \"timestamp\": \"{{_tHace2Dias}}\" }\n  ]\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/telemetria/posiciones", "host": ["{{baseUrl}}"], "path": ["api", "v1", "telemetria", "posiciones"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posiciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posiciones"
+              ]
+            },
             "description": "Fuera de la ventana de +/-12 h. El lote se acepta (202) pero esa posicion se descarta.\nEn los logs del backend: 'Posicion descartada por timestamp fuera de ventana'."
           },
           "event": [
@@ -606,7 +957,18 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/telemetria/posicion", "host": ["{{baseUrl}}"], "path": ["api", "v1", "telemetria", "posicion"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posicion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posicion"
+              ]
+            },
             "description": "La posicion con reloj desfasado no debe haber desplazado a la buena."
           },
           "event": [
@@ -629,14 +991,31 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer esto.no.es.un.jwt" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer esto.no.es.un.jwt"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"posiciones\": [\n    { \"latitud\": 14.633, \"longitud\": -89.989, \"velocidadKmh\": 20, \"timestamp\": \"2026-07-28T10:00:00Z\" }\n  ]\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/v1/telemetria/posiciones", "host": ["{{baseUrl}}"], "path": ["api", "v1", "telemetria", "posiciones"] },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posiciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posiciones"
+              ]
+            },
             "description": "JwtAuthFilter ignora el token malo y deja pasar la peticion sin autenticacion; Security decide."
           },
           "event": [
@@ -644,10 +1023,251 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": ["pm.test('401 o 403', () => pm.expect(pm.response.code).to.be.oneOf([401, 403]));"]
+                "exec": [
+                  "pm.test('401 o 403', () => pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
+                ]
               }
             }
           ]
+        },
+        {
+          "name": "3.8 Revocar la credencial del equipo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Admin-Token",
+                "value": "{{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/equipos/{{equipoId}}/revocacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "equipos",
+                "{{equipoId}}",
+                "revocacion"
+              ]
+            },
+            "description": "HU-47: se revoca un solo equipo, sin tocar la cuenta de ninguna persona."
+          }
+        },
+        {
+          "name": "3.9 Tras revocar, la ingesta se rechaza de inmediato",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('_ahora', new Date().toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401 o 403', () => pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{equipoToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posiciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posiciones"
+              ]
+            },
+            "description": "La MISMA credencial de 3.3, acto seguido de revocarla. Sin esperar expiracion ni reiniciar nada: se valida contra la base en cada peticion.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"posiciones\": [\n    { \"latitud\": 14.6350, \"longitud\": -89.9850, \"velocidadKmh\": 22, \"timestamp\": \"{{_ahora}}\" }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3.10 Cambiar el equipo a bordo del vehiculo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 creado', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('equipoToken2', pm.response.json().credencial);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Admin-Token",
+                "value": "{{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/vehiculos/1/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "vehiculos",
+                "1",
+                "equipos"
+              ]
+            },
+            "description": "HU-48 (SCRUM-143). Cambiar el aparato es un tramite de datos: revoca el activo y emite otro en una sola transaccion.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"etiqueta\": \"Tableta de repuesto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3.11 El equipo nuevo puede ingestar",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('_ahora', new Date().toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('202 aceptado', () => pm.response.to.have.status(202));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{equipoToken2}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posiciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posiciones"
+              ]
+            },
+            "description": "La credencial nueva funciona igual que la anterior.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"posiciones\": [\n    { \"latitud\": 14.6360, \"longitud\": -89.9860, \"velocidadKmh\": 25, \"timestamp\": \"{{_ahora}}\" }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3.12 El historico del vehiculo sobrevivio al cambio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('el BUS-01 sigue teniendo posicion vigente', () =>",
+                  "    pm.expect(pm.response.json().vehiculo).to.eql('BUS-01'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/posicion?vehiculoId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "posicion?vehiculoId=1"
+              ]
+            },
+            "description": "HU-48: dar de baja un equipo y dar de alta otro no pierde el historico del vehiculo. Las posiciones cuelgan del bus, no del aparato."
+          }
         }
       ]
     },
@@ -658,9 +1278,25 @@
           "name": "SSE — stream de posiciones",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Accept", "value": "text/event-stream" }],
-            "url": { "raw": "{{baseUrl}}/api/v1/telemetria/stream", "host": ["{{baseUrl}}"], "path": ["api", "v1", "telemetria", "stream"] },
-            "description": "Postman no cierra esta conexion: se queda escuchando. NO la incluyas en el Collection Runner o lo bloquea.\n\nUso: mandala, dejala abierta, y en otra pestana repite '3.3 Ingesta con token'. El evento debe aparecer al instante."
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/telemetria/stream",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "telemetria",
+                "stream"
+              ]
+            },
+            "description": "HU-45 (SCRUM-140). Ya funciona.\n\nPostman no cierra esta conexion: se queda escuchando. NO la incluyas en el Collection Runner o lo bloquea.\n\nUso: mandala, dejala abierta, y en otra pestana repite \"3.3 Ingesta con la credencial del equipo\". El evento debe aparecer al instante.\n\nAl conectarte recibes de una la posicion vigente. Si no ingestas nada, cada 25 s llega un comentario \":latido\" que mantiene viva la conexion."
           }
         },
         {
@@ -668,14 +1304,27 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/rutas/1", "host": ["{{baseUrl}}"], "path": ["api", "v1", "rutas", "1"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "rutas",
+                "1"
+              ]
+            }
           },
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));"
+                ]
               }
             }
           ]
@@ -685,7 +1334,18 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/demanda/estado", "host": ["{{baseUrl}}"], "path": ["api", "v1", "demanda", "estado"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/demanda/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "demanda",
+                "estado"
+              ]
+            }
           }
         }
       ]

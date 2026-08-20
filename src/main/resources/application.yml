@@ -20,6 +20,24 @@ ecoruta:
     umbral-salida: 10
     ttl-minutos: 20
     geocerca-metros: 150
+  telemetria:
+    # Tolerancia contra relojes desfasados del equipo a bordo (SCRUM-138).
+    ventana-horas: 12
+    # Stream SSE (SCRUM-140). Al expirar el timeout, EventSource reconecta solo
+    # (ADR-008). El latido va por debajo de los 60 s que Nginx aguanta sin
+    # trafico antes de cerrar la conexion.
+    sse-timeout-minutos: 30
+    latido-segundos: 25
+    reconexion-segundos: 3
+  cors:
+    # Vacio a proposito: hoy no hay ningun origen habilitado. Lo llena SCRUM-274.
+    origenes-permitidos: ${CORS_ORIGENES:}
+  admin:
+    # PROVISIONAL de SCRUM-142 - TODO(SCRUM-134). Concede ROLE_ADMIN por la
+    # cabecera X-Admin-Token mientras no exista la autenticacion de personas con
+    # Firebase. Sin esta variable no hay ningun ROLE_ADMIN y /api/v1/admin/**
+    # rechaza a todos: falla cerrado, que es lo correcto en produccion.
+    bootstrap-token: ${ECORUTA_ADMIN_TOKEN:}
 
 management:
   endpoints:
@@ -29,3 +47,8 @@ management:
 
 server:
   port: 8080
+
+# NUNCA activar spring.mvc.log-request-details: imprime todos los headers,
+# incluido Authorization, que es donde viaja el secreto del equipo a bordo.
+# Por la misma razon no se sube org.springframework.security a TRACE aqui,
+# ni se agrega ningun filtro que vuelque cabeceras (SCRUM-142, criterio (d)).

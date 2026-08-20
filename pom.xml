@@ -24,19 +24,28 @@
     <hibernate-spatial.version>6.6.4.Final</hibernate-spatial.version>
     <jjwt.version>0.12.6</jjwt.version>
     <springdoc.version>2.7.0</springdoc.version>
+    <cucumber.version>7.22.1</cucumber.version>
     <!-- Docker Engine 29 rechaza la API que usa docker-java de la 1.20.x -->
     <testcontainers.version>1.21.3</testcontainers.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- El BOM alinea las versiones de todos los artefactos de Cucumber entre si. -->
+      <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-bom</artifactId>
+        <version>${cucumber.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springdoc</groupId>
-        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        <version>2.6.0</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -135,6 +144,29 @@
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <!-- Pruebas de aceptacion en Gherkin. Los criterios de aceptacion de Jira se
+         escriben tal cual en los .feature y se ejecutan; ver docs/PRUEBAS.md. -->
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-java</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-spring</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-junit-platform-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-suite</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -175,6 +207,13 @@
           <systemPropertyVariables>
             <api.version>1.44</api.version>
           </systemPropertyVariables>
+          <!-- El pipeline corre "mvn test", no "mvn verify", asi que no hay
+               failsafe: las pruebas *IT tienen que correr aqui o no corren nunca.
+               Sin esto se compilan, no se ejecutan y el build sale verde igual. -->
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*IT.java</include>
+          </includes>
         </configuration>
       </plugin>
     </plugins>
