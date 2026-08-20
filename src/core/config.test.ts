@@ -26,4 +26,9 @@ describe('obtenerConfiguracion', () => {
     simularConfigDeRuntime(undefined);
     expect(obtenerConfiguracion().apiUrl).toBe('http://localhost:8080');
   });
+
+  it('respeta una cadena vacia en runtime para permitir rutas relativas', () => {
+    simularConfigDeRuntime('');
+    expect(obtenerConfiguracion().apiUrl).toBe('');
+  });
 });

@@ -35,7 +35,7 @@ export function obtenerConfiguracion(): ConfiguracionEcoRuta {
   const deRuntime = typeof window !== 'undefined' ? window.__ECORUTA__?.apiUrl : undefined;
   const deBuild = import.meta.env?.VITE_API_URL as string | undefined;
 
-  const apiUrl = deRuntime?.trim() || deBuild?.trim() || API_URL_POR_DEFECTO;
+  const apiUrl = deRuntime?.trim() ?? deBuild?.trim() ?? API_URL_POR_DEFECTO;
 
   return { apiUrl: normalizarUrl(apiUrl) };
 }
