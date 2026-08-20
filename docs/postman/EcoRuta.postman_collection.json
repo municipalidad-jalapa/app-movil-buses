@@ -1296,7 +1296,7 @@
                 "stream"
               ]
             },
-            "description": "Postman no cierra esta conexion: se queda escuchando. NO la incluyas en el Collection Runner o lo bloquea.\n\nUso: mandala, dejala abierta, y en otra pestana repite '3.3 Ingesta con token'. El evento debe aparecer al instante."
+            "description": "HU-45 (SCRUM-140). Ya funciona.\n\nPostman no cierra esta conexion: se queda escuchando. NO la incluyas en el Collection Runner o lo bloquea.\n\nUso: mandala, dejala abierta, y en otra pestana repite \"3.3 Ingesta con la credencial del equipo\". El evento debe aparecer al instante.\n\nAl conectarte recibes de una la posicion vigente. Si no ingestas nada, cada 25 s llega un comentario \":latido\" que mantiene viva la conexion."
           }
         },
         {

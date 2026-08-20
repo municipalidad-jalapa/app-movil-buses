@@ -13,8 +13,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Tag(name = "Telemetria", description = "Ingesta y consulta de la posicion del bus")
 @RestController
@@ -32,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TelemetriaController {
 
     private final TelemetriaService telemetriaService;
+    private final DifusorDePosiciones difusor;
 
     @Operation(summary = "Recibe un lote de posiciones del equipo a bordo",
             description = """
@@ -78,5 +83,32 @@ public class TelemetriaController {
         return telemetriaService.posicionVigente(vehiculoId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    }
+
+    @Operation(summary = "Stream de posiciones en tiempo real",
+            description = """
+                    Publico. Emite Server-Sent Events: el navegador se conecta con
+                    EventSource y recibe cada posicion apenas se ingesta, sin preguntar
+                    cada pocos segundos (ADR-008).
+
+                    Al conectarse se envia de inmediato la posicion vigente, para que el
+                    mapa no arranque vacio. Despues llega un evento 'posicion' por cada
+                    lote aceptado, y un comentario de latido cuando el bus esta parado.
+
+                    Como respaldo, si el stream no conecta, esta GET /telemetria/posicion.""")
+    @ApiResponse(responseCode = "200", description = "Stream abierto (text/event-stream)")
+    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter stream(HttpServletResponse respuesta) {
+        respuesta.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache");
+        // ADR-008 lo deja escrito: "si el proxy acumula la respuesta, el stream
+        // nunca llega". Esta cabecera es la mitad que le toca a la aplicacion;
+        // el proxy_buffering off del Ingress es de SCRUM-149 (DevOps).
+        respuesta.setHeader("X-Accel-Buffering", "no");
+
+        SseEmitter emisor = difusor.suscribir();
+        // Sin esto el mapa se queda en blanco hasta el siguiente lote.
+        telemetriaService.posicionVigente(null)
+                .ifPresent(vigente -> difusor.enviarA(emisor, vigente));
+        return emisor;
     }
 }

@@ -23,6 +23,12 @@ ecoruta:
   telemetria:
     # Tolerancia contra relojes desfasados del equipo a bordo (SCRUM-138).
     ventana-horas: 12
+    # Stream SSE (SCRUM-140). Al expirar el timeout, EventSource reconecta solo
+    # (ADR-008). El latido va por debajo de los 60 s que Nginx aguanta sin
+    # trafico antes de cerrar la conexion.
+    sse-timeout-minutos: 30
+    latido-segundos: 25
+    reconexion-segundos: 3
   cors:
     # Vacio a proposito: hoy no hay ningun origen habilitado. Lo llena SCRUM-274.
     origenes-permitidos: ${CORS_ORIGENES:}

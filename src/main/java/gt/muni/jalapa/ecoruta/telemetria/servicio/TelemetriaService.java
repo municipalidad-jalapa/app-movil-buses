@@ -82,6 +82,10 @@ public class TelemetriaService {
                 .max(Comparator.comparing(PosicionRequest::timestamp))
                 .flatMap(masReciente -> posiciones
                         .findFirstByVehiculoIdOrderByRegistradoEnDescIdDesc(autenticado.vehiculoId()))
+                // El DTO se arma AQUI, dentro de la transaccion: es el unico punto
+                // donde el vehiculo LAZY todavia se puede navegar. Quien escucha el
+                // evento lo hace despues del commit, sin sesion.
+                .map(vigente -> PosicionActualResponse.de(vigente, autenticado.identificadorVehiculo()))
                 .ifPresent(vigente -> eventos.publishEvent(new PosicionVigenteActualizada(vigente)));
 
         return new LoteAceptadoResponse(lote.size(), aceptables.size(), descartadas);
