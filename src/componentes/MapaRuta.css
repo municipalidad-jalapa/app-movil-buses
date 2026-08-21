@@ -1,0 +1,56 @@
+.mapa-ruta {
+  position: relative;
+  width: 100%;
+  height: min(62dvh, 32rem);
+  min-height: 24rem;
+  overflow: hidden;
+  border: 1px solid var(--borde, var(--color-borde));
+  border-radius: 4px 12px 12px 12px;
+  background: var(--superficie-base, var(--color-superficie));
+}
+
+.mapa-ruta__lienzo {
+  position: absolute;
+  inset: 0;
+}
+
+.mapa-ruta__estado {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  color: var(--tinta, var(--color-texto));
+  background: var(--superficie-base, var(--color-superficie));
+  font-size: 15px;
+  line-height: 22px;
+  text-align: center;
+}
+
+.mapa-ruta__icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--amarillo-volcan, var(--color-aviso));
+  color: var(--amarillo-volcan-tinta, var(--color-texto));
+  font-variant-numeric: tabular-nums;
+}
+
+.mapa-ruta__estado--error .mapa-ruta__icono {
+  background: var(--rojo-santa-marta-superficie, var(--color-error-fondo));
+  color: var(--rojo-santa-marta-tinta, var(--color-error));
+}
+
+.mapa-ruta__estado button {
+  min-width: 48px;
+  min-height: 48px;
+  margin-top: 8px;
+  background: var(--verde-jumay, var(--color-marca));
+  color: var(--superficie-base, #f7f3e9);
+}

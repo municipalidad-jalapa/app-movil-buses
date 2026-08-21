@@ -58,11 +58,19 @@ Orden de precedencia que aplica `src/core/config.ts`:
 ```
 src/
   core/          config, cliente HTTP, errores y tipos de la API
-  componentes/   Layout, Cargando, MensajeError
-  paginas/       Mapa (placeholder), NoEncontrada
+  componentes/   Layout, Cargando, MensajeError, MapaRuta
+  paginas/       Mapa, NoEncontrada
   estilos/       tema.css (tokens, claro/oscuro), global.css
 public/config.js configuración de tiempo de ejecución
 ```
+
+### Mapa
+
+`MapaRuta` carga MapLibre y PMTiles de forma diferida al montar el componente. El
+contenedor reserva su altura desde el primer render para evitar saltos de layout y
+mantiene la atribución de OpenStreetMap. Para usar un estilo MapLibre con tiles PMTiles
+autoalojados, definí `VITE_MAP_STYLE_URL` en el entorno de desarrollo. Si no se define,
+se usa un estilo OSM de respaldo para poder probar la pantalla localmente.
 
 ## Capa de red
 

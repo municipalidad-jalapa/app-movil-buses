@@ -3,6 +3,7 @@ import { apiClient } from '../core/apiClient';
 import { obtenerConfiguracion } from '../core/config';
 import { Cargando } from '../componentes/Cargando';
 import { MensajeError } from '../componentes/MensajeError';
+import { MapaRuta } from '../componentes/MapaRuta';
 import type { Ruta } from '../core/tipos';
 
 /**
@@ -34,6 +35,7 @@ export function Mapa() {
   return (
     <>
       <h1>Bus electrico de Jalapa</h1>
+      <MapaRuta />
       <p style={{ color: 'var(--color-texto-suave)', fontSize: '0.875rem' }}>
         Backend: <code>{apiUrl}</code>
       </p>
