@@ -69,7 +69,7 @@ docker-build-push:
 deploy-qa:
   stage: deploy
   image:
-    name: bitnami/kubectl:1.31
+    name: alpine/kubectl:1.35.3
     entrypoint: [""]
   environment:
     name: qa
@@ -84,7 +84,7 @@ deploy-qa:
 deploy-production:
   stage: deploy
   image:
-    name: bitnami/kubectl:1.31
+    name: alpine/kubectl:1.35.3
     entrypoint: [""]
   environment:
     name: production
