@@ -33,8 +33,23 @@ test:
     - if: '$CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
-docker-build-push:
+docker-build-push-qa:
   extends: .docker_build_push_template
+  environment:
+    name: qa
+  variables:
+    REQUIRED_BUILD_ARGS: "VITE_GOOGLE_MAPS_API_KEY"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+docker-build-push-production:
+  extends: .docker_build_push_template
+  environment:
+    name: production
+  variables:
+    REQUIRED_BUILD_ARGS: "VITE_GOOGLE_MAPS_API_KEY"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
 deploy-qa:
   stage: deploy
