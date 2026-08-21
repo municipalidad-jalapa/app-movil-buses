@@ -16,5 +16,9 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    env: {
+      VITE_API_BASE_URL: 'https://api.ejemplo.test',
+      VITE_GOOGLE_MAPS_API_KEY: 'clave-de-prueba-unitaria',
+    },
   },
 });
