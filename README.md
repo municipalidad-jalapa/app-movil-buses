@@ -73,6 +73,11 @@ mantiene la atribución de OpenStreetMap. Para usar un estilo MapLibre con tiles
 autoalojados, definí `VITE_MAP_STYLE_URL` en el entorno de desarrollo. Si no se define,
 se usa un estilo OSM de respaldo para poder probar la pantalla localmente.
 
+Cuando `useRutas` recibe una ruta activa, `MapaRuta` dibuja sus paradas ordenadas y el
+trazo entre ellas. La línea usa el verde de marca y cada parada usa un marcador amarillo
+con forma y etiqueta accesible; las coordenadas se convierten al orden que espera el
+mapa: `[longitud, latitud]`.
+
 ## Capa de red
 
 Todo acceso al backend pasa por `src/core/apiClient.ts`. Centraliza la URL base, un timeout de 10 s

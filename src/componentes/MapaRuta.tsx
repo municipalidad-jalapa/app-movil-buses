@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Map as MapaMapLibre, StyleSpecification } from 'maplibre-gl';
+import type {
+  GeoJSONSource,
+  Map as MapaMapLibre,
+  Marker,
+  StyleSpecification,
+} from 'maplibre-gl';
+import type { Feature, FeatureCollection, LineString, Point } from 'geojson';
+import type { Parada, Ruta } from '../core/tipos';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapaRuta.css';
 
@@ -12,6 +19,8 @@ interface Props {
   centro?: Coordenadas;
   zoom?: number;
   estilo?: string;
+  ruta?: Ruta | null;
+  paradas?: Parada[];
 }
 
 const CENTRO_JALAPA: Coordenadas = { latitud: 14.6349, longitud: -89.9882 };
@@ -28,6 +37,19 @@ const ESTILO_OSM_RESPALDO: StyleSpecification = {
   layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
 };
 
+const ID_FUENTE_RUTA = 'ecoruta-ruta-activa';
+const ID_CAPA_RUTA = 'ecoruta-trazo-ruta';
+
+export function obtenerCoordenadasRuta(paradas: Parada[]): Coordenadas[] {
+  return [...paradas]
+    .filter(
+      (parada) =>
+        Number.isFinite(parada.latitud) && Number.isFinite(parada.longitud),
+    )
+    .sort((a, b) => a.orden - b.orden)
+    .map(({ latitud, longitud }) => ({ latitud, longitud }));
+}
+
 let pmtilesRegistrado = false;
 
 function obtenerEstilo(): string | StyleSpecification {
@@ -38,9 +60,13 @@ export function MapaRuta({
   centro = CENTRO_JALAPA,
   zoom = 13,
   estilo,
+  ruta = null,
+  paradas = ruta?.paradas ?? [],
 }: Props) {
   const nodoMapa = useRef<HTMLDivElement>(null);
   const mapa = useRef<MapaMapLibre | null>(null);
+  const marcadores = useRef<Marker[]>([]);
+  const ConstructorMarcador = useRef<typeof import('maplibre-gl').Marker | null>(null);
   const [estado, setEstado] = useState<'cargando' | 'listo' | 'error'>('cargando');
   const [intento, setIntento] = useState(0);
 
@@ -70,6 +96,7 @@ export function MapaRuta({
         });
 
         mapa.current = instancia;
+        ConstructorMarcador.current = maplibre.Marker;
         instancia.once('load', () => setEstado('listo'));
         instancia.once('error', () => setEstado('error'));
       })
@@ -83,6 +110,68 @@ export function MapaRuta({
       mapa.current = null;
     };
   }, [centro.latitud, centro.longitud, estilo, zoom, intento]);
+
+  useEffect(() => {
+    const instancia = mapa.current;
+    const CrearMarcador = ConstructorMarcador.current;
+    if (estado !== 'listo' || !instancia || !CrearMarcador) return undefined;
+
+    const coordenadas = obtenerCoordenadasRuta(paradas);
+    const geojson: FeatureCollection<LineString | Point> = {
+      type: 'FeatureCollection',
+      features: coordenadas.length > 1
+        ? [{
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: coordenadas.map(({ latitud, longitud }) => [longitud, latitud]),
+            },
+          } as Feature<LineString>]
+        : [],
+    };
+
+    const fuenteExistente = instancia.getSource(ID_FUENTE_RUTA) as GeoJSONSource | undefined;
+    if (fuenteExistente) {
+      fuenteExistente.setData(geojson);
+    } else {
+      instancia.addSource(ID_FUENTE_RUTA, { type: 'geojson', data: geojson });
+      instancia.addLayer({
+        id: ID_CAPA_RUTA,
+        type: 'line',
+        source: ID_FUENTE_RUTA,
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': '#2F5D3A',
+          'line-width': 6,
+          'line-opacity': 0.95,
+        },
+      });
+    }
+
+    marcadores.current.forEach((marcador) => marcador.remove());
+    marcadores.current = paradas
+      .filter(
+        (parada) =>
+          Number.isFinite(parada.latitud) && Number.isFinite(parada.longitud),
+      )
+      .sort((a, b) => a.orden - b.orden)
+      .map((parada) => {
+        const nodo = document.createElement('div');
+        nodo.className = 'mapa-ruta__marcador-parada';
+        nodo.setAttribute('role', 'img');
+        nodo.setAttribute('aria-label', `Parada ${parada.orden}: ${parada.nombre}`);
+        nodo.title = parada.nombre;
+        return new CrearMarcador({ element: nodo })
+          .setLngLat([parada.longitud, parada.latitud])
+          .addTo(instancia);
+      });
+
+    return () => {
+      marcadores.current.forEach((marcador) => marcador.remove());
+      marcadores.current = [];
+    };
+  }, [estado, paradas]);
 
   return (
     <section className="mapa-ruta" aria-label="Mapa de la ruta de EcoRuta">

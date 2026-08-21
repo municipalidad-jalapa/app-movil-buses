@@ -12,12 +12,12 @@ import { useRutas } from '../hooks/useRutas';
  */
 export function Mapa() {
   const { apiUrl } = obtenerConfiguracion();
-  const { rutas, cargando, error, reintentar } = useRutas();
+  const { rutas, rutaActiva, paradas, cargando, error, reintentar } = useRutas();
 
   return (
     <>
       <h1>Bus electrico de Jalapa</h1>
-      <MapaRuta />
+      <MapaRuta ruta={rutaActiva} paradas={paradas} />
       <p style={{ color: 'var(--color-texto-suave)', fontSize: '0.875rem' }}>
         Backend: <code>{apiUrl}</code>
       </p>
