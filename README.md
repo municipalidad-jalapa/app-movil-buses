@@ -59,6 +59,7 @@ Orden de precedencia que aplica `src/core/config.ts`:
 src/
   core/          config, cliente HTTP, errores y tipos de la API
   componentes/   Layout, Cargando, MensajeError, MapaRuta
+  hooks/         useRutas (rutas, ruta activa, paradas, carga y error)
   paginas/       Mapa, NoEncontrada
   estilos/       tema.css (tokens, claro/oscuro), global.css
 public/config.js configuración de tiempo de ejecución
