@@ -3,6 +3,7 @@ import { apiClient } from '../core/apiClient';
 import { config } from '../core/config';
 import { Cargando } from '../componentes/Cargando';
 import { MensajeError } from '../componentes/MensajeError';
+import { SeguimientoBus } from '../componentes/SeguimientoBus';
 import type { Ruta } from '../core/tipos';
 
 /**
@@ -37,6 +38,8 @@ export function Mapa() {
       <p style={{ color: 'var(--color-texto-suave)', fontSize: '0.875rem' }}>
         Backend: <code>{apiBaseUrl}</code>
       </p>
+
+      <SeguimientoBus />
 
       {error && <MensajeError error={error} onReintentar={() => setIntento((n) => n + 1)} />}
       {!error && rutas === null && <Cargando texto="Consultando rutas…" />}

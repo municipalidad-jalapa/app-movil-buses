@@ -45,13 +45,15 @@ export interface EstadoDemanda {
   porParada: Record<string, number>;
 }
 
-/** `telemetria/dto/PosicionDTO.java` */
+/** `telemetria/web/dto/PosicionActualResponse.java` */
 export interface Posicion {
   latitud: number;
   longitud: number;
   velocidadKmh: number | null;
   /** ISO-8601. Lo pone el dispositivo a bordo, no el servidor. */
   timestamp: string;
+  /** Identificador del bus, ej. "BUS-01". Lo agrego SCRUM-143. */
+  vehiculo: string | null;
 }
 
 /** `demanda/dto/CrearRegistroRequest.java` */

@@ -44,6 +44,19 @@
   /* Area segura de iOS (notch y barra inferior) */
   --seguro-arriba: env(safe-area-inset-top, 0px);
   --seguro-abajo: env(safe-area-inset-bottom, 0px);
+
+  /* Tokens de DESIGN.md §3.2 y §3.3 para HU-51. Sin variantes oscuras:
+     DESIGN.md §3.5 [DURA] prohíbe inventar modo oscuro a medias. */
+  --verde-jumay: #2f5d3a;
+  --verde-jumay-superficie: #e7efe4;
+  --amarillo-volcan: #e8b33c;
+  --amarillo-volcan-tinta: #4a3406;
+  --amarillo-volcan-superficie: #fbf0d6;
+  --superficie-tarjeta: #fffdf7;
+  --tinta: #22201c;
+  --tinta-secundaria: #7a7669;
+  --tinta-tenue: #9a958a;
+  --borde: #ded6c2;
 }
 
 @media (prefers-color-scheme: dark) {
