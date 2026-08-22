@@ -3,7 +3,7 @@
  * (gt.muni.jalapa.ecoruta.*.dto). Si cambia el backend, cambia esto.
  *
  * CUIDADO CON LAS COORDENADAS: la API expone `latitud` y `longitud` como campos
- * con nombre, pero PostGIS y Google Maps trabajan en orden (lon, lat). Invertirlas
+ * con nombre, pero PostGIS y MapLibre trabajan en orden (lon, lat). Invertirlas
  * es el bug clasico de este dominio: el bus aparece en el oceano Indico.
  */
 

@@ -17,8 +17,9 @@ body {
   font-family: var(--fuente);
   font-size: 1rem;
   line-height: 1.5;
-  color: var(--color-texto);
-  background: var(--color-fondo);
+  color: var(--tinta);
+  background: var(--superficie-base);
+  font-variant-numeric: tabular-nums;
   /* El mapa se arrastra con el dedo: nada de rebote de la pagina entera */
   overscroll-behavior-y: none;
 }
@@ -35,17 +36,17 @@ h1 {
 }
 
 a {
-  color: var(--color-marca);
+  color: var(--verde-jumay);
 }
 
 button {
   font: inherit;
-  min-height: 44px; /* objetivo tactil minimo */
+  min-height: 48px;
   padding: var(--esp-3) var(--esp-4);
   border: 1px solid transparent;
   border-radius: var(--radio);
-  background: var(--color-marca);
-  color: #fff;
+  background: var(--verde-jumay);
+  color: var(--superficie-base);
   cursor: pointer;
 }
 
@@ -56,7 +57,7 @@ button:disabled {
 
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid var(--color-marca);
+  outline: 3px solid var(--amarillo-volcan);
   outline-offset: 2px;
 }
 

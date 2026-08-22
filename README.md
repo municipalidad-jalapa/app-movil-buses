@@ -70,7 +70,7 @@ public/config.js configuración de tiempo de ejecución
 `MapaRuta` carga MapLibre y PMTiles de forma diferida al montar el componente. El
 contenedor reserva su altura desde el primer render para evitar saltos de layout y
 mantiene la atribución de OpenStreetMap. Para usar un estilo MapLibre con tiles PMTiles
-autoalojados, definí `VITE_MAP_STYLE_URL` en el entorno de desarrollo. Si no se define,
+autoalojados, definí `VITE_PMTILES_URL` en el entorno de desarrollo. Si no se define,
 se usa un estilo OSM de respaldo para poder probar la pantalla localmente.
 
 Cuando `useRutas` recibe una ruta activa, `MapaRuta` dibuja sus paradas ordenadas y el
@@ -95,7 +95,7 @@ const rutas = await apiClient.get<Ruta[]>('/api/v1/rutas');
 ```
 
 Los tipos de `src/core/tipos.ts` reflejan los records del backend. Ojo con las coordenadas: la API
-expone `latitud`/`longitud` con nombre, pero PostGIS y Google Maps usan orden `(lon, lat)`.
+expone `latitud`/`longitud` con nombre, pero PostGIS y MapLibre usan orden `(lon, lat)`.
 
 ## Convenciones
 

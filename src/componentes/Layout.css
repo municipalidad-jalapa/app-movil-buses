@@ -9,12 +9,12 @@
   align-items: baseline;
   gap: var(--esp-2);
   padding: calc(var(--esp-3) + var(--seguro-arriba)) var(--esp-4) var(--esp-3);
-  background: var(--color-marca);
-  color: #fff;
+  background: var(--verde-jumay);
+  color: var(--superficie-base);
 }
 
 .apl__marca {
-  font-weight: 700;
+  font-weight: 500;
   font-size: 1.125rem;
   letter-spacing: 0.01em;
 }
