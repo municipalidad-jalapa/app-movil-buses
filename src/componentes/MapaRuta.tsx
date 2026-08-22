@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type {
   GeoJSONSource,
+  LngLatBoundsLike,
   Map as MapaMapLibre,
   Marker,
   StyleSpecification,
@@ -50,6 +51,20 @@ export function obtenerCoordenadasRuta(paradas: Parada[]): Coordenadas[] {
     .map(({ latitud, longitud }) => ({ latitud, longitud }));
 }
 
+export function obtenerLimitesParadas(
+  paradas: Parada[],
+): LngLatBoundsLike | undefined {
+  const coordenadas = obtenerCoordenadasRuta(paradas);
+  if (coordenadas.length === 0) return undefined;
+
+  const longitudes = coordenadas.map(({ longitud }) => longitud);
+  const latitudes = coordenadas.map(({ latitud }) => latitud);
+  return [
+    [Math.min(...longitudes), Math.min(...latitudes)],
+    [Math.max(...longitudes), Math.max(...latitudes)],
+  ];
+}
+
 let pmtilesRegistrado = false;
 
 function obtenerEstilo(): string | StyleSpecification {
@@ -67,6 +82,7 @@ export function MapaRuta({
   const mapa = useRef<MapaMapLibre | null>(null);
   const marcadores = useRef<Marker[]>([]);
   const ConstructorMarcador = useRef<typeof import('maplibre-gl').Marker | null>(null);
+  const ConstructorPopup = useRef<typeof import('maplibre-gl').Popup | null>(null);
   const [estado, setEstado] = useState<'cargando' | 'listo' | 'error'>('cargando');
   const [intento, setIntento] = useState(0);
 
@@ -97,6 +113,7 @@ export function MapaRuta({
 
         mapa.current = instancia;
         ConstructorMarcador.current = maplibre.Marker;
+        ConstructorPopup.current = maplibre.Popup;
         instancia.once('load', () => setEstado('listo'));
         instancia.once('error', () => setEstado('error'));
       })
@@ -114,7 +131,8 @@ export function MapaRuta({
   useEffect(() => {
     const instancia = mapa.current;
     const CrearMarcador = ConstructorMarcador.current;
-    if (estado !== 'listo' || !instancia || !CrearMarcador) return undefined;
+    const CrearPopup = ConstructorPopup.current;
+    if (estado !== 'listo' || !instancia || !CrearMarcador || !CrearPopup) return undefined;
 
     const coordenadas = obtenerCoordenadasRuta(paradas);
     const geojson: FeatureCollection<LineString | Point> = {
@@ -164,8 +182,14 @@ export function MapaRuta({
         nodo.title = parada.nombre;
         return new CrearMarcador({ element: nodo })
           .setLngLat([parada.longitud, parada.latitud])
+          .setPopup(new CrearPopup({ closeButton: true, closeOnClick: true }).setText(parada.nombre))
           .addTo(instancia);
       });
+
+    const limites = obtenerLimitesParadas(paradas);
+    if (limites) {
+      instancia.fitBounds(limites, { padding: 48, maxZoom: 15, duration: 0 });
+    }
 
     return () => {
       marcadores.current.forEach((marcador) => marcador.remove());
