@@ -68,6 +68,23 @@ describe('useRutas', () => {
     expect(estado?.paradas).toEqual([]);
   });
 
+  it('no selecciona una ruta cuando todas estan inactivas', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue([
+      { id: 3, nombre: 'Ruta inactiva', activa: false, paradas: [] },
+    ]);
+    let estado: EstadoRutas | undefined;
+
+    await act(async () => {
+      renderer = create(<Observador alCambiar={(actual) => { estado = actual; }} />);
+      await Promise.resolve();
+    });
+
+    expect(estado?.cargando).toBe(false);
+    expect(estado?.error).toBeNull();
+    expect(estado?.rutaActiva).toBeNull();
+    expect(estado?.paradas).toEqual([]);
+  });
+
   it('expone el error y permite reintentar la consulta', async () => {
     const getRutas = vi.spyOn(apiClient, 'get')
       .mockRejectedValueOnce(new Error('sin red'))

@@ -1,0 +1,65 @@
+.pantalla-mapa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+}
+
+.pantalla-mapa__estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-2);
+  min-height: 14rem;
+  padding: var(--esp-6);
+  border: 1px solid var(--color-borde);
+  border-radius: 4px 12px 12px 12px;
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  text-align: center;
+}
+
+.pantalla-mapa__estado h2,
+.pantalla-mapa__estado p {
+  margin: 0;
+}
+
+.pantalla-mapa__estado h2 {
+  font-size: 1.125rem;
+}
+
+.pantalla-mapa__estado p {
+  color: var(--color-texto-suave);
+}
+
+.pantalla-mapa__icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--color-aviso);
+  color: var(--color-texto);
+  font-weight: 700;
+}
+
+.pantalla-mapa__estado--error {
+  background: var(--color-error-fondo);
+}
+
+.pantalla-mapa__estado--error .pantalla-mapa__icono {
+  background: var(--color-error);
+  color: var(--color-fondo);
+}
+
+.pantalla-mapa__estado--error .aviso-error {
+  width: 100%;
+  color: var(--color-texto);
+}
+
+.pantalla-mapa__backend {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: 0.875rem;
+}
