@@ -1,4 +1,6 @@
-import { obtenerConfiguracion } from '../core/config';
+import { useEffect, useState } from 'react';
+import { apiClient } from '../core/apiClient';
+import { config } from '../core/config';
 import { Cargando } from '../componentes/Cargando';
 import { MensajeError } from '../componentes/MensajeError';
 import { MapaRuta } from '../componentes/MapaRuta';
@@ -12,12 +14,31 @@ import './Mapa.css';
  * El mapa real lo trae HU-50, el bus en movimiento HU-51 y el contador HU-52.
  */
 export function Mapa() {
-  const { apiUrl } = obtenerConfiguracion();
-  const { rutas, rutaActiva, paradas, cargando, error, reintentar } = useRutas();
+  const [rutas, setRutas] = useState<Ruta[] | null>(null);
+  const [error, setError] = useState<unknown>(null);
+  const [intento, setIntento] = useState(0);
+
+  const { apiBaseUrl } = config;
+
+  useEffect(() => {
+    const control = new AbortController();
+    setError(null);
+    setRutas(null);
+
+    apiClient
+      .get<Ruta[]>('/api/v1/rutas', { signal: control.signal })
+      .then((datos) => setRutas(datos ?? []))
+      .catch((causa) => setError(causa));
+
+    return () => control.abort();
+  }, [intento]);
 
   return (
     <div className="pantalla-mapa">
       <h1>Bus electrico de Jalapa</h1>
+      <p style={{ color: 'var(--color-texto-suave)', fontSize: '0.875rem' }}>
+        Backend: <code>{apiBaseUrl}</code>
+      </p>
 
       {cargando && (
         <section className="pantalla-mapa__estado" role="status" aria-live="polite">
