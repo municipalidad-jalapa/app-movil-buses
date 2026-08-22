@@ -1,0 +1,15 @@
+.marcador-bus {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  color: var(--verde-jumay);
+  pointer-events: none;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.marcador-bus svg {
+  width: 28px;
+  height: 28px;
+}
