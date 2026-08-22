@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type {
   GeoJSONSource,
+  LngLatBoundsLike,
   Map as MapaMapLibre,
   Marker,
   Popup,
@@ -67,6 +68,7 @@ export function obtenerCoordenadasRuta(paradas: Parada[]): Coordenadas[] {
     .map(({ latitud, longitud }) => ({ latitud, longitud }));
 }
 
+<<<<<<< HEAD
 export function obtenerEstilo(): string | StyleSpecification {
   const urlPmtiles = import.meta.env.VITE_PMTILES_URL?.trim();
   if (!urlPmtiles) {
@@ -74,6 +76,23 @@ export function obtenerEstilo(): string | StyleSpecification {
       ? ESTILO_OSM_RESPALDO_OSCURO
       : ESTILO_OSM_RESPALDO;
   }
+=======
+export function obtenerLimitesParadas(
+  paradas: Parada[],
+): LngLatBoundsLike | undefined {
+  const coordenadas = obtenerCoordenadasRuta(paradas);
+  if (coordenadas.length === 0) return undefined;
+
+  const longitudes = coordenadas.map(({ longitud }) => longitud);
+  const latitudes = coordenadas.map(({ latitud }) => latitud);
+  return [
+    [Math.min(...longitudes), Math.min(...latitudes)],
+    [Math.max(...longitudes), Math.max(...latitudes)],
+  ];
+}
+
+let pmtilesRegistrado = false;
+>>>>>>> 56f2479927b017ebdc73e73d75bbce0f4d7d8579
 
   // TODO: DevOps aún no publica el archivo .pmtiles.
   return {
@@ -145,7 +164,11 @@ export function MapaRuta({
     const instancia = mapa.current;
     const CrearMarcador = ConstructorMarcador.current;
     const CrearPopup = ConstructorPopup.current;
+<<<<<<< HEAD
     if (estado !== 'listo' || !instancia || !CrearMarcador) return undefined;
+=======
+    if (estado !== 'listo' || !instancia || !CrearMarcador || !CrearPopup) return undefined;
+>>>>>>> 56f2479927b017ebdc73e73d75bbce0f4d7d8579
 
     const coordenadas = obtenerCoordenadasRuta(paradas);
     const geojson: FeatureCollection<LineString | Point> = {
@@ -226,8 +249,14 @@ export function MapaRuta({
 
         return new CrearMarcador({ element: nodo })
           .setLngLat([parada.longitud, parada.latitud])
+          .setPopup(new CrearPopup({ closeButton: true, closeOnClick: true }).setText(parada.nombre))
           .addTo(instancia);
       });
+
+    const limites = obtenerLimitesParadas(paradas);
+    if (limites) {
+      instancia.fitBounds(limites, { padding: 48, maxZoom: 15, duration: 0 });
+    }
 
     return () => {
       ventanas.current.forEach((ventana) => ventana.remove());
