@@ -61,7 +61,7 @@ export function Mapa() {
         </ul>
       )}
 
-      <p style={{ marginTop: 'var(--esp-8)', color: 'var(--color-texto-suave)' }}>
+      <p style={{ marginTop: 'var(--esp-8)', color: 'var(--tinta-secundaria)' }}>
         Esqueleto de HU-26. El mapa llega en HU-50 y el contador en HU-52.
       </p>
     </div>

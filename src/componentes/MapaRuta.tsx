@@ -22,6 +22,7 @@ interface Props {
   estilo?: string;
   ruta?: Ruta | null;
   paradas?: Parada[];
+  paradaDestacadaId?: number;
 }
 
 const CENTRO_JALAPA: Coordenadas = { latitud: 14.6349, longitud: -89.9882 };
@@ -38,8 +39,27 @@ const ESTILO_OSM_RESPALDO: StyleSpecification = {
   layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
 };
 
+const ESTILO_OSM_RESPALDO_OSCURO: StyleSpecification = {
+  version: 8,
+  sources: ESTILO_OSM_RESPALDO.sources,
+  layers: [
+    { id: 'fondo-oscuro', type: 'background', paint: { 'background-color': '#1A1712' } },
+    { id: 'osm-oscuro', type: 'raster', source: 'osm', paint: {
+      'raster-opacity': 0.18,
+      'raster-saturation': -1,
+      'raster-contrast': 0.15,
+    } },
+  ],
+};
+
 const ID_FUENTE_RUTA = 'ecoruta-ruta-activa';
+const ID_CAPA_CONTORNO = 'ecoruta-contorno-ruta';
 const ID_CAPA_RUTA = 'ecoruta-trazo-ruta';
+export const TEXTO_ATRIBUCION_OSM = '© OpenStreetMap';
+
+export function AtribucionMapa() {
+  return <div className="mapa-ruta__atribucion" aria-label="Atribución del mapa">{TEXTO_ATRIBUCION_OSM}</div>;
+}
 
 export function obtenerCoordenadasRuta(paradas: Parada[]): Coordenadas[] {
   return [...paradas]
@@ -68,7 +88,9 @@ export function obtenerLimitesParadas(
 let pmtilesRegistrado = false;
 
 function obtenerEstilo(): string | StyleSpecification {
-  return import.meta.env.VITE_MAP_STYLE_URL?.trim() || ESTILO_OSM_RESPALDO;
+  if (import.meta.env.VITE_MAP_STYLE_URL?.trim()) return import.meta.env.VITE_MAP_STYLE_URL.trim();
+  const oscuro = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return oscuro ? ESTILO_OSM_RESPALDO_OSCURO : ESTILO_OSM_RESPALDO;
 }
 
 export function MapaRuta({
@@ -77,6 +99,7 @@ export function MapaRuta({
   estilo,
   ruta = null,
   paradas = ruta?.paradas ?? [],
+  paradaDestacadaId,
 }: Props) {
   const nodoMapa = useRef<HTMLDivElement>(null);
   const mapa = useRef<MapaMapLibre | null>(null);
@@ -107,6 +130,7 @@ export function MapaRuta({
           style: estilo || obtenerEstilo(),
           center: [centro.longitud, centro.latitud],
           zoom,
+          attributionControl: false,
           dragRotate: false,
           touchPitch: false,
         });
@@ -155,14 +179,23 @@ export function MapaRuta({
     } else {
       instancia.addSource(ID_FUENTE_RUTA, { type: 'geojson', data: geojson });
       instancia.addLayer({
+        id: ID_CAPA_CONTORNO,
+        type: 'line',
+        source: ID_FUENTE_RUTA,
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': '#FBF7F0',
+          'line-width': 16,
+        },
+      });
+      instancia.addLayer({
         id: ID_CAPA_RUTA,
         type: 'line',
         source: ID_FUENTE_RUTA,
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#2F5D3A',
-          'line-width': 6,
-          'line-opacity': 0.95,
+          'line-color': '#10402A',
+          'line-width': 8,
         },
       });
     }
@@ -175,15 +208,35 @@ export function MapaRuta({
       )
       .sort((a, b) => a.orden - b.orden)
       .map((parada) => {
-        const nodo = document.createElement('div');
-        nodo.className = 'mapa-ruta__marcador-parada';
-        nodo.setAttribute('role', 'img');
-        nodo.setAttribute('aria-label', `Parada ${parada.orden}: ${parada.nombre}`);
-        nodo.title = parada.nombre;
-        return new CrearMarcador({ element: nodo })
+        const destacada = parada.id === paradaDestacadaId;
+        const contenedor = document.createElement('div');
+        contenedor.className = 'mapa-ruta__marcador-contenedor';
+        contenedor.setAttribute('role', 'img');
+        contenedor.setAttribute('aria-label', `Parada ${parada.orden}: ${parada.nombre}`);
+        contenedor.title = parada.nombre;
+
+        const nodo = document.createElement('span');
+        nodo.className = `mapa-ruta__marcador-parada${destacada ? ' mapa-ruta__marcador-parada--destacada' : ''}`;
+        contenedor.appendChild(nodo);
+
+        if (destacada) {
+          const etiqueta = document.createElement('span');
+          etiqueta.className = 'mapa-ruta__etiqueta-parada';
+          etiqueta.textContent = parada.nombre;
+          contenedor.appendChild(etiqueta);
+        }
+
+        const marcador = new CrearMarcador({ element: contenedor })
           .setLngLat([parada.longitud, parada.latitud])
-          .setPopup(new CrearPopup({ closeButton: true, closeOnClick: true }).setText(parada.nombre))
           .addTo(instancia);
+        if (!destacada) {
+          marcador.setPopup(new CrearPopup({
+            closeButton: true,
+            closeOnClick: true,
+            className: 'mapa-ruta__popup',
+          }).setText(parada.nombre));
+        }
+        return marcador;
       });
 
     const limites = obtenerLimitesParadas(paradas);
@@ -200,10 +253,16 @@ export function MapaRuta({
   return (
     <section className="mapa-ruta" aria-label="Mapa de la ruta de EcoRuta">
       <div ref={nodoMapa} className="mapa-ruta__lienzo" aria-hidden={estado !== 'listo'} />
+      <AtribucionMapa />
       {estado === 'cargando' && (
         <div className="mapa-ruta__estado" role="status" aria-live="polite">
-          <span className="mapa-ruta__icono" aria-hidden="true">...</span>
-          <span>Cargando el mapa...</span>
+          <div className="mapa-ruta__esqueleto" aria-hidden="true">
+            {Array.from({ length: 15 }, (_, indice) => <span key={indice} />)}
+          </div>
+          <div className="mapa-ruta__cargando">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+            <span>Cargando el mapa…</span>
+          </div>
         </div>
       )}
       {estado === 'error' && (

@@ -4,9 +4,9 @@
   height: min(62dvh, 32rem);
   min-height: 24rem;
   overflow: hidden;
-  border: 1px solid var(--borde, var(--color-borde));
+  border: 1px solid var(--borde);
   border-radius: 4px 12px 12px 12px;
-  background: var(--superficie-base, var(--color-superficie));
+  background: var(--superficie-base);
 }
 
 .mapa-ruta__lienzo {
@@ -23,54 +23,161 @@
   justify-content: center;
   gap: 8px;
   padding: 16px;
-  color: var(--tinta, var(--color-texto));
-  background: var(--superficie-base, var(--color-superficie));
+  color: var(--tinta);
+  background: var(--superficie-base);
   font-size: 15px;
   line-height: 22px;
   text-align: center;
 }
 
-.mapa-ruta__icono {
+.mapa-ruta__esqueleto {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 2px;
+  background: #DDD3C2;
+}
+
+.mapa-ruta__esqueleto span {
+  background: #EFE7D7;
+}
+
+.mapa-ruta__esqueleto span:nth-child(odd) {
+  background: #E6DCC8;
+  animation: latido 1.6s ease-in-out infinite;
+}
+
+.mapa-ruta__esqueleto span:nth-child(1) { animation-delay: 0s; }
+.mapa-ruta__esqueleto span:nth-child(3) { animation-delay: .2s; }
+.mapa-ruta__esqueleto span:nth-child(5) { animation-delay: .4s; }
+.mapa-ruta__esqueleto span:nth-child(7) { animation-delay: .1s; }
+.mapa-ruta__esqueleto span:nth-child(9) { animation-delay: .3s; }
+.mapa-ruta__esqueleto span:nth-child(11) { animation-delay: .5s; }
+.mapa-ruta__esqueleto span:nth-child(13) { animation-delay: .15s; }
+.mapa-ruta__esqueleto span:nth-child(15) { animation-delay: .35s; }
+
+@keyframes latido {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .55; }
+}
+
+.mapa-ruta__cargando {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #FBF7F0;
+  color: #2E2A24;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mapa-ruta__estado--error .mapa-ruta__icono {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
   border-radius: 999px;
-  background: var(--amarillo-volcan, var(--color-aviso));
-  color: var(--amarillo-volcan-tinta, var(--color-texto));
-  font-variant-numeric: tabular-nums;
-}
-
-.mapa-ruta__estado--error .mapa-ruta__icono {
-  background: var(--rojo-santa-marta-superficie, var(--color-error-fondo));
-  color: var(--rojo-santa-marta-tinta, var(--color-error));
+  background: var(--rojo-santa-marta-superficie);
+  color: var(--rojo-santa-marta-tinta);
 }
 
 .mapa-ruta__estado button {
   min-width: 48px;
   min-height: 48px;
   margin-top: 8px;
-  background: var(--verde-jumay, var(--color-marca));
+  background: var(--verde-jumay);
   color: var(--superficie-base, #f7f3e9);
 }
 
-.mapa-ruta__marcador-parada {
-  width: 22px;
-  height: 22px;
-  border: 3px solid var(--amarillo-volcan-tinta, #4a3406);
-  border-radius: 50% 50% 50% 4px;
-  background: var(--amarillo-volcan, #e8b33c);
-  box-shadow: 0 1px 4px rgb(34 32 28 / 45%);
-  transform: rotate(-45deg);
+.mapa-ruta__marcador-contenedor {
+  position: relative;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
 }
 
-.mapa-ruta__marcador-parada::after {
-  display: block;
-  width: 6px;
-  height: 6px;
-  margin: 5px auto;
+.mapa-ruta__marcador-parada {
+  width: 18px;
+  height: 18px;
+  border: 5px solid #10402A;
   border-radius: 50%;
-  background: var(--amarillo-volcan-tinta, #4a3406);
+  background: #FBF7F0;
+}
+
+.mapa-ruta__marcador-parada--destacada {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #241C00;
+  background: #F2B705;
+}
+
+.mapa-ruta__marcador-parada--destacada::after {
+  display: block;
+  width: 14px;
+  height: 14px;
+  margin: 10px auto;
+  background: #241C00;
   content: '';
+  transform: rotate(45deg);
+}
+
+.mapa-ruta__etiqueta-parada {
+  position: absolute;
+  bottom: calc(100% - 2px);
+  left: 50%;
+  min-width: max-content;
+  height: 34px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: #F2B705;
+  color: #241C00;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 20px;
+  transform: translateX(-50%);
+}
+
+.mapa-ruta__atribucion {
+  position: absolute;
+  z-index: 2;
+  left: 10px;
+  bottom: 10px;
+  padding: 5px 9px;
+  border: 1px solid #DDD3C2;
+  border-radius: 6px 2px 6px 2px;
+  background: #FBF7F0;
+  color: #2E2A24;
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.mapa-ruta__popup .maplibregl-popup-content {
+  border-radius: 8px;
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+}
+
+@media (prefers-color-scheme: dark) {
+  .mapa-ruta__atribucion {
+    border-color: #3B352B;
+    background: #241F19;
+    color: #E3DACB;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapa-ruta__esqueleto span:nth-child(odd) {
+    animation: none;
+  }
 }

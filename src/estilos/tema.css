@@ -7,25 +7,22 @@
  */
 
 :root {
-  /* Marca: verde por el bus electrico */
-  --color-marca: #0f7a4d;
-  --color-marca-oscuro: #0a5c39;
-  --color-marca-claro: #d8f0e4;
-
-  /* Superficies y texto */
-  --color-fondo: #ffffff;
-  --color-superficie: #f5f7f6;
-  --color-borde: #dfe4e2;
-  --color-texto: #14201b;
-  --color-texto-suave: #5b6b64;
-
-  /* Estados */
-  --color-error: #b3261e;
-  --color-error-fondo: #fcebea;
-  --color-aviso: #8a5a00;
-
-  /* Tipografia del sistema: sin descargar fuentes, que la red movil es cara */
-  --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --verde-jumay: #10402A;
+  --verde-jumay-superficie: #E7EFE4;
+  --amarillo-volcan: #F2B705;
+  --amarillo-volcan-tinta: #241C00;
+  --amarillo-volcan-superficie: #FBF0D6;
+  --rojo-santa-marta: #A8321F;
+  --rojo-santa-marta-tinta: #6E1F12;
+  --rojo-santa-marta-superficie: #F7E4E0;
+  --superficie-base: #F7F3E9;
+  --superficie-tarjeta: #FBF7F0;
+  --tinta: #22201C;
+  --tinta-secundaria: #6B6357;
+  --tinta-tenue: #9A958A;
+  --borde: #DDD3C2;
+  --borde-sutil: #E6DFCD;
+  --fuente: 'Public Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   /* Escala de espaciado */
   --esp-1: 0.25rem;
@@ -48,18 +45,18 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-marca: #4cc78d;
-    --color-marca-oscuro: #35a973;
-    --color-marca-claro: #14332a;
-
-    --color-fondo: #101614;
-    --color-superficie: #182220;
-    --color-borde: #2a3a35;
-    --color-texto: #e8f0ec;
-    --color-texto-suave: #9fb3ab;
-
-    --color-error: #f2b8b5;
-    --color-error-fondo: #3b1512;
-    --color-aviso: #e7c46b;
+    --superficie-base: #1A1712;
+    --superficie-tarjeta: #241F19;
+    --tinta: #E3DACB;
+    --tinta-secundaria: #9A9082;
+    --borde: #3B352B;
   }
+}
+
+@font-face {
+  font-family: 'Public Sans';
+  src: url('/fuentes/public-sans-latino.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
 }

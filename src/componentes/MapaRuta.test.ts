@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { obtenerCoordenadasRuta, obtenerLimitesParadas } from './MapaRuta';
+import { act, create } from 'react-test-renderer';
+import { AtribucionMapa, obtenerCoordenadasRuta, obtenerLimitesParadas } from './MapaRuta';
 import type { Parada } from '../core/tipos';
 
 const parada = (orden: number, latitud: number, longitud: number): Parada => ({
@@ -44,5 +45,18 @@ describe('obtenerLimitesParadas', () => {
 
   it('no devuelve limites cuando no hay coordenadas validas', () => {
     expect(obtenerLimitesParadas([parada(1, Number.NaN, -89.99)])).toBeUndefined();
+  });
+});
+
+describe('AtribucionMapa', () => {
+  it('muestra una atribucion permanente y no colapsable', () => {
+    let vista: ReturnType<typeof create>;
+    act(() => {
+      vista = create(AtribucionMapa());
+    });
+    const atribucion = vista!.root.findByProps({ className: 'mapa-ruta__atribucion' });
+
+    expect(atribucion.props['aria-label']).toBe('Atribución del mapa');
+    expect(atribucion.children).toEqual(['© OpenStreetMap']);
   });
 });

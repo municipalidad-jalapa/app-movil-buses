@@ -12,10 +12,10 @@
   gap: var(--esp-2);
   min-height: 14rem;
   padding: var(--esp-6);
-  border: 1px solid var(--color-borde);
+  border: 1px solid var(--borde);
   border-radius: 4px 12px 12px 12px;
-  background: var(--color-superficie);
-  color: var(--color-texto);
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
   text-align: center;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .pantalla-mapa__estado p {
-  color: var(--color-texto-suave);
+  color: var(--tinta-secundaria);
 }
 
 .pantalla-mapa__icono {
@@ -39,27 +39,27 @@
   width: 2rem;
   height: 2rem;
   border-radius: 999px;
-  background: var(--color-aviso);
-  color: var(--color-texto);
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
   font-weight: 700;
 }
 
 .pantalla-mapa__estado--error {
-  background: var(--color-error-fondo);
+  background: var(--rojo-santa-marta-superficie);
 }
 
 .pantalla-mapa__estado--error .pantalla-mapa__icono {
-  background: var(--color-error);
-  color: var(--color-fondo);
+  background: var(--rojo-santa-marta);
+  color: var(--superficie-tarjeta);
 }
 
 .pantalla-mapa__estado--error .aviso-error {
   width: 100%;
-  color: var(--color-texto);
+  color: var(--tinta);
 }
 
 .pantalla-mapa__backend {
   margin: 0;
-  color: var(--color-texto-suave);
+  color: var(--tinta-secundaria);
   font-size: 0.875rem;
 }
