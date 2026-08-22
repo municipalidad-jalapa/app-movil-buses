@@ -1,4 +1,4 @@
-import { obtenerConfiguracion } from './config';
+import { config } from './config';
 import type { Posicion } from './tipos';
 
 /**
@@ -44,8 +44,8 @@ export function suscribirseAPosiciones(
   manejadores: ManejadoresDelFlujo,
   crearFuente: FabricaDeFuente = (url) => new EventSource(url) as unknown as FuenteDeEventos,
 ): () => void {
-  const { apiUrl } = obtenerConfiguracion();
-  const fuente = crearFuente(`${apiUrl}${RUTA_STREAM}`);
+  const { apiBaseUrl } = config;
+  const fuente = crearFuente(`${apiBaseUrl}${RUTA_STREAM}`);
 
   manejadores.onEstado('conectando');
 
