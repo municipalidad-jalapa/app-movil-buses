@@ -5,7 +5,7 @@ import gt.muni.jalapa.ecoruta.common.ReglaDeNegocioException;
 import gt.muni.jalapa.ecoruta.flota.dominio.Equipo;
 import gt.muni.jalapa.ecoruta.flota.repositorio.EquipoRepository;
 import gt.muni.jalapa.ecoruta.flota.servicio.EquipoAutenticado;
-import gt.muni.jalapa.ecoruta.telemetria.dominio.Geo;
+import gt.muni.jalapa.ecoruta.common.Geo;
 import gt.muni.jalapa.ecoruta.telemetria.dominio.PosicionHistorica;
 import gt.muni.jalapa.ecoruta.telemetria.repositorio.PosicionHistoricaRepository;
 import gt.muni.jalapa.ecoruta.telemetria.web.dto.LoteAceptadoResponse;
