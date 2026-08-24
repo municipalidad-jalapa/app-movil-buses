@@ -13,13 +13,13 @@ class ConsultarRutasIT extends IntegracionPostgisTest {
 
     @Test
     void devuelve_las_rutas_activas_con_sus_paradas() throws Exception {
-        // V2 siembra una ruta con cuatro paradas.
+        // V6 siembra la ruta de ejemplo: un circuito con ocho paradas.
         mockMvc.perform(get("/api/v1/rutas"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(1)))
-                .andExpect(jsonPath("$[0].nombre").value("Ruta Centro - Terminal"))
+                .andExpect(jsonPath("$[0].nombre").value("Ruta de ejemplo - Centro de Jalapa"))
                 .andExpect(jsonPath("$[0].activa").value(true))
-                .andExpect(jsonPath("$[0].paradas", org.hamcrest.Matchers.hasSize(4)));
+                .andExpect(jsonPath("$[0].paradas", org.hamcrest.Matchers.hasSize(8)));
     }
 
     @Test
@@ -35,8 +35,8 @@ class ConsultarRutasIT extends IntegracionPostgisTest {
         mockMvc.perform(get("/api/v1/rutas"))
                 .andExpect(jsonPath("$[0].paradas[0].orden").value(1))
                 .andExpect(jsonPath("$[0].paradas[0].nombre").value("Parque Central"))
-                .andExpect(jsonPath("$[0].paradas[3].orden").value(4))
-                .andExpect(jsonPath("$[0].paradas[3].nombre").value("Terminal de Buses"));
+                .andExpect(jsonPath("$[0].paradas[7].orden").value(8))
+                .andExpect(jsonPath("$[0].paradas[7].nombre").value("Transito Rojas - Chipilapa"));
     }
 
     @Test
@@ -75,7 +75,7 @@ class ConsultarRutasIT extends IntegracionPostgisTest {
         mockMvc.perform(get("/api/v1/rutas/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.paradas", org.hamcrest.Matchers.hasSize(4)));
+                .andExpect(jsonPath("$.paradas", org.hamcrest.Matchers.hasSize(8)));
     }
 
     @Test

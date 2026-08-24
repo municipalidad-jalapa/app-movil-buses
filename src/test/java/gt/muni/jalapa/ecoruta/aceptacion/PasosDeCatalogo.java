@@ -55,7 +55,7 @@ public class PasosDeCatalogo {
     @Y("la última parada del recorrido es {string}")
     public void la_ultima_parada_es(String nombre) throws Exception {
         contexto.ultimaRespuesta()
-                .andExpect(jsonPath("$[0].paradas[3].nombre").value(nombre));
+                .andExpect(jsonPath("$[0].paradas[-1:].nombre", org.hamcrest.Matchers.contains(nombre)));
     }
 
     @Entonces("cada parada trae su latitud y su longitud por nombre")
@@ -75,5 +75,38 @@ public class PasosDeCatalogo {
 
         assertThat(latitud).isBetween(14.0, 15.0);
         assertThat(longitud).isBetween(-91.0, -89.0);
+    }
+
+    @Entonces("la ruta trae un trazado con más puntos que paradas")
+    public void la_ruta_trae_trazado() throws Exception {
+        // El trazado sigue las calles: entre dos paradas hay muchos vertices.
+        // Si tuviera tantos puntos como paradas seria una recta, que es justo lo
+        // que este dato existe para evitar.
+        Tamanos tam = leerRuta();
+        assertThat(tam.trazado()).isGreaterThan(tam.paradas());
+    }
+
+    @Y("el trazado empieza y termina en el mismo punto, porque es un circuito")
+    public void el_trazado_cierra() throws Exception {
+        contexto.ultimaRespuesta()
+                .andExpect(jsonPath("$[0].trazado[0].latitud")
+                        .value(leerJson("$[0].trazado[-1:].latitud").get(0)))
+                .andExpect(jsonPath("$[0].trazado[0].longitud")
+                        .value(leerJson("$[0].trazado[-1:].longitud").get(0)));
+    }
+
+    private <T> java.util.List<T> leerJson(String ruta) throws Exception {
+        String cuerpo = contexto.ultimaRespuesta().andReturn().getResponse().getContentAsString();
+        return com.jayway.jsonpath.JsonPath.read(cuerpo, ruta);
+    }
+
+    private record Tamanos(int paradas, int trazado) {
+    }
+
+    private Tamanos leerRuta() throws Exception {
+        String cuerpo = contexto.ultimaRespuesta().andReturn().getResponse().getContentAsString();
+        java.util.List<?> paradas = com.jayway.jsonpath.JsonPath.read(cuerpo, "$[0].paradas");
+        java.util.List<?> trazado = com.jayway.jsonpath.JsonPath.read(cuerpo, "$[0].trazado");
+        return new Tamanos(paradas.size(), trazado.size());
     }
 }
