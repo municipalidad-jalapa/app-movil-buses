@@ -15,6 +15,7 @@ const RUTA: Ruta = {
     { id: 3, nombre: 'Hospital Nacional', latitud: 14.6365, longitud: -89.984, orden: 3 },
     { id: 4, nombre: 'Terminal de Buses', latitud: 14.639, longitud: -89.981, orden: 4 },
   ],
+  trazado: [],
 };
 
 const BUS: Posicion = {
