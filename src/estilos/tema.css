@@ -26,6 +26,8 @@
 
   /* Tipografia del sistema: sin descargar fuentes, que la red movil es cara */
   --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* La del mock de design/. Public Sans si esta instalada; si no, la del sistema. */
+  --fuente-mapa: 'Public Sans', system-ui, -apple-system, sans-serif;
 
   /* Escala de espaciado */
   --esp-1: 0.25rem;
@@ -52,6 +54,8 @@
   --amarillo-volcan: #e8b33c;
   --amarillo-volcan-tinta: #4a3406;
   --amarillo-volcan-superficie: #fbf0d6;
+  /* Fondo de pagina, blanco calido (DESIGN.md 3.3). */
+  --superficie-base: #F7F3E9;
   --superficie-tarjeta: #fffdf7;
   --tinta: #22201c;
   --tinta-secundaria: #7a7669;
