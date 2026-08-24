@@ -37,11 +37,14 @@ public class Ruta {
     private String nombre;
 
     /**
-     * El recorrido dibujado sobre las calles. Nullable: hoy esta vacio en los
-     * datos semilla y lo llena SCRUM-136, que necesita levantamiento en campo.
+     * El recorrido dibujado sobre las calles. Nullable.
      *
-     * <p>El mapa no depende de esto: dibuja la linea uniendo las paradas en su
-     * orden. El trazado da el recorrido real siguiendo las calles.
+     * <p>Hoy trae una ruta de EJEMPLO (V6), util para la demo pero inventada.
+     * El recorrido de verdad lo carga SCRUM-136, que necesita levantamiento en
+     * campo: que esta columna tenga dato no significa que sea el bueno.
+     *
+     * <p>El mapa no depende de esto: si viene vacio dibuja la linea uniendo las
+     * paradas en su orden. El trazado solo hace que siga las calles.
      */
     @Column(name = "trazado")
     private LineString trazado;
