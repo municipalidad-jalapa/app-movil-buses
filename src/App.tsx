@@ -6,12 +6,25 @@ import { NoEncontrada } from './paginas/NoEncontrada';
 export function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Mapa />} />
-          <Route path="*" element={<NoEncontrada />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            // El mapa a sangre: es la vista principal (DESIGN.md seccion 11).
+            <Layout aSangre>
+              <Mapa />
+            </Layout>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <Layout>
+              <NoEncontrada />
+            </Layout>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }
