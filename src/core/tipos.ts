@@ -25,12 +25,24 @@ export interface Parada {
   orden: number;
 }
 
-/** `catalogo/dto/RutaDTO.java` */
+/** `catalogo/web/dto/PuntoResponse.java` */
+export interface Punto {
+  latitud: number;
+  longitud: number;
+}
+
+/** `catalogo/web/dto/RutaResponse.java` */
 export interface Ruta {
   id: number;
   nombre: string;
   activa: boolean;
   paradas: Parada[];
+  /**
+   * El recorrido siguiendo las calles. Llega vacio si la ruta aun no lo tiene
+   * cargado, y entonces el mapa une las paradas con rectas: se ve peor, pero se
+   * ve. Nunca se asume que viene lleno.
+   */
+  trazado: Punto[];
 }
 
 /**

@@ -11,6 +11,7 @@ import {
 } from 'maplibre-gl';
 import type { Feature, FeatureCollection, GeoJSON as GeoJsonDato } from 'geojson';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { recorridoDeRuta } from '../core/recorridoDeRuta';
 import { estiloOpenStreetMap, estiloOpenStreetMapOscuro } from '../core/estiloMapa';
 import { soportaMapa } from '../core/soporteDeMapa';
 import type { Posicion, Ruta } from '../core/tipos';
@@ -148,9 +149,10 @@ export function MapaOpenStreetMap({
 
     // El encuadre se hace UNA vez: si se rehiciera con cada dato nuevo, el mapa
     // saltaria bajo el marcador y seria imposible de seguir.
-    if (!encuadrado.current && ruta.paradas.length > 0) {
+    const paraEncuadrar = recorridoDeRuta(ruta);
+    if (!encuadrado.current && paraEncuadrar.length > 0) {
       const limites = new LngLatBounds();
-      ruta.paradas.forEach((p) => limites.extend([p.longitud, p.latitud]));
+      paraEncuadrar.forEach((p) => limites.extend([p.longitud, p.latitud]));
       instancia.fitBounds(limites, { padding: 72, duration: 0, maxZoom: 16 });
       encuadrado.current = true;
     }
@@ -186,12 +188,14 @@ function pintarRuta(
 ) {
   if (!ruta) return;
 
+  const recorrido = recorridoDeRuta(ruta);
+
   const linea: Feature = {
     type: 'Feature',
     properties: {},
     geometry: {
       type: 'LineString',
-      coordinates: ruta.paradas.map((p) => [p.longitud, p.latitud]),
+      coordinates: recorrido.map((p) => [p.longitud, p.latitud]),
     },
   };
 
