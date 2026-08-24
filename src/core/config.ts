@@ -8,24 +8,16 @@ import { z } from 'zod';
  * lanza al cargarse: la app no arranca a medias.
  *
  * Las variables VITE_ viajan en el bundle. No pongas secretos de servidor.
- * La restriccion de la llave de Maps por dominio es HU-132.
  */
 
 const esquemaEntorno = z.object({
   VITE_API_BASE_URL: z.url({
     error: 'VITE_API_BASE_URL falta o no es una URL valida. Usa el formato https://api.ejemplo.com',
   }),
-  VITE_GOOGLE_MAPS_API_KEY: z
-    .string({
-      error: 'Falta la variable VITE_GOOGLE_MAPS_API_KEY. Copiá .env.example a .env y completala.',
-    })
-    .trim()
-    .min(1, 'VITE_GOOGLE_MAPS_API_KEY esta vacia. Copiá .env.example a .env y completala.'),
 });
 
 export interface ConfiguracionEcoRuta {
   readonly apiBaseUrl: string;
-  readonly googleMapsApiKey: string;
 }
 
 /** Quita la barra final para que las rutas se concatenen sin duplicarla. */
@@ -44,9 +36,6 @@ function mensajeDeValidacion(error: z.ZodError, origen: Record<string, unknown>)
         ? 'Falta la variable VITE_API_BASE_URL. Copiá .env.example a .env y completala.'
         : `VITE_API_BASE_URL no es una URL valida (valor recibido: "${String(recibido)}"). Usa el formato https://api.ejemplo.com`;
     }
-    if (variable === 'VITE_GOOGLE_MAPS_API_KEY') {
-      return 'Falta la variable VITE_GOOGLE_MAPS_API_KEY o esta vacia. Copiá .env.example a .env y completala.';
-    }
     return `${variable}: ${issue.message}`;
   });
   return `Configuracion invalida. La aplicacion no puede arrancar.\n${lineas.join('\n')}`;
@@ -61,7 +50,6 @@ export function leerConfiguracion(
 ): ConfiguracionEcoRuta {
   const resultado = esquemaEntorno.safeParse({
     VITE_API_BASE_URL: origen.VITE_API_BASE_URL,
-    VITE_GOOGLE_MAPS_API_KEY: origen.VITE_GOOGLE_MAPS_API_KEY,
   });
 
   if (!resultado.success) {
@@ -70,7 +58,6 @@ export function leerConfiguracion(
 
   return Object.freeze({
     apiBaseUrl: normalizarUrl(resultado.data.VITE_API_BASE_URL),
-    googleMapsApiKey: resultado.data.VITE_GOOGLE_MAPS_API_KEY,
   });
 }
 
