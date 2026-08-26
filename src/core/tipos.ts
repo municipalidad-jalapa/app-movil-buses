@@ -75,3 +75,14 @@ export interface CrearRegistroRequest {
   latitud: number;
   longitud: number;
 }
+
+/**
+ * Respuesta esperada al crear correctamente el registro.
+ * Este contrato se usará en la pantalla de la HU-53.
+ */
+export interface RegistroCreadoResponse {
+  id: number;
+  paradaId: number;
+  estado: string;
+  expiraEn: string;
+}
