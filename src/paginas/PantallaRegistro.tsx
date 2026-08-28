@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { MensajeError } from '../componentes/MensajeError';
+import { PreferenciaNotificaciones } from '../componentes/PreferenciaNotificaciones';
 import { obtenerIdDispositivo } from '../core/identidadDispositivo';
 import { registrarDemanda } from '../core/registroDemanda';
 import type { RegistroCreadoResponse } from '../core/tipos';
+import { useReserva } from '../hooks/useReserva';
 import { useUbicacion } from '../hooks/useUbicacion';
 import { ErrorApi } from '../core/errores';
 
@@ -39,6 +41,9 @@ export function PantallaRegistro() {
 
   const [errorRegistro, setErrorRegistro] = useState<unknown>(null);
 
+  // La reserva se comparte con el mapa, que es donde se responde el abordaje (HU-58).
+  const { guardarReserva } = useReserva();
+
   const {
     solicitando,
     error: errorUbicacion,
@@ -70,6 +75,12 @@ export function PantallaRegistro() {
       });
 
       setRegistroCreado(respuesta);
+      guardarReserva({
+        id: respuesta.id,
+        paradaId: respuesta.paradaId,
+        estado: 'ACTIVA',
+        expiraEn: respuesta.expiraEn,
+      });
       setEstado('registrado');
       setMostrarExplicacion(false);
    } catch (causa) {
@@ -167,7 +178,10 @@ export function PantallaRegistro() {
         registrarte nuevamente.
       </p>
     )}
-  </div>  
+
+    {/* Recien aca tiene sentido pedir el permiso: ya hay algo que avisar (HU-58). */}
+    <PreferenciaNotificaciones />
+  </div>
    )}
 </section>
   );

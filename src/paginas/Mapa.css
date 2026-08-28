@@ -41,12 +41,45 @@
   padding: var(--esp-3);
 }
 
-.pantalla-mapa__pie {
+/*
+ * Todo lo que va abajo del mapa, en una sola pila (HU-58).
+ *
+ * Abajo a proposito: arriba taparia el marcador del bus, que DESIGN.md §8
+ * prohibe [DURA]. Apilar en vez de posicionar cada pieza suelta evita que la
+ * tarjeta de abordaje y la hora del ultimo dato se monten una sobre otra.
+ */
+.pantalla-mapa__inferior {
   position: absolute;
+  left: var(--esp-3);
   right: var(--esp-3);
-  bottom: var(--esp-3);
+  bottom: calc(var(--esp-3) + var(--seguro-abajo));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--esp-2);
+  max-width: var(--ancho-maximo);
+  margin-inline: auto;
+  /* Solo las piezas reciben el toque: el hueco deja pasar el gesto al mapa. */
+  pointer-events: none;
+}
+
+.pantalla-mapa__inferior > * {
+  pointer-events: auto;
+}
+
+.pantalla-mapa__pie {
   /* La atribucion vive abajo a la izquierda: no se pisan. */
   max-width: calc(100% - 160px);
+}
+
+/* La tarjeta de abordaje ocupa el ancho util; la hora se queda a la derecha. */
+.pantalla-mapa__abordaje {
+  align-self: stretch;
+}
+
+/* Sin nada que preguntar el envoltorio se va, y no deja un hueco del `gap`. */
+.pantalla-mapa__abordaje:empty {
+  display: none;
 }
 
 /* La pastilla de la hora del ultimo dato, sobre el mapa. */

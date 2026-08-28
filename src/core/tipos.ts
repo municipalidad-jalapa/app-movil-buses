@@ -86,3 +86,42 @@ export interface RegistroCreadoResponse {
   estado: string;
   expiraEn: string;
 }
+
+/**
+ * Estado de la reserva del pasajero (HU-58).
+ *
+ * ACTIVA la deja HU-53 al reservar. Las otras dos salen de la respuesta de
+ * abordaje: ABORDO si el pasajero logro subir, CANCELADA si no.
+ */
+export type EstadoReserva = 'ACTIVA' | 'ABORDO' | 'CANCELADA';
+
+/**
+ * La reserva tal como la guarda la app.
+ *
+ * OJO CON EL VOCABULARIO: esta historia dice "reserva" y HU-53 dice "registro de
+ * demanda". Son la misma cosa. El backend todavia no unifica los nombres y el
+ * contrato de HU-58 usa /api/v1/reservas, asi que aca conviven los dos terminos.
+ */
+export interface Reserva {
+  id: number;
+  paradaId: number;
+  estado: EstadoReserva;
+  expiraEn: string;
+}
+
+/** Cuerpo de `POST /api/v1/dispositivos/notificaciones`. Responde 204. */
+export interface RegistroTokenRequest {
+  dispositivoId: string;
+  tokenNotificacion: string;
+}
+
+/** Cuerpo de `POST /api/v1/reservas/{id}/abordaje`. */
+export interface AbordajeRequest {
+  subio: boolean;
+}
+
+/** Respuesta 200 de `POST /api/v1/reservas/{id}/abordaje`. */
+export interface RespuestaAbordaje {
+  id: number;
+  estado: EstadoReserva;
+}

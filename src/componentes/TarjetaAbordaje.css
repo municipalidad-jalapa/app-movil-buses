@@ -1,0 +1,96 @@
+/*
+ * Pregunta de abordaje.
+ *
+ * Misma voluta que el resto de tarjetas: esquina superior izquierda a 4 px
+ * contra 12 px en las otras tres (DESIGN.md §5).
+ */
+.abordaje {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--borde);
+  border-radius: 4px 12px 12px 12px;
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+}
+
+.abordaje h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 500;
+}
+
+.abordaje__acciones {
+  display: flex;
+  gap: 8px;
+}
+
+/*
+ * Los dos botones pesan igual: "no subi" no es la opcion secundaria.
+ * Cada uno lleva icono ademas de color (DESIGN.md §3.1 [DURA]) y respeta el
+ * area tactil de 48 px (§12 [DURA]).
+ */
+.abordaje__boton {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.abordaje__boton:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.abordaje__boton--si {
+  border: 1px solid var(--verde-jumay);
+  background: var(--verde-jumay);
+  color: var(--superficie-base);
+}
+
+.abordaje__boton--no {
+  border: 1px solid var(--borde);
+  background: var(--superficie-base);
+  color: var(--tinta);
+}
+
+.abordaje__icono {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.abordaje__enviando {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--tinta-secundaria);
+}
+
+/* Estado resuelto: informa, no felicita ni se disculpa (DESIGN.md §10). */
+.abordaje--resuelto {
+  flex-direction: row;
+  align-items: center;
+  background: var(--verde-jumay-superficie);
+  border-color: var(--verde-jumay);
+}
+
+.abordaje--resuelto p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.abordaje--resuelto .abordaje__icono {
+  color: var(--verde-jumay);
+}

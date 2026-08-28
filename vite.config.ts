@@ -27,6 +27,10 @@ export default defineConfig({
     environment: 'node',
     env: {
       VITE_API_BASE_URL: 'https://api.ejemplo.test',
+      // Las VITE_FIREBASE_* se omiten a proposito: config.mensajeria queda en
+      // null y las pruebas comprueban que la app funciona con los avisos
+      // apagados, que es como corre hoy en CI. Los casos con Firebase
+      // configurado pasan el entorno a mano a leerConfiguracion().
     },
   },
 });

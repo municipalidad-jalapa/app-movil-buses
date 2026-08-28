@@ -10,6 +10,7 @@ import {
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { PantallaRegistro } from './PantallaRegistro';
+import { ReservaProvider } from '../estado/ReservaProvider';
 import { useUbicacion } from '../hooks/useUbicacion';
 import { registrarDemanda } from '../core/registroDemanda';
 import { obtenerIdDispositivo } from '../core/identidadDispositivo';
@@ -57,14 +58,16 @@ describe('PantallaRegistro', () => {
 
   it('registra al pasajero con parada, dispositivo y ubicacion', async () => {
     render(
-      <MemoryRouter initialEntries={['/registro/3']}>
-        <Routes>
-          <Route
-            path="/registro/:paradaId"
-            element={<PantallaRegistro />}
-          />
-        </Routes>
-      </MemoryRouter>,
+      <ReservaProvider>
+        <MemoryRouter initialEntries={['/registro/3']}>
+          <Routes>
+            <Route
+              path="/registro/:paradaId"
+              element={<PantallaRegistro />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </ReservaProvider>,
     );
 
     expect(
@@ -128,14 +131,16 @@ describe('PantallaRegistro', () => {
   );
 
   render(
-    <MemoryRouter initialEntries={['/registro/3']}>
-      <Routes>
-        <Route
-          path="/registro/:paradaId"
-          element={<PantallaRegistro />}
-        />
-      </Routes>
-    </MemoryRouter>,
+    <ReservaProvider>
+      <MemoryRouter initialEntries={['/registro/3']}>
+        <Routes>
+          <Route
+            path="/registro/:paradaId"
+            element={<PantallaRegistro />}
+          />
+        </Routes>
+      </MemoryRouter>
+    </ReservaProvider>,
   );
 
   fireEvent.click(

@@ -1,0 +1,91 @@
+/*
+ * Invitacion a activar los avisos.
+ *
+ * Esquina superior izquierda mas cerrada que las otras tres (DESIGN.md §5):
+ * es la voluta de la ceramica jalapaneca, y se aplica igual en toda tarjeta.
+ */
+.avisos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--borde);
+  border-radius: 4px 12px 12px 12px;
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+}
+
+.avisos__encabezado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avisos h2 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+}
+
+.avisos p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+  color: var(--tinta-secundaria);
+}
+
+.avisos__icono {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  color: var(--verde-jumay);
+}
+
+.avisos__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Area tactil de 48 px (DESIGN.md §12 [DURA]). */
+.avisos__boton-principal,
+.avisos__boton-secundario {
+  min-height: 48px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.avisos__boton-principal {
+  border: none;
+  background: var(--verde-jumay);
+  color: var(--superficie-base);
+}
+
+.avisos__boton-principal:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.avisos__boton-secundario {
+  border: 1px solid var(--borde);
+  background: transparent;
+  color: var(--tinta-secundaria);
+}
+
+/* Confirmacion: nunca solo color, siempre color + icono + texto (§3.1 [DURA]). */
+.avisos--activado {
+  flex-direction: row;
+  align-items: center;
+  background: var(--verde-jumay-superficie);
+  border-color: var(--verde-jumay);
+}
+
+.avisos--activado p {
+  color: var(--tinta);
+}

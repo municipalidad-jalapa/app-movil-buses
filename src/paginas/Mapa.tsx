@@ -1,3 +1,4 @@
+import { useAvisosDelBus } from '../hooks/useAvisosDelBus';
 import { usePosicionBus } from '../hooks/usePosicionBus';
 import { usePrefiereOscuro } from '../hooks/usePrefiereOscuro';
 import { useRutas } from '../hooks/useRutas';
@@ -6,6 +7,7 @@ import { BannerConexion } from '../componentes/BannerConexion';
 import { EstadoSinPosicion } from '../componentes/EstadoSinPosicion';
 import { HoraUltimoDato } from '../componentes/HoraUltimoDato';
 import { MensajeError } from '../componentes/MensajeError';
+import { TarjetaAbordaje } from '../componentes/TarjetaAbordaje';
 import './Mapa.css';
 
 /**
@@ -14,11 +16,15 @@ import './Mapa.css';
  * <p>El mapa ocupa la pantalla completa y la informacion va flotando encima,
  * como en `design/EcoRuta.dc.html`. DESIGN.md seccion 8 lo pide explicito: la
  * tarjeta flotante no puede tapar el marcador del bus, por eso va abajo.
+ *
+ * <p>HU-58: al tocar el aviso de que el bus llego, el pasajero aterriza aca y
+ * responde si logro subir.
  */
 export function Mapa() {
   const { rutaActiva, cargando, error, reintentar } = useRutas();
   const { posicion, estadoConexion, recibidoEn, cargaInicialLista } = usePosicionBus();
   const oscuro = usePrefiereOscuro();
+  const { preguntandoAbordaje } = useAvisosDelBus();
 
   // Sin red no se cae a una pantalla de error: se cae al croquis, que es una
   // pantalla de primera clase (DESIGN.md seccion 7).
@@ -49,12 +55,18 @@ export function Mapa() {
         )}
       </div>
 
-      {/* Abajo a proposito: arriba taparia el marcador del bus. */}
-      {posicion && recibidoEn && (
-        <div className="pantalla-mapa__pie">
-          <HoraUltimoDato recibidoEn={recibidoEn} />
+      {/* Abajo a proposito: arriba taparia el marcador del bus (DESIGN.md §8 [DURA]). */}
+      <div className="pantalla-mapa__inferior">
+        <div className="pantalla-mapa__abordaje">
+          <TarjetaAbordaje preguntando={preguntandoAbordaje} />
         </div>
-      )}
+
+        {posicion && recibidoEn && (
+          <div className="pantalla-mapa__pie">
+            <HoraUltimoDato recibidoEn={recibidoEn} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

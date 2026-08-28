@@ -81,11 +81,46 @@ Nadie más que `src/core/config.ts` debe leer `import.meta.env`.
 ```
 src/
   core/          config, cliente HTTP, errores y tipos de la API
-  componentes/   Layout, Cargando, MensajeError
-  paginas/       Mapa (placeholder), NoEncontrada
+    notificaciones/  permiso, Firebase Cloud Messaging y registro del token
+  componentes/   Layout, Cargando, MensajeError, MapaJalapa, TarjetaAbordaje…
+  estado/        ReservaProvider (la reserva del pasajero, compartida)
+  hooks/         useRutas, usePosicionBus, useReserva, useAvisosDelBus…
+  paginas/       Mapa, PantallaRegistro, NoEncontrada
   estilos/       tema.css (tokens, claro/oscuro), global.css
-.env.example     placeholders de VITE_API_BASE_URL y VITE_GOOGLE_MAPS_API_KEY
+public/          firebase-messaging-sw.js (Service Worker de los avisos)
+.env.example     placeholders de VITE_API_BASE_URL y de las VITE_FIREBASE_*
 ```
+
+## Avisos del bus (HU-58)
+
+Cuando el bus se acerca a la parada reservada, el pasajero recibe un aviso; cuando llega, un
+segundo aviso le pregunta si logró subir. Todo pasa por Firebase Cloud Messaging con un Service
+Worker en `public/firebase-messaging-sw.js`, que atiende los avisos con la pestaña cerrada.
+
+- El permiso se pide **después** de explicar para qué sirve, nunca de golpe, y solo una vez que ya
+  hay una reserva que avisar. Si el pasajero dice que no, se recuerda en `localStorage` y la
+  aplicación no vuelve a insistir.
+- El protocolo de Firebase se carga con `import()` dinámico: no entra al bundle inicial.
+- El Service Worker es un archivo estático y **no lee `import.meta.env`**. La configuración le
+  llega en la query string con la que `core/notificaciones/mensajeria.ts` lo registra.
+- La reserva vive en `estado/ReservaProvider` y se consulta con `useReserva()`. La respuesta de
+  abordaje actualiza ese estado, y por eso la pantalla se refresca sin recargar.
+
+Si las `VITE_FIREBASE_*` no están definidas, `config.mensajeria` queda en `null` y la aplicación
+funciona con los avisos apagados. **O están las siete, o no está ninguna:** con algunas puestas la
+app no arranca, porque un `.env` a medias casi siempre es un nombre mal escrito.
+
+Para probarlo en local: `npm run dev`, reservar una parada, aceptar los avisos y disparar un push
+desde DevTools → Application → Service Workers → Push, con
+`{"data":{"tipo":"confirmar-abordaje","reservaId":"1"}}`.
+
+Dos límites conocidos:
+
+- Las notificaciones web exigen contexto seguro. `localhost` cuenta como seguro; un despliegue
+  sobre HTTP con IP pública **no** recibe avisos. Hace falta HTTPS.
+- `POST /api/v1/reservas/{id}/abordaje` todavía no existe en el backend. Para poder demostrar la
+  respuesta de abordaje se puede usar `VITE_SIMULAR_ABORDAJE=true`, que la resuelve en el
+  navegador. Nunca en producción.
 
 ## Capa de red
 
