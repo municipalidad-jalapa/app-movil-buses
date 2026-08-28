@@ -1,0 +1,70 @@
+.panel-conductor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+  animation: panel-entrada 420ms ease both;
+}
+
+.panel-conductor h1 {
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.panel-conductor p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--tinta-secundaria);
+}
+
+.panel-conductor__salir {
+  align-self: flex-start;
+  min-width: 48px;
+  min-height: 48px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.panel-conductor__salir:hover {
+  filter: brightness(0.97);
+  transform: scale(1.02);
+}
+
+.panel-conductor__salir:active {
+  transform: scale(0.97);
+}
+
+.panel-conductor__salir:focus-visible {
+  outline: 3px solid var(--verde-jumay-superficie);
+  outline-offset: 2px;
+}
+
+@keyframes panel-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-conductor {
+    animation: none;
+  }
+
+  .panel-conductor__salir {
+    transition: none;
+  }
+}

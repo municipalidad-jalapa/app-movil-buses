@@ -16,11 +16,8 @@ const INTENTOS_POR_DEFECTO = 3;
 const BACKOFF_BASE_MS = 250;
 
 /**
- * Clave temporal del JWT del conductor en localStorage.
- *
- * PUNTO DE INTEGRACION HU-129: el modulo real de autenticacion del conductor
- * debe dejar de depender de esta clave. Sustituir el proveedor con
- * `configurarProveedorDeToken(...)` — no hace falta tocar el resto de este cliente.
+ * Clave de la sesion del conductor en localStorage (HU-129).
+ * El JSON lo escribe `sesionConductor`; este cliente solo pide el JWT al proveedor.
  */
 export const CLAVE_JWT_CONDUCTOR = 'ecoruta_jwt';
 
@@ -29,10 +26,9 @@ export interface ProveedorDeToken {
 }
 
 /**
- * PUNTO DE INTEGRACION HU-129:
- * Implementacion temporal hasta que exista la sesion real del conductor.
- * Cuando HU-129 este lista, inyectar el proveedor autentico con
- * `configurarProveedorDeToken(proveedorReal)` y este objeto deja de usarse.
+ * Lectura cruda de localStorage. HU-129 sustituye este proveedor al cargar
+ * `sesionConductor` (parsea el JSON y expone solo el JWT). Se deja exportado
+ * para tests y como fallback si nadie configura otro.
  */
 export const proveedorDeTokenLocalStorage: ProveedorDeToken = {
   obtenerToken(): string | null {
@@ -46,10 +42,16 @@ export const proveedorDeTokenLocalStorage: ProveedorDeToken = {
 };
 
 let proveedorDeToken: ProveedorDeToken = proveedorDeTokenLocalStorage;
+let manejador401: (() => void) | null = null;
 
 /** Permite sustituir el lector de JWT sin reescribir el cliente (HU-129). */
 export function configurarProveedorDeToken(proveedor: ProveedorDeToken): void {
   proveedorDeToken = proveedor;
+}
+
+/** Lo registra AuthProvider para cerrar sesion caducada (HU-129). */
+export function configurarManejador401(manejador: (() => void) | null): void {
+  manejador401 = manejador;
 }
 
 export interface OpcionesPeticion {
@@ -148,6 +150,9 @@ async function ejecutarPeticion<T>(ruta: string, opciones: OpcionesPeticion): Pr
 
   if (!respuesta.ok) {
     const detalle = await leerApiError(respuesta);
+    if (respuesta.status === 401) {
+      manejador401?.();
+    }
     throw new ErrorApi(
       respuesta.status,
       detalle?.message ?? `${respuesta.status} ${respuesta.statusText}`,

@@ -24,9 +24,9 @@ copy .env.example .env
 ```
 
 Editá `.env` y reemplazá los placeholders. En local, si el backend corre con `docker compose`,
-`VITE_API_BASE_URL` suele ser `http://localhost:8080`. `VITE_GOOGLE_MAPS_API_KEY` puede ser la llave
-de tu proyecto de Google Cloud (cualquier cadena no vacía pasa la validación; la restricción por
-dominio es HU-132).
+`VITE_API_BASE_URL` suele ser `http://localhost:8080`. Completá también las variables
+`VITE_FIREBASE_*` con el proyecto web de Firebase (HU-129). Para probar el login del conductor
+sin backend, descomentá `VITE_AUTH_CONDUCTOR_SIMULADO=true`.
 Después:
 
 ```bash
@@ -38,7 +38,7 @@ Abre `http://localhost:5173`. El servidor de desarrollo escucha en toda la red, 
 abrirlo desde tu teléfono con la IP de la máquina — conviene, porque el diseño es móvil primero.
 
 Si falta una variable o el formato es inválido, la app **no arranca**: vas a ver un error que nombra
-la variable (`VITE_API_BASE_URL` o `VITE_GOOGLE_MAPS_API_KEY`).
+la variable (`VITE_API_BASE_URL` o `VITE_FIREBASE_*`).
 
 ## Comandos
 
@@ -51,14 +51,18 @@ la variable (`VITE_API_BASE_URL` o `VITE_GOOGLE_MAPS_API_KEY`).
 
 ## Configuración por entorno
 
-La dirección del backend y la llave de Maps **no van en el código**. Se leen de variables `VITE_*`
+La dirección del backend y la config de Firebase **no van en el código**. Se leen de variables `VITE_*`
 a través del módulo único `src/core/config.ts` (HU-128). Ese módulo valida al arrancar con Zod y
 falla de inmediato si falta un valor o el formato es inválido.
 
 | Variable | Para qué |
 |---|---|
 | `VITE_API_BASE_URL` | URL absoluta del backend (`http://` o `https://`). Sin barra final. En local suele ser `http://localhost:8080`. |
-| `VITE_GOOGLE_MAPS_API_KEY` | Llave pública de Google Maps. Cadena no vacía. |
+| `VITE_FIREBASE_API_KEY` | Clave pública del proyecto web de Firebase Authentication. |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Dominio de Auth (`tu-proyecto.firebaseapp.com`). |
+| `VITE_FIREBASE_PROJECT_ID` | ID del proyecto Firebase. |
+| `VITE_FIREBASE_APP_ID` | App ID web de Firebase. |
+| `VITE_AUTH_CONDUCTOR_SIMULADO` | Opcional. `true` solo en desarrollo local: simula `POST /api/v1/auth/conductor`. En producción no definir o dejar en `false`. |
 
 Cómo configurar en local (solo esto hace falta):
 
@@ -70,21 +74,22 @@ Cómo configurar en local (solo esto hace falta):
 versiona `.env.example`.
 
 Las variables `VITE_` quedan en el bundle que descarga el navegador. No pongas contraseñas, llaves
-privadas ni tokens de servidor. `VITE_API_BASE_URL` y `VITE_GOOGLE_MAPS_API_KEY` son públicas por
-diseño. Restringir la llave de Maps por dominio es **HU-132** (CI/CD y Google Cloud Console), no
-esta historia.
+privadas ni tokens de servidor. `VITE_API_BASE_URL` y las `VITE_FIREBASE_*` son públicas por
+diseño (la API key de Firebase de cliente no es un secreto de servidor). Inyectar entorno en
+CI/CD es **HU-132**.
 
-Nadie más que `src/core/config.ts` debe leer `import.meta.env`.
+Nadie más que `src/core/config.ts` debe leer variables `VITE_*` de `import.meta.env`. El simulador
+de auth usa `import.meta.env.DEV` (bandera de Vite, no una variable de la app).
 
 ## Estructura
 
 ```
 src/
-  core/          config, cliente HTTP, errores y tipos de la API
-  componentes/   Layout, Cargando, MensajeError
-  paginas/       Mapa (placeholder), NoEncontrada
-  estilos/       tema.css (tokens, claro/oscuro), global.css
-.env.example     placeholders de VITE_API_BASE_URL y VITE_GOOGLE_MAPS_API_KEY
+  core/          config, cliente HTTP, Firebase, sesión del conductor, errores y tipos
+  componentes/   Layout, Cargando, MensajeError, RutaProtegida
+  paginas/       Mapa, registro, NoEncontrada, login y panel del conductor
+  estilos/       tema.css (tokens), global.css
+.env.example     placeholders de VITE_API_BASE_URL y VITE_FIREBASE_*
 ```
 
 ## Capa de red
@@ -108,9 +113,23 @@ import type { Ruta } from './core/tipos';
 const rutas = await apiClient.get<Ruta[]>('/api/v1/rutas');
 ```
 
-El JWT del conductor se lee con `ProveedorDeToken`. Hoy la implementación temporal usa
-`localStorage` bajo la clave `ecoruta_jwt`. Cuando exista HU-129, se sustituye con
-`configurarProveedorDeToken(proveedorReal)` sin tocar el resto del cliente.
+El JWT del conductor lo inyecta HU-129: `sesionConductor` registra el `ProveedorDeToken` y guarda
+`{ token, expiraEn, rol }` en `localStorage` bajo `ecoruta_jwt`. El resto del cliente HTTP no
+cambia. Un 401 con sesión activa se trata como caducada; un 401 durante el login es credenciales
+inválidas.
+
+### Simulador de auth del conductor (solo desarrollo)
+
+Mientras no exista `POST /api/v1/auth/conductor` en el backend, en local se puede simular:
+
+1. En `.env`: `VITE_AUTH_CONDUCTOR_SIMULADO=true`
+2. `npm run dev` (nunca corre en `vite build` / producción: exige `import.meta.env.DEV`)
+
+El simulador intercepta ese POST y responde 200 con un JWT falso. Si el correo (o el `idToken`)
+contiene `@fallo.test`, responde 401 para probar el camino de error a mano.
+
+Cuando el endpoint real exista, apagalo cambiando la variable (o no definiéndola). El resto del
+código de HU-129 no se toca.
 
 Los tipos de `src/core/tipos.ts` reflejan los records del backend. Ojo con las coordenadas: la API
 expone `latitud`/`longitud` con nombre, pero PostGIS y Google Maps usan orden `(lon, lat)`.
@@ -138,6 +157,18 @@ Mensajes que ve el usuario:
 - **404** — `No encontramos lo que buscabas.`
 - **422** — mensaje de negocio del backend si viene en lenguaje claro; si no, `No se pudo completar la accion.`
 
+## Informe de cambios — HU-129
+
+Login del conductor con Firebase, JWT propio y rutas protegidas.
+
+| Qué | Dónde |
+|---|---|
+| Firebase Auth + config | `src/core/firebase.ts`, variables `VITE_FIREBASE_*` en `config.ts` |
+| Intercambio JWT | `POST /api/v1/auth/conductor` vía `apiClient` |
+| Sesión persistida | `sesionConductor` + `AuthProvider` / `useAuth` |
+| Rutas | `/conductor/login`, `/conductor` detrás de `RutaProtegida` |
+| Simulador DEV | `VITE_AUTH_CONDUCTOR_SIMULADO=true` |
+
 ## Estado
 
-Esqueleto de **HU-26**, **HU-127** (cliente HTTP) y **HU-128** (config por entorno). Lo que sigue: HU-27 (spike del mapa), HU-50 (mapa de la ruta), HU-51 (bus en tiempo real con `EventSource`), HU-52 (contador), HU-53 (registro desde la app), HU-129 (sesión real del conductor), HU-132 (inyección de entorno en CI/CD y restricción de la llave de Maps).
+En `develop`: **HU-26**, **HU-50**, **HU-51**, **HU-53**, **HU-127**, **HU-128** y **HU-129** (login del conductor). Lo que sigue: HU-52 (contador), HU-126 (pantallas reales del conductor; hoy el panel es un placeholder), HU-132 (inyección de entorno en CI/CD).
