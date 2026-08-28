@@ -1,0 +1,66 @@
+/*
+ * La pantalla del pasajero: el mapa manda y todo lo demas flota encima.
+ * Composicion tomada de design/EcoRuta.dc.html.
+ */
+
+.pantalla-mapa {
+  position: relative;
+  /* Lo que queda de ventana bajo el encabezado. dvh y no vh: en moviles la
+     barra del navegador se come la diferencia. */
+  height: calc(100dvh - var(--alto-encabezado, 56px));
+  min-height: 320px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.pantalla-mapa__encima {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  /* Al contenido, no estirados: en el mock son pastillas, no barras de
+     lado a lado. */
+  align-items: flex-start;
+  gap: var(--esp-2);
+  padding: var(--esp-3);
+  /* Deja pasar el toque al mapa; solo las tarjetas lo capturan. */
+  pointer-events: none;
+}
+
+.pantalla-mapa__encima > * {
+  pointer-events: auto;
+}
+
+.pantalla-mapa__aviso {
+  background: var(--mapa-pastilla, #fbf7f0);
+  border: 1px solid var(--mapa-pastilla-borde, #ddd3c2);
+  /* La esquina superior izquierda mas cerrada (DESIGN.md seccion 5). */
+  border-radius: 4px 12px 12px 12px;
+  padding: var(--esp-3);
+}
+
+.pantalla-mapa__pie {
+  position: absolute;
+  right: var(--esp-3);
+  bottom: var(--esp-3);
+  /* La atribucion vive abajo a la izquierda: no se pisan. */
+  max-width: calc(100% - 160px);
+}
+
+/* La pastilla de la hora del ultimo dato, sobre el mapa. */
+.pantalla-mapa__pie :is(p, span, time) {
+  display: inline-flex;
+  align-items: center;
+  background: var(--mapa-pastilla, #fbf7f0);
+  border: 1px solid var(--mapa-pastilla-borde, #ddd3c2);
+  border-radius: 6px 2px 6px 2px;
+  padding: 5px 9px;
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--mapa-pastilla-tinta, #2e2a24);
+  /* Las horas no deben bailar al actualizarse (DESIGN.md 4 [DURA]). */
+  font-variant-numeric: tabular-nums;
+}

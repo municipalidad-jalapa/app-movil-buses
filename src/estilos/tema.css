@@ -1,0 +1,82 @@
+/*
+ * Tema visual de EcoRuta.
+ *
+ * Movil primero: la pantalla de referencia es un telefono de 360 px, no un escritorio.
+ * Los colores se definen como custom properties para que las historias siguientes
+ * (mapa, contador, registro) no inventen valores sueltos.
+ */
+
+:root {
+  /* Marca: verde por el bus electrico */
+  --color-marca: #0f7a4d;
+  --color-marca-oscuro: #0a5c39;
+  --color-marca-claro: #d8f0e4;
+
+  /* Superficies y texto */
+  --color-fondo: #ffffff;
+  --color-superficie: #f5f7f6;
+  --color-borde: #dfe4e2;
+  --color-texto: #14201b;
+  --color-texto-suave: #5b6b64;
+
+  /* Estados */
+  --color-error: #b3261e;
+  --color-error-fondo: #fcebea;
+  --color-aviso: #8a5a00;
+
+  /* Tipografia del sistema: sin descargar fuentes, que la red movil es cara */
+  --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* La del mock de design/. Public Sans si esta instalada; si no, la del sistema. */
+  --fuente-mapa: 'Public Sans', system-ui, -apple-system, sans-serif;
+
+  /* Escala de espaciado */
+  --esp-1: 0.25rem;
+  --esp-2: 0.5rem;
+  --esp-3: 0.75rem;
+  --esp-4: 1rem;
+  --esp-6: 1.5rem;
+  --esp-8: 2rem;
+
+  --radio: 0.75rem;
+  --sombra: 0 1px 3px rgb(0 0 0 / 12%);
+
+  /* Ancho maximo de lectura: en tablet o escritorio la app no se estira entera */
+  --ancho-maximo: 32rem;
+
+  /* Area segura de iOS (notch y barra inferior) */
+  --seguro-arriba: env(safe-area-inset-top, 0px);
+  --seguro-abajo: env(safe-area-inset-bottom, 0px);
+
+  /* Tokens de DESIGN.md §3.2 y §3.3 para HU-51. Sin variantes oscuras:
+     DESIGN.md §3.5 [DURA] prohíbe inventar modo oscuro a medias. */
+  --verde-jumay: #2f5d3a;
+  --verde-jumay-superficie: #e7efe4;
+  --amarillo-volcan: #e8b33c;
+  --amarillo-volcan-tinta: #4a3406;
+  --amarillo-volcan-superficie: #fbf0d6;
+  /* Fondo de pagina, blanco calido (DESIGN.md 3.3). */
+  --superficie-base: #F7F3E9;
+  --superficie-tarjeta: #fffdf7;
+  --tinta: #22201c;
+  --tinta-secundaria: #7a7669;
+  --tinta-tenue: #9a958a;
+  --borde: #ded6c2;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-marca: #4cc78d;
+    --color-marca-oscuro: #35a973;
+    --color-marca-claro: #14332a;
+
+    --color-fondo: #101614;
+    --color-superficie: #182220;
+    --color-borde: #2a3a35;
+    --color-texto: #e8f0ec;
+    --color-texto-suave: #9fb3ab;
+
+    --color-error: #f2b8b5;
+    --color-error-fondo: #3b1512;
+    --color-aviso: #e7c46b;
+  }
+}

@@ -1,0 +1,75 @@
+/*
+ * Paleta oscura fija de la superficie del conductor (DESIGN.md §11), sacada
+ * de la variante horizontal de design/TiraDeRuta.dc.html. No sigue
+ * prefers-color-scheme: es la misma de dia y de noche, pensada para leerse
+ * con luz cambiante dentro del bus.
+ *
+ * Sobreescribe los tokens de tema.css que usan Cargando y MensajeError para
+ * que esos componentes compartidos tambien queden legibles aca sin
+ * duplicar su logica.
+ */
+.panel-conductor {
+  --color-texto: #f7f3ea;
+  --color-texto-suave: #c9d6cd;
+  --color-error: #f2b6a6;
+  --color-error-fondo: #3a1b14;
+  --color-fondo: #0b1f16;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100dvh;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  overflow: hidden;
+}
+
+.panel-conductor--mensaje {
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-4);
+  padding: var(--esp-6);
+  text-align: center;
+}
+
+.panel-conductor__cabecera {
+  flex: 0 0 auto;
+  padding: 14px 16px 0;
+}
+
+.panel-conductor__ruta {
+  font-family: var(--fuente-mapa);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-texto-suave);
+}
+
+.panel-conductor__aviso {
+  max-width: 26rem;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-texto);
+}
+
+.panel-conductor__enlace {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0 var(--esp-6);
+  border-radius: var(--radio-control, 8px);
+  background: #f2b705;
+  color: #241c00;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.panel-conductor__aviso-discreto {
+  flex: 0 0 auto;
+  margin: 4px 16px 0;
+  font-size: 13px;
+  color: var(--color-texto-suave);
+}

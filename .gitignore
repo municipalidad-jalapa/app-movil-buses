@@ -1,0 +1,31 @@
+# Dependencias y build
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Cache de herramientas
+.vite/
+coverage/
+*.tsbuildinfo
+
+# Secretos - NUNCA subir (.env, .env.local, .env.development, etc.)
+.env
+.env.local
+.env.*
+!.env.example
+# La llave de Google Maps va por entorno, jamas en el repositorio
+
+# IDE / SO
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Herramientas locales de prueba (nunca subirlas)
+herramientas-dev/
+
+# Logs
+*.log
+npm-debug.log*

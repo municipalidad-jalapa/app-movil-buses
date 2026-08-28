@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>@keyframes latido { 0%,100% { opacity:1 } 50% { opacity:.55 } }</style>
+</helmet>
+<div style="position:relative;width:100%;height:100%;overflow:hidden;background:#E6DCC8">
+
+  <sc-if value="{{ fondoClaro }}" hint-placeholder-val="{{ true }}">
+    <svg viewBox="0 0 390 640" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-label="Mapa de Jalapa">
+      <rect x="0" y="0" width="390" height="640" fill="#E6DCC8"></rect>
+      <path d="M0 0 H150 V96 H0 Z" fill="#CBD9BD"></path>
+      <path d="M300 470 h90 v170 h-90 z" fill="#CBD9BD"></path>
+      <path d="M0 250 C60 262 92 300 96 356 C56 372 8 340 0 300 Z" fill="#CBD9BD"></path>
+      <path d="M-10 640 L120 470 L200 470 L330 300 L390 300" fill="none" stroke="#D6CBB4" stroke-width="26"></path>
+      <g stroke="#F4EEE2" stroke-width="13" stroke-linecap="square">
+        <path d="M0 80 H390"></path><path d="M0 150 H390"></path><path d="M0 230 H390"></path>
+        <path d="M0 320 H390"></path><path d="M0 410 H390"></path><path d="M0 500 H390"></path><path d="M0 580 H390"></path>
+        <path d="M50 0 V640"></path><path d="M120 0 V640"></path><path d="M190 0 V640"></path>
+        <path d="M260 0 V640"></path><path d="M330 0 V640"></path>
+      </g>
+      <path d="M-10 640 L120 470 L200 470 L330 300 L390 300" fill="none" stroke="#FBF7F0" stroke-width="17" stroke-linecap="round"></path>
+      <rect x="214" y="196" width="92" height="76" rx="6" fill="#B9CDA6"></rect>
+      <g fill="#98B383"><circle cx="232" cy="214" r="7"></circle><circle cx="256" cy="230" r="9"></circle><circle cx="288" cy="212" r="7"></circle><circle cx="240" cy="254" r="7"></circle><circle cx="284" cy="252" r="8"></circle></g>
+      <path d="M236 234 h48" stroke="#EFE7D7" stroke-width="4" stroke-linecap="round"></path>
+      <g font-family="Public Sans, system-ui, sans-serif" font-size="11" font-weight="700" fill="#6B6357">
+        <text x="220" y="288">Parque central</text>
+        <text x="8" y="146" >5a Avenida</text>
+        <text x="196" y="628" transform="rotate(-53 196 628)">Calzada J. R. Barrios</text>
+        <text x="14" y="70">Barrio San Francisco</text>
+        <text x="304" y="466">La Terminal</text>
+      </g>
+    </svg>
+  </sc-if>
+
+  <sc-if value="{{ fondoOscuro }}">
+    <svg viewBox="0 0 390 640" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-label="Mapa de Jalapa, modo oscuro">
+      <rect x="0" y="0" width="390" height="640" fill="#1A1712"></rect>
+      <path d="M0 0 H150 V96 H0 Z" fill="#20291F"></path>
+      <path d="M300 470 h90 v170 h-90 z" fill="#20291F"></path>
+      <path d="M0 250 C60 262 92 300 96 356 C56 372 8 340 0 300 Z" fill="#20291F"></path>
+      <path d="M-10 640 L120 470 L200 470 L330 300 L390 300" fill="none" stroke="#2E2A22" stroke-width="26"></path>
+      <g stroke="#302B23" stroke-width="13" stroke-linecap="square">
+        <path d="M0 80 H390"></path><path d="M0 150 H390"></path><path d="M0 230 H390"></path>
+        <path d="M0 320 H390"></path><path d="M0 410 H390"></path><path d="M0 500 H390"></path><path d="M0 580 H390"></path>
+        <path d="M50 0 V640"></path><path d="M120 0 V640"></path><path d="M190 0 V640"></path>
+        <path d="M260 0 V640"></path><path d="M330 0 V640"></path>
+      </g>
+      <path d="M-10 640 L120 470 L200 470 L330 300 L390 300" fill="none" stroke="#3B352B" stroke-width="17" stroke-linecap="round"></path>
+      <rect x="214" y="196" width="92" height="76" rx="6" fill="#25301F"></rect>
+      <g fill="#33422A"><circle cx="232" cy="214" r="7"></circle><circle cx="256" cy="230" r="9"></circle><circle cx="288" cy="212" r="7"></circle><circle cx="240" cy="254" r="7"></circle><circle cx="284" cy="252" r="8"></circle></g>
+      <g font-family="Public Sans, system-ui, sans-serif" font-size="11" font-weight="700" fill="#9A9082">
+        <text x="220" y="288">Parque central</text>
+        <text x="8" y="146">5a Avenida</text>
+        <text x="196" y="628" transform="rotate(-53 196 628)">Calzada J. R. Barrios</text>
+        <text x="14" y="70">Barrio San Francisco</text>
+        <text x="304" y="466">La Terminal</text>
+      </g>
+    </svg>
+  </sc-if>
+
+  <sc-if value="{{ fondoCroquis }}">
+    <svg viewBox="0 0 390 640" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-label="Croquis ligero de la ruta">
+      <rect x="0" y="0" width="390" height="640" fill="#F4EEE2"></rect>
+      <g stroke="#DDD3C2" stroke-width="6" stroke-linecap="round" fill="none">
+        <path d="M2 152 C90 146 210 158 388 148"></path>
+        <path d="M2 322 C104 316 216 328 388 318"></path>
+        <path d="M4 502 C96 496 214 508 386 498"></path>
+        <path d="M120 4 C114 140 126 340 120 636"></path>
+        <path d="M190 6 C196 180 184 380 190 634"></path>
+        <path d="M330 4 C336 160 324 330 330 636"></path>
+      </g>
+      <path d="M-10 640 C60 560 120 500 200 470 C270 444 300 360 390 300" fill="none" stroke="#C2B8A8" stroke-width="9" stroke-linecap="round"></path>
+      <path d="M216 198 C258 190 302 202 304 240 C306 272 250 280 226 266 C206 254 208 210 216 198 Z" fill="#DDE2CE" stroke="#C6CDB4" stroke-width="4"></path>
+      <text x="222" y="290" font-family="Public Sans, system-ui, sans-serif" font-size="11" font-weight="700" fill="#6B6357">Parque central</text>
+      <g stroke="#C2B8A8" stroke-width="4" fill="none" stroke-linecap="round" opacity=".8">
+        <path d="M36 596c0-16 12-28 26-28 9 0 15 6 15 14s-6 13-13 13-11-5-11-10"></path>
+      </g>
+    </svg>
+  </sc-if>
+
+  <sc-if value="{{ fondoCargando }}">
+    <div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(5,1fr);gap:2px;background:#DDD3C2">
+      <div style="background:#E6DCC8;animation:latido 1.6s ease-in-out infinite"></div>
+      <div style="background:#EFE7D7"></div>
+      <div style="background:#E6DCC8;animation:latido 1.6s ease-in-out .2s infinite"></div>
+      <div style="background:#EFE7D7"></div>
+      <div style="background:#E6DCC8;animation:latido 1.6s ease-in-out .4s infinite"></div>
+      <div style="background:#EFE7D7"></div>
+      <div style="background:#E6DCC8;animation:latido 1.6s ease-in-out .1s infinite"></div>
+      <div style="background:#EFE7D7"></div>
+      <div style="background:#E6DCC8;animation:latido 1.6s ease-in-out .3s infinite"></div>
+      <div style="background:#EFE7D7"></div>
+      <div style="background:#E6DCC8;animation:latido 1.6s ease-in-out .5s infinite"></div>
+      <div style="background:#EFE7D7"></div>
+      <div style="background:#E6DCC8;animation:latido 1.6s ease-in-out .15s infinite"></div>
+      <div style="background:#EFE7D7"></div>
+      <div style="background:#E6DCC8;animation:latido 1.6s ease-in-out .35s infinite"></div>
+    </div>
+    <div style="position:absolute;left:14px;top:14px;display:inline-flex;align-items:center;gap:8px;background:#FBF7F0;border-radius:999px;padding:8px 14px;min-height:40px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A443A" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+      <span style="font-family:'Public Sans',system-ui,sans-serif;font-size:14px;font-weight:700;color:#2E2A24">Cargando el mapa…</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ overlayNormal }}" hint-placeholder-val="{{ true }}">
+    <svg viewBox="0 0 390 640" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-label="Ruta del bus, paradas y posición del bus">
+      <path d="M50 620 L50 500 L190 500 L190 320 L120 320 L120 150 L330 150" fill="none" stroke="#FBF7F0" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"></path>
+      <path d="M50 620 L50 500 L190 500 L190 320 L120 320 L120 150 L330 150" fill="none" stroke="#10402A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"></path>
+      <g><circle cx="50" cy="500" r="9" fill="#FBF7F0" stroke="#10402A" stroke-width="5"></circle><circle cx="120" cy="150" r="9" fill="#FBF7F0" stroke="#10402A" stroke-width="5"></circle><circle cx="330" cy="150" r="9" fill="#FBF7F0" stroke="#10402A" stroke-width="5"></circle><circle cx="120" cy="320" r="9" fill="#FBF7F0" stroke="#10402A" stroke-width="5"></circle></g>
+      <g transform="translate(190,320)"><circle r="21" fill="#F2B705" stroke="#241C00" stroke-width="4"></circle><rect x="-7" y="-7" width="14" height="14" transform="rotate(45)" fill="#241C00"></rect></g>
+      <g><circle cx="190" cy="478" r="5" fill="#10402A" opacity=".16"></circle><circle cx="190" cy="458" r="6" fill="#10402A" opacity=".3"></circle></g>
+      <g transform="translate(190,430)">
+        <path d="M0 -40 L11 -25 L-11 -25 Z" fill="#10402A" stroke="#FBF7F0" stroke-width="3"></path>
+        <circle r="23" fill="#10402A" stroke="#FBF7F0" stroke-width="4"></circle>
+        <g transform="translate(-11,-11)"><svg x="0" y="0" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="11" rx="2"></rect><path d="M3 11h18M7 20v-2M17 20v-2"></path></svg></g>
+      </g>
+      <g><rect x="216" y="296" width="112" height="34" rx="8" fill="#F2B705"></rect><text x="230" y="319" font-family="Public Sans, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C00">Tu parada</text></g>
+    </svg>
+  </sc-if>
+
+  <sc-if value="{{ overlayDesvio }}">
+    <svg viewBox="0 0 390 640" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-label="El bus va por otra calle: recorrido real y ruta oficial atenuada">
+      <path d="M50 620 L50 500 L190 500 L190 320 L120 320 L120 150 L330 150" fill="none" stroke="#FBF7F0" stroke-width="14" stroke-linejoin="round" stroke-linecap="round" opacity=".7"></path>
+      <path d="M50 620 L50 500 L190 500 L190 320 L120 320 L120 150 L330 150" fill="none" stroke="#C2B8A8" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="16 12"></path>
+      <path d="M190 500 L260 500 L260 380 L190 320" fill="none" stroke="#FBF7F0" stroke-width="18" stroke-linejoin="round" stroke-linecap="round"></path>
+      <path d="M190 500 L260 500 L260 380 L190 320" fill="none" stroke="#10402A" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"></path>
+      <g fill="#FBF7F0"><path d="M256 466 l-8 -12 h16 z"></path><path d="M256 424 l-8 -12 h16 z"></path></g>
+      <g><circle cx="50" cy="500" r="9" fill="#FBF7F0" stroke="#10402A" stroke-width="5"></circle><circle cx="120" cy="150" r="9" fill="#FBF7F0" stroke="#10402A" stroke-width="5"></circle><circle cx="330" cy="150" r="9" fill="#FBF7F0" stroke="#10402A" stroke-width="5"></circle><circle cx="120" cy="320" r="9" fill="#FBF7F0" stroke="#10402A" stroke-width="5"></circle></g>
+      <g transform="translate(190,320)"><circle r="21" fill="#F2B705" stroke="#241C00" stroke-width="4"></circle><rect x="-7" y="-7" width="14" height="14" transform="rotate(45)" fill="#241C00"></rect></g>
+      <g transform="translate(260,442)">
+        <path d="M0 -40 L11 -25 L-11 -25 Z" fill="#10402A" stroke="#FBF7F0" stroke-width="3"></path>
+        <circle r="23" fill="#10402A" stroke="#FBF7F0" stroke-width="4"></circle>
+        <g transform="translate(-11,-11)"><svg x="0" y="0" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="11" rx="2"></rect><path d="M3 11h18M7 20v-2M17 20v-2"></path></svg></g>
+      </g>
+      <g><rect x="60" y="368" width="120" height="30" rx="8" fill="#EDE6DA" stroke="#C2B8A8" stroke-width="2"></rect><text x="70" y="389" font-family="Public Sans, system-ui, sans-serif" font-size="13" font-weight="700" fill="#2E2A24">Ruta de siempre</text></g>
+      <g><rect x="216" y="296" width="112" height="34" rx="8" fill="#F2B705"></rect><text x="230" y="319" font-family="Public Sans, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C00">Tu parada</text></g>
+    </svg>
+  </sc-if>
+
+  <sc-if value="{{ atribucionClara }}" hint-placeholder-val="{{ true }}">
+    <span style="position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;gap:6px;background:#FBF7F0;color:#2E2A24;font-family:'Public Sans',system-ui,sans-serif;font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px 2px 6px 2px;border:1px solid #DDD3C2">© OpenStreetMap</span>
+  </sc-if>
+  <sc-if value="{{ atribucionOscura }}">
+    <span style="position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;gap:6px;background:#241F19;color:#E3DACB;font-family:'Public Sans',system-ui,sans-serif;font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px 2px 6px 2px;border:1px solid #3B352B">© OpenStreetMap</span>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:640},&quot;capa&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mapa&quot;,&quot;croquis&quot;,&quot;cargando&quot;],&quot;default&quot;:&quot;mapa&quot;,&quot;tsType&quot;:&quot;'mapa'|'croquis'|'cargando'&quot;},&quot;modo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;claro&quot;,&quot;oscuro&quot;],&quot;default&quot;:&quot;claro&quot;,&quot;tsType&quot;:&quot;'claro'|'oscuro'&quot;},&quot;desvio&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const capa = this.props.capa ?? 'mapa';
+    const modo = this.props.modo ?? 'claro';
+    const oscuro = modo === 'oscuro';
+    const desvio = !!this.props.desvio;
+    return {
+      fondoClaro: capa === 'mapa' && !oscuro,
+      fondoOscuro: capa === 'mapa' && oscuro,
+      fondoCroquis: capa === 'croquis',
+      fondoCargando: capa === 'cargando',
+      overlayNormal: !desvio,
+      overlayDesvio: desvio,
+      atribucionClara: !oscuro,
+      atribucionOscura: oscuro
+    };
+  }
+}
+</script>
+</body>
+</html>
