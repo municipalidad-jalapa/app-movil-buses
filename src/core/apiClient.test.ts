@@ -34,6 +34,19 @@ describe('peticion', () => {
     expect(await peticion('/api/v1/telemetria/posicion')).toBeNull();
   });
 
+  it('usa datos simulados cuando la ruta de demanda no existe aun en el backend', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => respuestaFalsa(404, { message: 'Not Found' })));
+
+    const demanda = await peticion('/api/v1/demanda/estado');
+
+    expect(demanda).toEqual({
+      totalEsperando: 7,
+      umbralSalida: 10,
+      faltanParaSalir: 3,
+      porParada: { 'parada-1': 7 },
+    });
+  });
+
   it('convierte un ApiError 422 en ErrorApi y conserva el mensaje del backend', async () => {
     const apiError = {
       timestamp: '2026-08-11T00:00:00Z',

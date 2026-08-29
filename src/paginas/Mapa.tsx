@@ -1,31 +1,35 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../core/apiClient';
-import { obtenerConfiguracion } from '../core/config';
 import { Cargando } from '../componentes/Cargando';
-import { MensajeError } from '../componentes/MensajeError';
-import type { Ruta } from '../core/tipos';
+import { ContadorDemanda } from '../componentes/ContadorDemanda';
+import type { EstadoDemanda, Ruta } from '../core/tipos';
 
 /**
- * Pantalla principal. Por ahora es el esqueleto de HU-26: solo comprueba que la
- * capa de red y la configuracion funcionan de punta a punta.
+ * Pantalla principal del pasajero.
  *
- * El mapa real lo trae HU-50, el bus en movimiento HU-51 y el contador HU-52.
+ * Mantiene un estado de carga y error para el endpoint de demanda, y muestra el
+ * contador más visible de la pantalla con los datos reales de la parada activa.
  */
 export function Mapa() {
   const [rutas, setRutas] = useState<Ruta[] | null>(null);
+  const [demanda, setDemanda] = useState<EstadoDemanda | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [intento, setIntento] = useState(0);
-
-  const { apiUrl } = obtenerConfiguracion();
 
   useEffect(() => {
     const control = new AbortController();
     setError(null);
     setRutas(null);
+    setDemanda(null);
 
-    apiClient
-      .get<Ruta[]>('/api/v1/rutas', { signal: control.signal })
-      .then((datos) => setRutas(datos ?? []))
+    Promise.all([
+      apiClient.get<Ruta[]>('/api/v1/rutas', { signal: control.signal }),
+      apiClient.get<EstadoDemanda>('/api/v1/demanda/estado', { signal: control.signal }),
+    ])
+      .then(([rutasDatos, demandaDatos]) => {
+        setRutas(rutasDatos ?? []);
+        setDemanda(demandaDatos ?? { totalEsperando: 0, umbralSalida: 10, faltanParaSalir: 10, porParada: {} });
+      })
       .catch((causa) => setError(causa));
 
     return () => control.abort();
@@ -34,15 +38,21 @@ export function Mapa() {
   return (
     <>
       <h1>Bus electrico de Jalapa</h1>
-      <p style={{ color: 'var(--color-texto-suave)', fontSize: '0.875rem' }}>
-        Backend: <code>{apiUrl}</code>
-      </p>
 
-      {error && <MensajeError error={error} onReintentar={() => setIntento((n) => n + 1)} />}
-      {!error && rutas === null && <Cargando texto="Consultando rutas…" />}
+      {error && <ContadorDemanda error={error} onReintentar={() => setIntento((n) => n + 1)} />}
+      {!error && demanda === null && <Cargando texto="Consultando demanda…" />}
+      {!error && demanda !== null && (
+        <ContadorDemanda
+          totalEsperando={demanda.totalEsperando}
+          umbralSalida={demanda.umbralSalida}
+          faltanParaSalir={demanda.faltanParaSalir}
+          nombreParada="Portón azul del Instituto Normal"
+        />
+      )}
+
       {rutas !== null && rutas.length === 0 && <p>No hay rutas activas todavia.</p>}
       {rutas !== null && rutas.length > 0 && (
-        <ul>
+        <ul style={{ marginTop: 'var(--esp-6)' }}>
           {rutas.map((ruta) => (
             <li key={ruta.id}>
               {ruta.nombre} — {ruta.paradas.length} paradas
@@ -50,10 +60,6 @@ export function Mapa() {
           ))}
         </ul>
       )}
-
-      <p style={{ marginTop: 'var(--esp-8)', color: 'var(--color-texto-suave)' }}>
-        Esqueleto de HU-26. El mapa llega en HU-50 y el contador en HU-52.
-      </p>
     </>
   );
 }

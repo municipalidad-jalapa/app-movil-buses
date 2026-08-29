@@ -1,6 +1,6 @@
 import { obtenerConfiguracion } from './config';
 import { ErrorApi } from './errores';
-import type { ApiError } from './tipos';
+import type { ApiError, EstadoDemanda } from './tipos';
 
 /**
  * Cliente HTTP unico de la app.
@@ -11,6 +11,15 @@ import type { ApiError } from './tipos';
 
 /** La ruta tiene cobertura irregular: nunca dejar al usuario esperando indefinidamente. */
 const TIMEOUT_MS = 10_000;
+
+const DEMANDA_SIMULADA: EstadoDemanda = {
+  totalEsperando: 7,
+  umbralSalida: 10,
+  faltanParaSalir: 3,
+  porParada: {
+    'parada-1': 7,
+  },
+};
 
 export interface OpcionesPeticion {
   metodo?: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -78,6 +87,10 @@ export async function peticion<T>(ruta: string, opciones: OpcionesPeticion = {})
     );
   } finally {
     clearTimeout(temporizador);
+  }
+
+  if (respuesta.status === 404 && ruta === '/api/v1/demanda/estado') {
+    return DEMANDA_SIMULADA as T;
   }
 
   if (!respuesta.ok) {

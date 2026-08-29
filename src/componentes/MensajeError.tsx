@@ -14,7 +14,9 @@ export function MensajeError({ error, onReintentar }: Props) {
   const texto =
     error instanceof ErrorApi
       ? error.mensajeParaUsuario()
-      : 'Algo salio mal. Intenta de nuevo.';
+      : typeof error === 'string'
+        ? error
+        : 'Algo salio mal. Intenta de nuevo.';
 
   return (
     <div className="aviso-error" role="alert">
