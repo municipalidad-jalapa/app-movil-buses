@@ -25,12 +25,6 @@ export class ErrorApi extends Error {
     return this.status === 0;
   }
 
-  /**
-   * Texto en lenguaje claro para mostrar en pantalla.
-   *
-   * Para 422 devolvemos el mensaje del backend tal cual: son las reglas de negocio
-   * (geocerca de 150 m, registro duplicado) y ya vienen redactadas para el pasajero.
-   */
   mensajeParaUsuario(): string {
     if (this.esFallaDeRed) {
       return 'No pudimos conectar. Revisa tu conexion e intenta de nuevo.';
@@ -43,8 +37,13 @@ export class ErrorApi extends Error {
         return 'No tienes permiso para hacer esto.';
       case 404:
         return 'No encontramos lo que buscabas.';
-      case 422:
-        return this.detalle?.message ?? 'No se pudo completar la accion.';
+      case 422: {
+        const mensaje = this.detalle?.message?.trim();
+        const esMensajeNegocio = mensaje !== undefined && mensaje !== null && mensaje.length > 0 &&
+          !/^(unprocessable|unprocessable entity|geofence exceeded|error:|failed)/i.test(mensaje) &&
+          /[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(mensaje);
+        return esMensajeNegocio ? mensaje : 'No se pudo completar la accion.';
+      }
       case 429:
         return 'Demasiados intentos. Espera un momento.';
       default:
@@ -53,4 +52,11 @@ export class ErrorApi extends Error {
           : 'Algo salio mal. Intenta de nuevo.';
     }
   }
+}
+
+export function traducirError(error: ErrorApi): string {
+  if (error.esFallaDeRed) {
+    return 'Sin datos nuevos: revisa tu conexion e intenta de nuevo.';
+  }
+  return error.mensajeParaUsuario();
 }

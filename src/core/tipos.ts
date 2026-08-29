@@ -25,12 +25,19 @@ export interface Parada {
   orden: number;
 }
 
+/** Puntos geograficos usados para recorrer una ruta o para un trazado. */
+export interface Punto {
+  latitud: number;
+  longitud: number;
+}
+
 /** `catalogo/dto/RutaDTO.java` */
 export interface Ruta {
   id: number;
   nombre: string;
   activa: boolean;
   paradas: Parada[];
+  trazado?: Punto[];
 }
 
 /**
@@ -52,6 +59,7 @@ export interface Posicion {
   velocidadKmh: number | null;
   /** ISO-8601. Lo pone el dispositivo a bordo, no el servidor. */
   timestamp: string;
+  vehiculo?: string;
 }
 
 /** `demanda/dto/CrearRegistroRequest.java` */
@@ -60,4 +68,12 @@ export interface CrearRegistroRequest {
   paradaId: number;
   latitud: number;
   longitud: number;
+}
+
+/** Respuesta que devuelve el backend cuando se crea un registro activo. */
+export interface RegistroCreadoResponse {
+  id: number;
+  paradaId: number;
+  estado: string;
+  expiraEn: string;
 }
