@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400..900&family=Public+Sans:wght@300..900&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#EFE8DC; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+  a { color:#10402A; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px; }
+  a:hover { color:#8C2B22; }
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</helmet>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="simDeuteranopia"><feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0"></feColorMatrix></filter>
+  <filter id="simProtanopia"><feColorMatrix type="matrix" values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0"></feColorMatrix></filter>
+</defs></svg>
+
+<section style="display:flex;flex-direction:column;gap:56px;padding:64px 64px 24px;font-family:'Public Sans',system-ui,sans-serif">
+  <div id="2a" style="display:flex;flex-direction:column;gap:48px">
+
+    <div style="display:flex;align-items:flex-start;gap:24px;max-width:1100px">
+      <span style="flex:0 0 auto;background:#10402A;color:#FBF7F0;font-family:'Archivo',system-ui,sans-serif;font-size:15px;font-weight:800;letter-spacing:.06em;padding:8px 14px;border-radius:14px 4px 14px 4px">2a</span>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h1 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:40px;line-height:1.05;font-weight:800;letter-spacing:-.02em;color:#1C1A17">El mapa pasa al frente</h1>
+        <p style="margin:0;font-size:19px;line-height:1.5;color:#4A443A;max-width:820px;text-wrap:pretty">Mapa propio (MapLibre + tiles autoalojados) con tarjeta flotante. El croquis sigue vivo como capa de degradación: mismo trazo, mismos marcadores, misma tarjeta, misma posición del bus — solo cambia el fondo. Nuevo: ETA con nivel de confianza, estado de desvío y atribución de OpenStreetMap. Todo lo de <a href="#1a">1a</a> sigue vigente.</p>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">A · Inicio con mapa y sus capas</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start">
+
+        <div data-screen-label="M1 Inicio mapa" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">M1 · Mapa + tarjeta recogida</span>
+          <div style="width:390px;height:844px;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;position:relative;background:#E6DCC8">
+            <div style="position:absolute;inset:0">
+              <dc-import name="MapaJalapa" capa="mapa" modo="claro" hint-size="100%,100%"></dc-import>
+            </div>
+            <div style="position:absolute;left:0;right:0;top:0;padding:12px 18px 14px;background:#10402A;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums"><span>6:31</span><span>3G · 76%</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <svg width="30" height="30" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="#FBF7F0"></circle><path d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8" fill="none" stroke="#10402A" stroke-width="6" stroke-linecap="round"></path></svg>
+                  <span style="font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#FBF7F0">EcoRuta</span>
+                </div>
+                <span style="display:inline-flex;align-items:center;gap:6px;background:#F2B705;color:#241C00;font-size:13px;font-weight:800;padding:8px 12px;border-radius:999px;min-height:36px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="3" stroke-linecap="round"><path d="M4 12l5 5L20 6"></path></svg>En ruta</span>
+              </div>
+            </div>
+            <button style="position:absolute;right:16px;bottom:318px;width:56px;height:56px;background:#FBF7F0;border:2px solid #DDD3C2;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#10402A" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="3.4"></circle><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"></path></svg>
+            </button>
+            <div style="position:absolute;left:0;right:0;bottom:0;background:#FBF7F0;border-radius:28px 8px 0 0;border-top:2px solid #E3DACB;display:flex;flex-direction:column;gap:14px;padding:8px 18px 22px">
+              <div style="min-height:24px;display:flex;align-items:center;justify-content:center"><span style="width:56px;height:5px;background:#C2B8A8;border-radius:999px"></span></div>
+              <div style="display:flex;gap:14px;align-items:stretch">
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:14px;font-weight:700;color:#4A443A">Llega a tu parada en</span>
+                  <span style="font-size:56px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">6 min</span>
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
+                    <span style="display:inline-flex;gap:3px"><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span></span>
+                    <span style="font-size:13px;font-weight:700;color:#4A443A">cálculo confiable</span>
+                  </div>
+                </div>
+                <div style="width:2px;background:#F4EEE2"></div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:78px">
+                  <span style="font-size:44px;line-height:1;font-weight:800;color:#10402A;font-variant-numeric:tabular-nums">7</span>
+                  <span style="font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#4A443A;text-align:right">esperando en<br>tu parada</span>
+                </div>
+              </div>
+              <span style="font-size:13px;color:#6B6357;font-variant-numeric:tabular-nums">Portón azul del Instituto Normal · último dato 6:29</span>
+              <button style="width:100%;min-height:64px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:21px;font-weight:800;cursor:pointer;transition:opacity .12s ease,transform .12s ease" style-hover="opacity:.92;transform:translateY(-1px)">Estoy esperando aquí</button>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="M2 Tarjeta expandida" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">M2 · Tarjeta expandida (arrastre hacia arriba)</span>
+          <div style="width:390px;height:844px;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;position:relative;background:#E6DCC8">
+            <div style="position:absolute;inset:0">
+              <dc-import name="MapaJalapa" capa="mapa" modo="claro" hint-size="100%,100%"></dc-import>
+            </div>
+            <div style="position:absolute;left:0;right:0;top:0;padding:12px 18px 12px;background:#10402A;display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums"><span>6:31</span><span>3G · 76%</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:660px;background:#FBF7F0;border-radius:28px 8px 0 0;border-top:2px solid #E3DACB;display:flex;flex-direction:column;gap:12px;padding:8px 18px 20px">
+              <div style="min-height:24px;display:flex;align-items:center;justify-content:center"><span style="width:56px;height:5px;background:#4A443A;border-radius:999px"></span></div>
+              <div style="display:flex;gap:14px;align-items:center">
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:14px;font-weight:700;color:#4A443A">Llega a tu parada en</span>
+                  <span style="font-size:48px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">6 min</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:38px;line-height:1;font-weight:800;color:#10402A;font-variant-numeric:tabular-nums">7</span><span style="font-size:11px;font-weight:800;text-transform:uppercase;color:#4A443A">esperando</span></div>
+              </div>
+              <span style="font-size:13px;color:#6B6357;font-variant-numeric:tabular-nums;border-bottom:2px solid #F4EEE2;padding-bottom:12px">Último dato 6:29 · se actualiza cada 2 a 5 minutos</span>
+              <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6B6357">Lo que falta de la ruta</span>
+              <div style="flex:1;overflow:hidden">
+                <dc-import name="TiraDeRuta" items="{{ tiraOffline }}" orientacion="vertical" hint-size="100%,300px"></dc-import>
+              </div>
+              <button style="width:100%;min-height:64px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:21px;font-weight:800;cursor:pointer">Estoy esperando aquí</button>
+              <span style="text-align:center;font-size:14px;color:#6B6357">Arrastrá hacia abajo para ver el mapa completo</span>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="M3 Modo oscuro" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">M3 · Modo oscuro (diseñado aparte)</span>
+          <div style="width:390px;height:844px;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;position:relative;background:#1A1712">
+            <div style="position:absolute;inset:0">
+              <dc-import name="MapaJalapa" capa="mapa" modo="oscuro" hint-size="100%,100%"></dc-import>
+            </div>
+            <div style="position:absolute;left:0;right:0;top:0;padding:12px 18px 14px;background:#0B2E1E;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#8FA69A;font-variant-numeric:tabular-nums"><span>19:04</span><span>3G · 41%</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <svg width="30" height="30" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="#F4EEE2"></circle><path d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8" fill="none" stroke="#10402A" stroke-width="6" stroke-linecap="round"></path></svg>
+                  <span style="font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#F4EEE2">EcoRuta</span>
+                </div>
+                <span style="display:inline-flex;align-items:center;gap:6px;background:#F2B705;color:#241C00;font-size:13px;font-weight:800;padding:8px 12px;border-radius:999px;min-height:36px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="3" stroke-linecap="round"><path d="M4 12l5 5L20 6"></path></svg>Último viaje</span>
+              </div>
+            </div>
+            <button style="position:absolute;right:16px;bottom:300px;width:56px;height:56px;background:#241F19;border:2px solid #4A443A;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F2B705" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="3.4"></circle><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"></path></svg>
+            </button>
+            <div style="position:absolute;left:0;right:0;bottom:0;background:#241F19;border-radius:28px 8px 0 0;border-top:2px solid #3B352B;display:flex;flex-direction:column;gap:14px;padding:8px 18px 22px">
+              <div style="min-height:24px;display:flex;align-items:center;justify-content:center"><span style="width:56px;height:5px;background:#6B6357;border-radius:999px"></span></div>
+              <div style="display:flex;gap:14px;align-items:stretch">
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:14px;font-weight:700;color:#C2B8A8">Llega a tu parada entre</span>
+                  <span style="font-size:48px;line-height:1;font-weight:800;color:#FBF7F0;font-variant-numeric:tabular-nums">6 – 9 min</span>
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
+                    <span style="display:inline-flex;gap:3px"><span style="width:5px;height:14px;background:#F2B705;border-radius:2px"></span><span style="width:5px;height:14px;background:#F2B705;border-radius:2px"></span><span style="width:5px;height:14px;background:#4A443A;border-radius:2px"></span></span>
+                    <span style="font-size:13px;font-weight:700;color:#C2B8A8">cálculo aproximado</span>
+                  </div>
+                </div>
+                <div style="width:2px;background:#3B352B"></div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:78px">
+                  <span style="font-size:44px;line-height:1;font-weight:800;color:#F2B705;font-variant-numeric:tabular-nums">4</span>
+                  <span style="font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#C2B8A8;text-align:right">esperando en<br>tu parada</span>
+                </div>
+              </div>
+              <span style="font-size:13px;color:#938A7C;font-variant-numeric:tabular-nums">Portón azul del Instituto Normal · último dato 19:02</span>
+              <button style="width:100%;min-height:64px;background:#F2B705;color:#241C00;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:21px;font-weight:800;cursor:pointer">Estoy esperando aquí</button>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="M4 Cargando mapa" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">M4 · Tiles cargando (la ruta ya está)</span>
+          <div style="width:390px;height:844px;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;position:relative;background:#E6DCC8">
+            <div style="position:absolute;inset:0">
+              <dc-import name="MapaJalapa" capa="cargando" modo="claro" hint-size="100%,100%"></dc-import>
+            </div>
+            <div style="position:absolute;left:0;right:0;top:0;padding:12px 18px 12px;background:#10402A;display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums"><span>6:31</span><span>3G · 76%</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;background:#FBF7F0;border-radius:28px 8px 0 0;border-top:2px solid #E3DACB;display:flex;flex-direction:column;gap:14px;padding:8px 18px 22px">
+              <div style="min-height:24px;display:flex;align-items:center;justify-content:center"><span style="width:56px;height:5px;background:#C2B8A8;border-radius:999px"></span></div>
+              <div style="display:flex;gap:14px;align-items:stretch">
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:14px;font-weight:700;color:#4A443A">Llega a tu parada en</span>
+                  <span style="font-size:56px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">6 min</span>
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
+                    <span style="display:inline-flex;gap:3px"><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span></span>
+                    <span style="font-size:13px;font-weight:700;color:#4A443A">cálculo confiable</span>
+                  </div>
+                </div>
+                <div style="width:2px;background:#F4EEE2"></div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:78px">
+                  <span style="font-size:44px;line-height:1;font-weight:800;color:#10402A;font-variant-numeric:tabular-nums">7</span>
+                  <span style="font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#4A443A;text-align:right">esperando en<br>tu parada</span>
+                </div>
+              </div>
+              <span style="font-size:13px;color:#6B6357;font-variant-numeric:tabular-nums">El mapa está bajando · los datos del bus ya están al día</span>
+              <button style="width:100%;min-height:64px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:21px;font-weight:800;cursor:pointer">Estoy esperando aquí</button>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="M5 Croquis respaldo" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">M5 · Croquis de respaldo (sin tiles / ahorro de datos)</span>
+          <div style="width:390px;height:844px;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;position:relative;background:#F4EEE2">
+            <div style="position:absolute;inset:0">
+              <dc-import name="MapaJalapa" capa="croquis" modo="claro" hint-size="100%,100%"></dc-import>
+            </div>
+            <div style="position:absolute;left:0;right:0;top:0;padding:12px 18px 12px;background:#2E2A24;display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#C2B8A8;font-variant-numeric:tabular-nums"><span>6:31</span><span>sin señal · 74%</span></div>
+            <div style="position:absolute;left:14px;right:14px;top:52px;background:#EDE6DA;border:2px solid #C2B8A8;border-radius:20px 6px 20px 6px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E2A24" stroke-width="2.6" stroke-linecap="round" style="flex:0 0 20px;margin-top:2px"><path d="M3 3l18 18M5 12a12 12 0 0114 0"></path></svg>
+              <div style="display:flex;flex-direction:column;gap:8px;flex:1">
+                <span style="font-size:15px;font-weight:800;color:#2E2A24">Estás viendo el croquis liviano</span>
+                <span style="font-size:14px;line-height:1.35;color:#4A443A">Es la misma ruta y la misma posición del bus, solo sin el dibujo de las calles. Gasta casi nada de datos.</span>
+                <button style="align-self:flex-start;min-height:44px;padding:0 16px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:15px;font-weight:800;cursor:pointer">Cargar el mapa completo</button>
+              </div>
+            </div>
+            <div style="position:absolute;left:0;right:0;bottom:0;background:#FBF7F0;border-radius:28px 8px 0 0;border-top:2px solid #E3DACB;display:flex;flex-direction:column;gap:14px;padding:8px 18px 22px">
+              <div style="min-height:24px;display:flex;align-items:center;justify-content:center"><span style="width:56px;height:5px;background:#C2B8A8;border-radius:999px"></span></div>
+              <div style="display:flex;gap:14px;align-items:stretch">
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:14px;font-weight:700;color:#4A443A">Llega a tu parada entre</span>
+                  <span style="font-size:48px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">6 – 9 min</span>
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
+                    <span style="display:inline-flex;gap:3px"><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span><span style="width:5px;height:14px;background:#DDD3C2;border-radius:2px"></span></span>
+                    <span style="font-size:13px;font-weight:700;color:#4A443A">cálculo aproximado</span>
+                  </div>
+                </div>
+                <div style="width:2px;background:#F4EEE2"></div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:78px">
+                  <span style="font-size:44px;line-height:1;font-weight:800;color:#10402A;font-variant-numeric:tabular-nums">7</span>
+                  <span style="font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#4A443A;text-align:right">esperando en<br>tu parada</span>
+                </div>
+              </div>
+              <span style="font-size:13px;color:#6B6357;font-variant-numeric:tabular-nums">Último dato recibido 6:29</span>
+              <button style="width:100%;min-height:64px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:21px;font-weight:800;cursor:pointer">Estoy esperando aquí</button>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="M6 Desvío" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">M6 · El bus va por otra calle</span>
+          <div style="width:390px;height:844px;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;position:relative;background:#E6DCC8">
+            <div style="position:absolute;inset:0">
+              <dc-import name="MapaJalapa" capa="mapa" modo="claro" desvio="{{ true }}" hint-size="100%,100%"></dc-import>
+            </div>
+            <div style="position:absolute;left:0;right:0;top:0;padding:12px 18px 12px;background:#10402A;display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums"><span>10:26</span><span>3G · 68%</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;background:#FBF7F0;border-radius:28px 8px 0 0;border-top:2px solid #E3DACB;display:flex;flex-direction:column;gap:14px;padding:8px 18px 22px">
+              <div style="min-height:24px;display:flex;align-items:center;justify-content:center"><span style="width:56px;height:5px;background:#C2B8A8;border-radius:999px"></span></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;background:#F2B705;border-radius:20px 6px 20px 6px;padding:14px">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="2.6" stroke-linecap="round" style="flex:0 0 24px;margin-top:2px"><path d="M4 20V8a4 4 0 018 0v8a4 4 0 008 0V4"></path></svg>
+                <div style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:18px;font-weight:800;color:#241C00">El bus va por otra calle</span>
+                  <span style="font-size:15px;line-height:1.35;color:#241C00">Hay desfile en la 5a avenida. Lo estamos siguiendo por donde va y regresa a la ruta de siempre en el Instituto Normal.</span>
+                </div>
+              </div>
+              <div style="display:flex;gap:14px;align-items:stretch">
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:14px;font-weight:700;color:#4A443A">Mientras va desviado usamos el horario</span>
+                  <span style="font-size:44px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">10:15</span>
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
+                    <span style="display:inline-flex;gap:3px"><span style="width:5px;height:14px;background:#4A443A;border-radius:2px"></span><span style="width:5px;height:14px;background:#DDD3C2;border-radius:2px"></span><span style="width:5px;height:14px;background:#DDD3C2;border-radius:2px"></span></span>
+                    <span style="font-size:13px;font-weight:700;color:#4A443A">sin estimación por ahora</span>
+                  </div>
+                </div>
+                <div style="width:2px;background:#F4EEE2"></div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:78px">
+                  <span style="font-size:44px;line-height:1;font-weight:800;color:#10402A;font-variant-numeric:tabular-nums">7</span>
+                  <span style="font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#4A443A;text-align:right">esperando en<br>tu parada</span>
+                </div>
+              </div>
+              <span style="font-size:13px;color:#6B6357;font-variant-numeric:tabular-nums">Último dato 10:24 · seguimos viendo dónde va</span>
+              <button style="width:100%;min-height:64px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:21px;font-weight:800;cursor:pointer">Estoy esperando aquí</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">B · Estilo cartográfico, marcadores y ETA</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch">
+
+        <div style="flex:1 1 480px;min-width:460px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:26px;display:flex;flex-direction:column;gap:16px">
+          <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#1C1A17">Estilo del mapa · capa por capa</h3>
+          <p style="margin:0;font-size:15px;line-height:1.5;color:#4A443A">Calles en tonos cálidos apagados, nunca gris azulado. Solo tres cosas llevan color saturado: el trazo de la ruta, el bus y tu parada. Modo claro y modo oscuro se definen aparte, no por inversión.</p>
+          <div style="display:grid;grid-template-columns:1fr 88px 88px;gap:8px;align-items:center">
+            <span style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6357">Capa</span>
+            <span style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6357;text-align:center">Claro</span>
+            <span style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6357;text-align:center">Oscuro</span>
+            <sc-for list="{{ capasMapa }}" as="c" hint-placeholder-count="8">
+              <span style="font-size:15px;font-weight:600;color:#2E2A24">{{ c.capa }}</span>
+              <div style="height:34px;border-radius:8px 3px 8px 3px;border:1px solid #E3DACB;background:{{ c.claro }}"></div>
+              <div style="height:34px;border-radius:8px 3px 8px 3px;border:1px solid #3B352B;background:{{ c.oscuro }}"></div>
+            </sc-for>
+          </div>
+          <p style="margin:0;font-size:14px;line-height:1.45;color:#4A443A;border-top:2px solid #F4EEE2;padding-top:12px">Etiquetas solo en la calzada principal, la 5a avenida, el parque central y los dos barrios de referencia: cinco textos como máximo en pantalla. El mapa orienta, no documenta la ciudad. Áreas verdes y parque central llevan tratamiento propio porque son los hitos con los que la gente se ubica.</p>
+        </div>
+
+        <div style="flex:1 1 400px;min-width:380px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:26px;display:flex;flex-direction:column;gap:18px">
+          <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#1C1A17">Marcadores</h3>
+          <div style="display:flex;gap:22px;align-items:center;background:#E6DCC8;border-radius:20px 6px 20px 6px;padding:18px">
+            <svg width="150" height="96" viewBox="0 0 150 96" aria-label="Marcador del bus con orientación y rastro">
+              <path d="M14 88 H136" stroke="#F4EEE2" stroke-width="14" stroke-linecap="round"></path>
+              <path d="M14 88 H136" stroke="#10402A" stroke-width="7" stroke-linecap="round"></path>
+              <circle cx="40" cy="88" r="4" fill="#10402A" opacity=".16"></circle>
+              <circle cx="58" cy="88" r="5" fill="#10402A" opacity=".32"></circle>
+              <g transform="translate(96,88)">
+                <path d="M34 0 L19 11 L19 -11 Z" fill="#10402A" stroke="#FBF7F0" stroke-width="3"></path>
+                <circle r="21" fill="#10402A" stroke="#FBF7F0" stroke-width="4"></circle>
+                <g transform="translate(-10,-10)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="11" rx="2"></rect><path d="M3 11h18M7 20v-2M17 20v-2"></path></svg></g>
+              </g>
+            </svg>
+            <div style="display:flex;flex-direction:column;gap:4px;flex:1">
+              <span style="font-size:16px;font-weight:800;color:#1C1A17">Bus con rumbo</span>
+              <span style="font-size:14px;line-height:1.4;color:#2E2A24">La punta indica hacia dónde va. Entre datos SSE se interpola la posición y el marcador se desliza sobre la calle en 900 ms (<code>transform: translate</code> con <code>ease-out</code>), nunca salta. El rastro corto detrás dice de dónde viene.</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:22px;align-items:center;background:#E6DCC8;border-radius:20px 6px 20px 6px;padding:18px">
+            <svg width="150" height="80" viewBox="0 0 150 80" aria-label="Marcadores de parada en dos pesos">
+              <path d="M14 40 H136" stroke="#F4EEE2" stroke-width="14" stroke-linecap="round"></path>
+              <path d="M14 40 H136" stroke="#10402A" stroke-width="7" stroke-linecap="round"></path>
+              <circle cx="40" cy="40" r="9" fill="#FBF7F0" stroke="#10402A" stroke-width="5"></circle>
+              <g transform="translate(104,40)"><circle r="21" fill="#F2B705" stroke="#241C00" stroke-width="4"></circle><rect x="-7" y="-7" width="14" height="14" transform="rotate(45)" fill="#241C00"></rect></g>
+            </svg>
+            <div style="display:flex;flex-direction:column;gap:4px;flex:1">
+              <span style="font-size:16px;font-weight:800;color:#1C1A17">Paradas en dos pesos</span>
+              <span style="font-size:14px;line-height:1.4;color:#2E2A24">Parada normal: nudo blanco con anillo verde. Tu parada: doble de tamaño, relleno amarillo, rombo oscuro y etiqueta con texto — color, peso, tamaño y forma a la vez.</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1 1 100%;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:26px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;justify-content:space-between">
+            <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#1C1A17">ETA con nivel de confianza · una sola caja de 132 px</h3>
+            <span style="font-size:14px;color:#4A443A">El cálculo es propio y aprende del historial del bus. Los tres estados ocupan el mismo alto para que la tarjeta no salte.</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:16px">
+            <div style="flex:1 1 300px;height:132px;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:16px 18px;display:flex;flex-direction:column;justify-content:center;gap:2px;border-bottom:4px solid #DDD3C2">
+              <span style="font-size:14px;font-weight:700;color:#4A443A">Llega a tu parada en</span>
+              <span style="font-size:52px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">6 min</span>
+              <div style="display:flex;align-items:center;gap:7px;margin-top:2px"><span style="display:inline-flex;gap:3px"><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span></span><span style="font-size:13px;font-weight:700;color:#4A443A">cálculo confiable</span></div>
+            </div>
+            <div style="flex:1 1 300px;height:132px;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:16px 18px;display:flex;flex-direction:column;justify-content:center;gap:2px;border-bottom:4px solid #DDD3C2">
+              <span style="font-size:14px;font-weight:700;color:#4A443A">Llega a tu parada entre</span>
+              <span style="font-size:52px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">6 – 9 min</span>
+              <div style="display:flex;align-items:center;gap:7px;margin-top:2px"><span style="display:inline-flex;gap:3px"><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span><span style="width:5px;height:14px;background:#10402A;border-radius:2px"></span><span style="width:5px;height:14px;background:#DDD3C2;border-radius:2px"></span></span><span style="font-size:13px;font-weight:700;color:#4A443A">cálculo aproximado</span></div>
+            </div>
+            <div style="flex:1 1 300px;height:132px;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:16px 18px;display:flex;flex-direction:column;justify-content:center;gap:2px;border-bottom:4px solid #DDD3C2">
+              <span style="font-size:14px;font-weight:700;color:#4A443A">Todavía no podemos calcularlo · próxima salida</span>
+              <span style="font-size:52px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">10:15</span>
+              <div style="display:flex;align-items:center;gap:7px;margin-top:2px"><span style="display:inline-flex;gap:3px"><span style="width:5px;height:14px;background:#4A443A;border-radius:2px"></span><span style="width:5px;height:14px;background:#DDD3C2;border-radius:2px"></span><span style="width:5px;height:14px;background:#DDD3C2;border-radius:2px"></span></span><span style="font-size:13px;font-weight:700;color:#4A443A">dato del horario, no estimación</span></div>
+            </div>
+          </div>
+          <p style="margin:0;font-size:14px;line-height:1.45;color:#4A443A;border-top:2px solid #F4EEE2;padding-top:12px">Las tres barritas son el único indicador de confianza: neutras, sin rojo, sin ícono de alerta. Nunca dicen «error»; dicen cuánto sabemos. La hora del último dato recibido va siempre debajo, en tabulares. En AAA: el número del ETA, la hora de salida y el contador de personas.</p>
+        </div>
+
+        <div style="flex:1 1 100%;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:26px;display:flex;flex-direction:column;gap:16px">
+          <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#1C1A17">Atribución de OpenStreetMap · tres ubicaciones</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:18px">
+            <div style="flex:1 1 260px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6B6357">Pasajero · móvil</span>
+              <div style="height:150px;background:#E6DCC8;border-radius:14px 4px 14px 4px;position:relative;overflow:hidden;border:1px solid #DDD3C2">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:52px;background:#FBF7F0;border-radius:14px 4px 0 0"></div>
+                <span style="position:absolute;left:10px;bottom:60px;background:#FBF7F0;border:1px solid #DDD3C2;color:#2E2A24;font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px 2px 6px 2px">© OpenStreetMap</span>
+              </div>
+              <span style="font-size:14px;line-height:1.4;color:#4A443A">Abajo a la izquierda, pegada al borde de la tarjeta flotante: nunca la tapa el pulgar ni los marcadores.</span>
+            </div>
+            <div style="flex:1 1 260px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6B6357">Croquis y modo oscuro</span>
+              <div style="height:150px;background:#1A1712;border-radius:14px 4px 14px 4px;position:relative;overflow:hidden">
+                <span style="position:absolute;left:10px;bottom:10px;background:#241F19;border:1px solid #3B352B;color:#E3DACB;font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px 2px 6px 2px">© OpenStreetMap</span>
+              </div>
+              <span style="font-size:14px;line-height:1.4;color:#4A443A">Misma posición, contraste recalculado (7.4:1). En el croquis se mantiene porque la geometría también viene de OSM.</span>
+            </div>
+            <div style="flex:1 1 260px;display:flex;flex-direction:column;gap:8px">
+              <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6B6357">Panel municipal · escritorio</span>
+              <div style="height:150px;background:#EDE6DA;border-radius:14px 4px 14px 4px;position:relative;overflow:hidden;border:1px solid #DDD3C2">
+                <span style="position:absolute;right:10px;bottom:10px;background:#FBF7F0;border:1px solid #DDD3C2;color:#2E2A24;font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px 2px 6px 2px">© OpenStreetMap · contribuidores</span>
+              </div>
+              <span style="font-size:14px;line-height:1.4;color:#4A443A">Abajo a la derecha del mapa histórico, con la línea completa porque hay espacio. El panel del conductor no lleva mapa, así que no lleva atribución.</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1 1 100%;display:flex;flex-wrap:wrap;gap:16px;background:#F4EEE2;border-radius:28px 6px 28px 6px;padding:22px 26px;align-items:center">
+          <span style="font-size:15px;font-weight:800;color:#1C1A17">Sin cambios:</span>
+          <span style="font-size:15px;color:#2E2A24">el conductor sigue sin mapa (lista de paradas en alto contraste) · pasajero anónimo · «Estoy esperando aquí» como única acción primaria · fuera de servicio 13:30–15:30 y sin conexión como en <a href="#1a">1a</a> · tiles y sprites en el mismo presupuesto de peso: estilo vectorial, sin imágenes raster.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:72px;padding:64px;font-family:'Public Sans',system-ui,sans-serif">
+
+  <div id="1a" style="display:flex;flex-direction:column;gap:56px">
+
+    <div style="display:flex;align-items:flex-start;gap:24px;max-width:1100px">
+      <span style="flex:0 0 auto;background:#8C2B22;color:#FBF7F0;font-family:'Archivo',system-ui,sans-serif;font-size:15px;font-weight:800;letter-spacing:.06em;padding:8px 14px;border-radius:14px 4px 14px 4px">1a</span>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h1 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:44px;line-height:1.05;font-weight:800;letter-spacing:-.02em;color:#1C1A17">EcoRuta — sistema de diseño y pantallas</h1>
+        <p style="margin:0;font-size:19px;line-height:1.5;color:#4A443A;max-width:760px;text-wrap:pretty">Bus eléctrico municipal de Jalapa. Identidad <strong>Cívico Jalapaneco</strong> sobre esqueleto Material 3 Expressive con disciplina de sistema de gobierno. Base del sistema: tokens, marca, ornamento, componentes y pantallas. La vista principal de inicio ahora es el mapa — ver <a href="#2a">2a</a>; la tira de ruta sigue viva como respaldo y como detalle de la tarjeta.</p>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">01 · Marca y escudo municipal</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch">
+
+        <div style="position:relative;overflow:hidden;flex:1 1 520px;min-width:480px;background:#10402A;border-radius:32px 8px 32px 8px;padding:36px">
+          <svg width="100%" height="100%" style="position:absolute;inset:0;opacity:{{ opacidadPatron }}" aria-hidden="true"><defs><pattern id="vol1" width="76" height="76" patternUnits="userSpaceOnUse"><path d="M8 66c0-30 22-52 48-52" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path><path d="M56 14c10 0 18 8 18 18s-8 17-17 17-16-7-16-16 6-14 14-14" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path><path d="M22 26c7-5 14-2 16 5" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path></pattern></defs><rect width="100%" height="100%" fill="url(#vol1)"></rect></svg>
+          <div style="position:relative;display:flex;flex-direction:column;gap:28px">
+            <div style="display:flex;align-items:center;gap:18px">
+              <svg width="64" height="64" viewBox="0 0 64 64" aria-label="Símbolo EcoRuta"><circle cx="32" cy="32" r="31" fill="#FBF7F0"></circle><path d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8" fill="none" stroke="#10402A" stroke-width="5" stroke-linecap="round"></path><circle cx="14" cy="48" r="6" fill="#8C2B22"></circle><circle cx="37" cy="43" r="5" fill="#F2B705"></circle></svg>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-family:'Archivo',system-ui,sans-serif;font-size:38px;line-height:1;font-weight:800;letter-spacing:-.02em;color:#FBF7F0">EcoRuta</span>
+                <span style="font-family:'Public Sans',system-ui,sans-serif;font-size:14px;letter-spacing:.22em;text-transform:uppercase;color:#F2B705;font-weight:700">Bus eléctrico · Jalapa</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:20px">
+              <svg width="210" height="58" viewBox="0 0 210 58" aria-label="Los tres volcanes"><path d="M0 58 L46 12 L74 40 L102 16 L132 46 L160 18 L210 58 Z" fill="#F2B705" opacity=".92"></path><path d="M0 58 L210 58" stroke="#F2B705" stroke-width="3"></path></svg>
+              <p style="margin:0;font-size:14px;line-height:1.45;color:#CBDED1;max-width:230px">Marca gráfica secundaria: Alzatate, Jumay y Monterrico. Solo en superficies de identidad.</p>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <span style="font-size:13px;font-weight:700;color:#0B2E1E;background:#F2B705;padding:7px 12px;border-radius:999px">Verde = acción</span>
+              <span style="font-size:13px;font-weight:700;color:#FBF7F0;background:#8C2B22;padding:7px 12px;border-radius:999px">Rojo = memoria 1773</span>
+              <span style="font-size:13px;font-weight:700;color:#0B2E1E;background:#FBF7F0;padding:7px 12px;border-radius:999px">Blanco cálido = base</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1 1 460px;min-width:420px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:32px 8px 32px 8px;padding:28px;display:flex;flex-direction:column;gap:18px">
+          <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#1C1A17">Hueco reservado para el escudo municipal</h3>
+          <p style="margin:0;font-size:15px;line-height:1.5;color:#4A443A">Caja de reserva de 72px de alto, margen de aire igual a la altura de la «E» de EcoRuta (24px). El layout no cambia según la forma del escudo.</p>
+          <div style="display:flex;gap:14px;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+              <div style="width:120px;height:96px;border:2px dashed #C2B8A8;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#F4EEE2"><div style="width:56px;height:72px;background:#DDD3C2;border-radius:4px 4px 28px 28px"></div></div>
+              <span style="font-size:12px;color:#6B6357;font-weight:700">Vertical</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+              <div style="width:120px;height:96px;border:2px dashed #C2B8A8;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#F4EEE2"><div style="width:96px;height:44px;background:#DDD3C2;border-radius:4px"></div></div>
+              <span style="font-size:12px;color:#6B6357;font-weight:700">Horizontal</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+              <div style="width:120px;height:96px;border:2px dashed #C2B8A8;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#F4EEE2"><div style="width:72px;height:72px;background:#DDD3C2;border-radius:999px"></div></div>
+              <span style="font-size:12px;color:#6B6357;font-weight:700">Circular</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:14px 16px">
+            <div style="width:52px;height:52px;border:2px dashed #C2B8A8;border-radius:999px;background:#FBF7F0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#938A7C;font-weight:800;text-align:center;line-height:1.1">ESCU<br>DO</div>
+            <div style="width:2px;height:44px;background:#DDD3C2"></div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <svg width="34" height="34" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="#10402A"></circle><path d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8" fill="none" stroke="#FBF7F0" stroke-width="6" stroke-linecap="round"></path></svg>
+              <span style="font-family:'Archivo',system-ui,sans-serif;font-size:22px;font-weight:800;color:#1C1A17">EcoRuta</span>
+            </div>
+          </div>
+          <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:7px;font-size:14px;line-height:1.45;color:#4A443A">
+            <li><strong>Jerarquía:</strong> el escudo va primero (izquierda o arriba); EcoRuta nunca lo supera en altura óptica.</li>
+            <li><strong>Separación mínima:</strong> 24px más un filete de 2px cuando comparten fondo.</li>
+            <li><strong>Choque de color:</strong> si el escudo trae colores fuera de paleta, EcoRuta pasa a monocromo (tinta #1C1A17 o blanco cálido) y se elimina el amarillo del símbolo.</li>
+            <li><strong>Monocromo:</strong> versión de un solo trazo de 5px, legible a 24px de alto.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">02 · Tokens</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:20px">
+
+        <div style="flex:1 1 520px;min-width:480px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:32px 8px 32px 8px;padding:28px;display:flex;flex-direction:column;gap:16px">
+          <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#1C1A17">Capa A · Marca (bandera de Jalapa)</h3>
+          <sc-for list="{{ tokensMarca }}" as="t" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:14px">
+              <div style="width:64px;height:56px;border-radius:14px 4px 14px 4px;border:1px solid #E3DACB;background:{{ t.hex }}"></div>
+              <div style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
+                <span style="font-size:15px;font-weight:800;color:#1C1A17">{{ t.nombre }}</span>
+                <span style="font-size:13px;color:#6B6357">{{ t.uso }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px">
+                <code style="font-size:13px;font-weight:700;color:#1C1A17;font-variant-numeric:tabular-nums">{{ t.hex }}</code>
+                <code style="font-size:11px;color:#6B6357">{{ t.token }}</code>
+              </div>
+            </div>
+          </sc-for>
+          <p style="margin:0;font-size:13px;line-height:1.45;color:#6B6357;border-top:2px solid #F4EEE2;padding-top:12px">El amarillo siempre va como relleno con texto oscuro encima. Nunca texto amarillo sobre claro.</p>
+        </div>
+
+        <div style="flex:1 1 520px;min-width:480px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:32px 8px 32px 8px;padding:28px;display:flex;flex-direction:column;gap:16px">
+          <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#1C1A17">Capa B · Estado del sistema (neutros)</h3>
+          <div style="display:flex;gap:0;border-radius:14px 4px 14px 4px;overflow:hidden;border:1px solid #E3DACB">
+            <sc-for list="{{ escalaNeutra }}" as="n" hint-placeholder-count="7">
+              <div style="flex:1;height:72px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;background:{{ n.hex }}">
+                <span style="font-size:10px;font-weight:800;color:{{ n.tinta }}">{{ n.paso }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin:0;font-size:13px;line-height:1.45;color:#4A443A">Tinta carbón cálida <code style="font-weight:800">#1C1A17</code>, nunca negro puro. Ocho pasos, ninguno mezclado con la capa de marca.</p>
+          <div style="display:flex;flex-direction:column;gap:10px;border-top:2px solid #F4EEE2;padding-top:14px">
+            <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6B6357">Estados: color + ícono + texto, distinguidos por luminancia</span>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#10402A;color:#FBF7F0;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px;min-height:44px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.6" stroke-linecap="round"><path d="M4 12l5 5L20 6"></path></svg>En servicio</span>
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#F2B705;color:#241C00;font-size:14px;font-weight:800;padding:10px 14px;border-radius:999px;min-height:44px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Esperando</span>
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#8C2B22;color:#FBF7F0;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px;min-height:44px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.6" stroke-linecap="round"><path d="M12 4v10M12 18v1.5"></path></svg>Fuera de servicio</span>
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#EDE6DA;color:#2E2A24;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px;min-height:44px;border:2px solid #C2B8A8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E2A24" stroke-width="2.6" stroke-linecap="round"><path d="M3 3l18 18M5 12a12 12 0 0114 0"></path></svg>Sin conexión</span>
+            </div>
+            <p style="margin:0;font-size:13px;line-height:1.45;color:#6B6357">Pista redundante de posición y forma, como un semáforo físico: el estado crítico se ancla arriba con esquina recta; el estado normal abajo con esquina redonda.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:20px">
+        <div style="flex:1 1 520px;min-width:480px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:32px 8px 32px 8px;padding:28px;display:flex;flex-direction:column;gap:18px">
+          <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#1C1A17">Tipografía · dos familias, variables, subconjunto latino</h3>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'Archivo',system-ui,sans-serif;font-size:40px;font-weight:800;letter-spacing:-.02em;color:#1C1A17;line-height:1.05">Archivo · identidad</span>
+            <span style="font-size:13px;color:#6B6357">Títulos, marca, cabeceras. 800/900. Solo en superficies de identidad.</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;border-top:2px solid #F4EEE2;padding-top:14px">
+            <span style="font-size:26px;font-weight:600;color:#1C1A17">Public Sans · interfaz y datos</span>
+            <span style="font-size:38px;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums;letter-spacing:.01em">0123456789 · 06:20 · 12</span>
+            <span style="font-size:13px;color:#6B6357">Números tabulares obligatorios en contadores, horas y ETA.</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;border-top:2px solid #F4EEE2;padding-top:14px">
+            <sc-for list="{{ escalaTipo }}" as="e" hint-placeholder-count="6">
+              <div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;color:#4A443A;background:#F4EEE2;padding:8px 12px;border-radius:10px 3px 10px 3px">
+                <span style="font-weight:800;color:#1C1A17">{{ e.nombre }}</span><code style="font-variant-numeric:tabular-nums">{{ e.valor }}</code>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex:1 1 520px;min-width:480px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:32px 8px 32px 8px;padding:28px;display:flex;flex-direction:column;gap:18px">
+          <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:20px;font-weight:800;color:#1C1A17">Espaciado, radios, elevación e interacción</h3>
+          <div style="display:flex;align-items:flex-end;gap:10px">
+            <sc-for list="{{ espaciado }}" as="s" hint-placeholder-count="6">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                <div style="width:{{ s.px }};height:{{ s.px }};background:#10402A;border-radius:3px"></div>
+                <span style="font-size:11px;font-weight:700;color:#6B6357;font-variant-numeric:tabular-nums">{{ s.nombre }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;border-top:2px solid #F4EEE2;padding-top:14px">
+            <div style="width:96px;height:70px;background:#F4EEE2;border:2px solid #E3DACB;border-radius:12px 4px 12px 4px;display:flex;align-items:flex-end;padding:6px;font-size:11px;font-weight:700;color:#6B6357">r-sm</div>
+            <div style="width:96px;height:70px;background:#F4EEE2;border:2px solid #E3DACB;border-radius:20px 6px 20px 6px;display:flex;align-items:flex-end;padding:6px;font-size:11px;font-weight:700;color:#6B6357">r-md</div>
+            <div style="width:96px;height:70px;background:#F4EEE2;border:2px solid #E3DACB;border-radius:32px 8px 32px 8px;display:flex;align-items:flex-end;padding:6px;font-size:11px;font-weight:700;color:#6B6357">r-lg</div>
+            <div style="width:96px;height:70px;background:#F4EEE2;border:2px solid #E3DACB;border-radius:999px;display:flex;align-items:flex-end;justify-content:center;padding:6px;font-size:11px;font-weight:700;color:#6B6357">r-pill</div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;border-top:2px solid #F4EEE2;padding-top:14px">
+            <div style="width:110px;height:60px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:14px 4px 14px 4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#4A443A">e-0 filete</div>
+            <div style="width:110px;height:60px;background:#FBF7F0;border-bottom:4px solid #DDD3C2;border-radius:14px 4px 14px 4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#4A443A">e-1 borde</div>
+            <div style="width:110px;height:60px;background:#10402A;border-bottom:4px solid #0B2E1E;border-radius:14px 4px 14px 4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#FBF7F0">e-2 sólida</div>
+            <span style="font-size:13px;color:#6B6357;max-width:170px">Sin sombras difusas: la elevación es filete y borde inferior sólido.</span>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;border-top:2px solid #F4EEE2;padding-top:14px">
+            <button style="min-height:52px;padding:0 22px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:17px;font-weight:800;cursor:pointer;transition:transform .12s ease,opacity .12s ease" style-hover="opacity:.92;transform:translateY(-1px)" style-active="transform:translateY(1px)">Normal / hover</button>
+            <button style="min-height:52px;padding:0 22px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-size:17px;font-weight:800;outline:4px solid #F2B705;outline-offset:3px;cursor:pointer">Foco visible</button>
+            <button style="min-height:52px;padding:0 22px;background:#E3DACB;color:#938A7C;border:none;border-radius:999px;font-size:17px;font-weight:800">Deshabilitado</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">03 · Prueba de daltonismo</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div style="background:#FBF7F0;border:2px solid #E3DACB;border-radius:32px 8px 32px 8px;padding:28px;display:flex;flex-direction:column;gap:20px">
+        <p style="margin:0;font-size:15px;line-height:1.5;color:#4A443A;max-width:820px">Rojo, amarillo y verde juntos leen como semáforo, y rojo contra verde es el par que más falla. La prueba: en las tres simulaciones los estados siguen distinguiéndose porque el ícono, el texto y el salto de luminancia hacen el trabajo.</p>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:18px">
+            <span style="width:130px;flex:0 0 130px;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6357">Visión normal</span>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#10402A;color:#FBF7F0;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.8" stroke-linecap="round"><path d="M4 12l5 5L20 6"></path></svg>En servicio</span>
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#F2B705;color:#241C00;font-size:14px;font-weight:800;padding:10px 14px;border-radius:999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="2.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Esperando</span>
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#8C2B22;color:#FBF7F0;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.8" stroke-linecap="round"><path d="M12 4v10M12 18v1.5"></path></svg>Fuera de servicio</span>
+              <div style="display:flex;gap:4px"><div style="width:44px;height:38px;background:#0B2E1E"></div><div style="width:44px;height:38px;background:#10402A"></div><div style="width:44px;height:38px;background:#F2B705"></div><div style="width:44px;height:38px;background:#8C2B22"></div><div style="width:44px;height:38px;background:#FBF7F0;border:1px solid #E3DACB"></div></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:18px;border-top:2px solid #F4EEE2;padding-top:14px">
+            <span style="width:130px;flex:0 0 130px;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6357">Deuteranopía</span>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;filter:url(#simDeuteranopia)">
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#10402A;color:#FBF7F0;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.8" stroke-linecap="round"><path d="M4 12l5 5L20 6"></path></svg>En servicio</span>
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#F2B705;color:#241C00;font-size:14px;font-weight:800;padding:10px 14px;border-radius:999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="2.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Esperando</span>
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#8C2B22;color:#FBF7F0;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.8" stroke-linecap="round"><path d="M12 4v10M12 18v1.5"></path></svg>Fuera de servicio</span>
+              <div style="display:flex;gap:4px"><div style="width:44px;height:38px;background:#0B2E1E"></div><div style="width:44px;height:38px;background:#10402A"></div><div style="width:44px;height:38px;background:#F2B705"></div><div style="width:44px;height:38px;background:#8C2B22"></div><div style="width:44px;height:38px;background:#FBF7F0;border:1px solid #E3DACB"></div></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:18px;border-top:2px solid #F4EEE2;padding-top:14px">
+            <span style="width:130px;flex:0 0 130px;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6357">Protanopía</span>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;filter:url(#simProtanopia)">
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#10402A;color:#FBF7F0;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.8" stroke-linecap="round"><path d="M4 12l5 5L20 6"></path></svg>En servicio</span>
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#F2B705;color:#241C00;font-size:14px;font-weight:800;padding:10px 14px;border-radius:999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="2.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Esperando</span>
+              <span style="display:inline-flex;align-items:center;gap:8px;background:#8C2B22;color:#FBF7F0;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.8" stroke-linecap="round"><path d="M12 4v10M12 18v1.5"></path></svg>Fuera de servicio</span>
+              <div style="display:flex;gap:4px"><div style="width:44px;height:38px;background:#0B2E1E"></div><div style="width:44px;height:38px;background:#10402A"></div><div style="width:44px;height:38px;background:#F2B705"></div><div style="width:44px;height:38px;background:#8C2B22"></div><div style="width:44px;height:38px;background:#FBF7F0;border:1px solid #E3DACB"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">04 · Biblioteca de ornamento</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:20px">
+        <div style="flex:1 1 340px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:32px 8px 32px 8px;padding:26px;display:flex;flex-direction:column;gap:14px">
+          <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:18px;font-weight:800;color:#1C1A17">Volutas y fitomorfos</h3>
+          <div style="display:flex;gap:14px;flex-wrap:wrap">
+            <svg width="80" height="80" viewBox="0 0 80 80" style="background:#8C2B22;border-radius:14px 4px 14px 4px"><path d="M12 66c0-30 22-52 48-52" fill="none" stroke="#FBF7F0" stroke-width="4" stroke-linecap="round"></path><path d="M60 14c9 0 16 7 16 16s-7 15-15 15-14-6-14-14 5-12 12-12" fill="none" stroke="#FBF7F0" stroke-width="4" stroke-linecap="round"></path></svg>
+            <svg width="80" height="80" viewBox="0 0 80 80" style="background:#8C2B22;border-radius:14px 4px 14px 4px"><path d="M40 70V22" stroke="#FBF7F0" stroke-width="4" stroke-linecap="round"></path><path d="M40 44c-14 0-22-8-22-22 14 0 22 8 22 22zM40 34c14 0 22-8 22-22-14 0-22 8-22 22z" fill="#FBF7F0"></path></svg>
+            <svg width="80" height="80" viewBox="0 0 80 80" style="background:#8C2B22;border-radius:14px 4px 14px 4px"><path d="M8 40h64" stroke="#FBF7F0" stroke-width="4" stroke-linecap="round"></path><path d="M24 40c0-10 6-16 14-16s12 5 12 12-4 10-10 10-8-3-8-8" fill="none" stroke="#FBF7F0" stroke-width="4" stroke-linecap="round"></path><path d="M56 40c0 10-6 16-14 16" fill="none" stroke="#FBF7F0" stroke-width="4" stroke-linecap="round"></path></svg>
+            <svg width="80" height="80" viewBox="0 0 80 80" style="background:#8C2B22;border-radius:14px 4px 14px 4px"><circle cx="40" cy="40" r="26" fill="none" stroke="#FBF7F0" stroke-width="4"></circle><path d="M40 14c0 14 12 26 26 26" fill="none" stroke="#FBF7F0" stroke-width="4"></path><path d="M40 66c0-14-12-26-26-26" fill="none" stroke="#FBF7F0" stroke-width="4"></path></svg>
+          </div>
+          <p style="margin:0;font-size:14px;line-height:1.45;color:#4A443A">Del barro rojo jalapaneco: volutas y motivos fitomórficos en blanco. Trazo único de 4px, sin relleno degradado, SVG inline.</p>
+        </div>
+        <div style="flex:1 1 340px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:32px 8px 32px 8px;padding:26px;display:flex;flex-direction:column;gap:14px">
+          <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:18px;font-weight:800;color:#1C1A17">Esquina firma</h3>
+          <div style="display:flex;gap:14px;align-items:center">
+            <div style="width:120px;height:96px;background:#F4EEE2;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;position:relative;overflow:hidden">
+              <svg width="40" height="40" viewBox="0 0 40 40" style="position:absolute;right:0;top:0"><path d="M8 2c14 0 24 10 24 24" fill="none" stroke="#8C2B22" stroke-width="3" stroke-linecap="round"></path><path d="M24 12c5 0 8 3 8 8s-3 7-7 7-6-3-6-6" fill="none" stroke="#8C2B22" stroke-width="3" stroke-linecap="round"></path></svg>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.45;color:#4A443A;flex:1">Radio asimétrico <code style="font-weight:800">28px 6px 28px 6px</code> en todas las tarjetas. La voluta aparece solo en la esquina recta y solo una vez por tarjeta.</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;background:#F4EEE2;border-radius:12px;padding:12px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8C2B22" stroke-width="2.6" stroke-linecap="round"><path d="M12 4v10M12 18v1.5"></path></svg>
+            <span style="font-size:13px;font-weight:700;color:#2E2A24">Cero ornamento detrás de números, horas o contadores.</span>
+          </div>
+        </div>
+        <div style="flex:1 1 340px;position:relative;overflow:hidden;background:#0B2E1E;border-radius:32px 8px 32px 8px;padding:26px;display:flex;flex-direction:column;gap:14px">
+          <svg width="100%" height="100%" style="position:absolute;inset:0;opacity:.16" aria-hidden="true"><defs><pattern id="vol2" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M6 56c0-26 18-46 42-46" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path><path d="M48 10c8 0 14 6 14 14s-6 13-13 13" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path></pattern></defs><rect width="100%" height="100%" fill="url(#vol2)"></rect></svg>
+          <div style="position:relative;display:flex;flex-direction:column;gap:12px">
+            <h3 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:18px;font-weight:800;color:#FBF7F0">Patrón de fondo</h3>
+            <p style="margin:0;font-size:14px;line-height:1.45;color:#CBDED1">Opacidad máxima 16% sobre verde profundo. Solo en bienvenida, cabecera e instalación. Nunca debajo de datos operativos ni en el panel del conductor.</p>
+            <div style="background:#FBF7F0;border-radius:16px 4px 16px 4px;padding:14px;display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B6357">Contraste comprobado</span>
+              <span style="font-size:15px;font-weight:700;color:#1C1A17">Texto blanco cálido sobre patrón: 11.2:1 (AAA)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">05 · La tira de ruta y sus estados</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+        <div style="flex:0 0 400px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:22px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8C2B22">6 paradas · datos frescos</span>
+          <dc-import name="TiraDeRuta" items="{{ tiraCorta }}" orientacion="vertical" hint-size="100%,560px"></dc-import>
+        </div>
+        <div style="flex:0 0 400px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:22px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8C2B22">20 paradas · compresión</span>
+          <dc-import name="TiraDeRuta" items="{{ tiraLarga }}" orientacion="vertical" hint-size="100%,560px"></dc-import>
+          <p style="margin:0;font-size:13px;line-height:1.45;color:#4A443A;border-top:2px solid #F4EEE2;padding-top:12px">Se colapsan los tramos sin nadie esperando. <strong>Nunca se colapsan:</strong> tu parada, las dos paradas antes de tu parada, la posición del bus, ni cualquier parada con una persona o más.</p>
+        </div>
+        <div style="flex:0 0 400px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:22px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8C2B22">Cargando · la estructura primero</span>
+          <dc-import name="TiraDeRuta" items="{{ tiraCorta }}" orientacion="vertical" esqueleto="{{ true }}" hint-size="100%,520px"></dc-import>
+        </div>
+        <div style="flex:0 0 400px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:22px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8C2B22">Sin datos frescos · atenuada</span>
+          <div style="display:flex;align-items:flex-start;gap:10px;background:#EDE6DA;border:2px solid #C2B8A8;border-radius:16px 4px 16px 4px;padding:12px 14px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E2A24" stroke-width="2.6" stroke-linecap="round" style="flex:0 0 20px;margin-top:2px"><path d="M3 3l18 18M5 12a12 12 0 0114 0"></path></svg>
+            <div style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:800;color:#2E2A24">Sin datos nuevos</span><span style="font-size:14px;color:#4A443A;font-variant-numeric:tabular-nums">Último dato: hoy 06:41</span></div>
+          </div>
+          <div style="opacity:.5">
+            <dc-import name="TiraDeRuta" items="{{ tiraCorta }}" orientacion="vertical" hint-size="100%,520px"></dc-import>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">06 · Componentes</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+
+        <div style="flex:1 1 300px;max-width:380px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:22px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8C2B22">TarjetaParada · ContadorDemanda</span>
+          <div style="background:#F4EEE2;border-radius:24px 6px 24px 6px;padding:18px;display:flex;flex-direction:column;gap:12px;border-bottom:4px solid #DDD3C2">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+              <div style="display:flex;flex-direction:column;gap:3px">
+                <span style="display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:#10402A;color:#FBF7F0;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:999px"><span style="width:8px;height:8px;background:#F2B705;transform:rotate(45deg);display:inline-block"></span>Tu parada</span>
+                <span style="font-size:20px;font-weight:800;color:#1C1A17;line-height:1.2;text-wrap:pretty">Portón azul del Instituto Normal</span>
+                <span style="font-size:14px;color:#6B6357">Barrio San Francisco · 3 min a pie</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;background:#FBF7F0;border-radius:14px 4px 14px 4px;padding:8px 12px;min-width:74px">
+                <span style="font-size:38px;line-height:1;font-weight:800;color:#10402A;font-variant-numeric:tabular-nums">7</span>
+                <span style="font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#4A443A">esperando</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;align-items:center;background:#F4EEE2;border-radius:12px 4px 12px 4px;padding:8px 14px"><span style="font-size:26px;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">0</span><span style="font-size:10px;font-weight:800;text-transform:uppercase;color:#6B6357">vacío</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;background:#F4EEE2;border-radius:12px 4px 12px 4px;padding:8px 14px"><span style="font-size:26px;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">3</span><span style="font-size:10px;font-weight:800;text-transform:uppercase;color:#6B6357">normal</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;background:#F2B705;border-radius:12px 4px 12px 4px;padding:8px 14px"><span style="font-size:26px;font-weight:800;color:#241C00;font-variant-numeric:tabular-nums">12</span><span style="font-size:10px;font-weight:800;text-transform:uppercase;color:#241C00">lleno</span></div>
+          </div>
+        </div>
+
+        <div style="flex:1 1 300px;max-width:380px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:22px;display:flex;flex-direction:column;gap:16px">
+          <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8C2B22">BloqueProximaSalida · dos modelos</span>
+          <div style="background:#F4EEE2;border-radius:24px 6px 24px 6px;padding:18px;display:flex;flex-direction:column;gap:6px;border-bottom:4px solid #DDD3C2">
+            <span style="font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4A443A">A · Horario fijo</span>
+            <span style="font-size:15px;color:#4A443A">Próxima salida</span>
+            <span style="font-size:52px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">06:20</span>
+            <span style="font-size:16px;font-weight:700;color:#10402A">Sale en 14 minutos</span>
+          </div>
+          <div style="background:#F4EEE2;border-radius:24px 6px 24px 6px;padding:18px;display:flex;flex-direction:column;gap:8px;border-bottom:4px solid #DDD3C2">
+            <span style="font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4A443A">B · Umbral de 10 pasajeros</span>
+            <span style="font-size:15px;color:#4A443A">El bus sale cuando haya 10 personas</span>
+            <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:52px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">7</span><span style="font-size:22px;font-weight:700;color:#4A443A;font-variant-numeric:tabular-nums">de 10</span></div>
+            <div style="display:flex;gap:4px">
+              <div style="flex:1;height:14px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:14px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:14px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:14px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:14px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:14px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:14px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:14px;background:#DDD3C2;border-radius:3px"></div><div style="flex:1;height:14px;background:#DDD3C2;border-radius:3px"></div><div style="flex:1;height:14px;background:#DDD3C2;border-radius:3px"></div>
+            </div>
+            <span style="font-size:16px;font-weight:700;color:#10402A">Faltan 3 personas</span>
+          </div>
+        </div>
+
+        <div style="flex:1 1 300px;max-width:380px;background:#FBF7F0;border:2px solid #E3DACB;border-radius:28px 6px 28px 6px;padding:22px;display:flex;flex-direction:column;gap:16px">
+          <span style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8C2B22">Temporizador · Botón · Banner</span>
+          <div style="background:#F4EEE2;border-radius:24px 6px 24px 6px;padding:18px;display:flex;align-items:center;gap:16px;border-bottom:4px solid #DDD3C2">
+            <div style="position:relative;width:76px;height:76px;flex:0 0 76px">
+              <svg width="76" height="76" viewBox="0 0 76 76"><circle cx="38" cy="38" r="32" fill="none" stroke="#DDD3C2" stroke-width="8"></circle><circle cx="38" cy="38" r="32" fill="none" stroke="#10402A" stroke-width="8" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="62" transform="rotate(-90 38 38)"></circle></svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-size:22px;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">14</span><span style="font-size:10px;font-weight:800;color:#4A443A">MIN</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:800;color:#1C1A17">Tu aviso está activo</span><span style="font-size:14px;color:#4A443A">Se vence solo. No tenés que hacer nada.</span></div>
+          </div>
+          <button style="width:100%;min-height:60px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:19px;font-weight:800;cursor:pointer;transition:opacity .12s ease,transform .12s ease" style-hover="opacity:.92;transform:translateY(-1px)">Estoy esperando aquí</button>
+          <div style="display:flex;align-items:center;gap:10px;background:#EDE6DA;border:2px solid #C2B8A8;border-radius:999px;padding:10px 16px;min-height:48px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E2A24" stroke-width="2.6" stroke-linecap="round"><path d="M3 3l18 18M5 12a12 12 0 0114 0"></path></svg>
+            <span style="font-size:14px;font-weight:700;color:#2E2A24;font-variant-numeric:tabular-nums">Sin internet · datos de las 06:41</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:#10402A;border-radius:999px;padding:10px 16px;min-height:48px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.6" stroke-linecap="round"><path d="M4 12l5 5L20 6"></path></svg>
+            <span style="font-size:14px;font-weight:700;color:#FBF7F0">Ya volvió el internet · datos al día</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">07 · Pasajero (móvil, 390×844)</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+
+        <div data-screen-label="01 Bienvenida" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">01 · Bienvenida y permisos</span>
+          <div style="width:390px;height:844px;background:#10402A;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;position:relative;display:flex;flex-direction:column">
+            <svg width="100%" height="100%" style="position:absolute;inset:0;opacity:{{ opacidadPatron }}" aria-hidden="true"><defs><pattern id="vol3" width="76" height="76" patternUnits="userSpaceOnUse"><path d="M8 66c0-30 22-52 48-52" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path><path d="M56 14c10 0 18 8 18 18s-8 17-17 17-16-7-16-16 6-14 14-14" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path><path d="M22 26c7-5 14-2 16 5" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path></pattern></defs><rect width="100%" height="100%" fill="url(#vol3)"></rect></svg>
+            <div style="position:relative;display:flex;justify-content:space-between;padding:12px 22px 0;font-size:13px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums"><span>6:06</span><span>3G · 78%</span></div>
+            <div style="position:relative;flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:28px 24px 26px">
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:44px;height:44px;border:2px dashed #4E6B5A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#8FA69A;text-align:center;line-height:1.1">ESCU<br>DO</div>
+                  <div style="width:2px;height:34px;background:#4E6B5A"></div>
+                  <div style="display:flex;flex-direction:column"><span style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#CBDED1">Municipalidad</span><span style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#CBDED1">de Jalapa</span></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:14px">
+                  <svg width="72" height="72" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="#FBF7F0"></circle><path d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8" fill="none" stroke="#10402A" stroke-width="5" stroke-linecap="round"></path><circle cx="14" cy="48" r="6" fill="#8C2B22"></circle><circle cx="37" cy="43" r="5" fill="#F2B705"></circle></svg>
+                  <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:52px;line-height:.98;font-weight:800;letter-spacing:-.03em;color:#FBF7F0">EcoRuta<br>Jalapa</h2>
+                  <p style="margin:0;font-size:20px;line-height:1.4;color:#CBDED1;text-wrap:pretty">Mirá dónde va el bus eléctrico y cuánta gente lo está esperando en tu parada.</p>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;gap:12px;align-items:flex-start;background:#0B2E1E;border-radius:20px 6px 20px 6px;padding:14px 16px">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F2B705" stroke-width="2.4" stroke-linecap="round" style="flex:0 0 24px;margin-top:2px"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
+                  <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:17px;font-weight:800;color:#FBF7F0">Tu ubicación</span><span style="font-size:15px;line-height:1.35;color:#CBDED1">Solo para saber qué parada tenés más cerca. No guardamos por dónde andás.</span></div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-start;background:#0B2E1E;border-radius:20px 6px 20px 6px;padding:14px 16px">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F2B705" stroke-width="2.4" stroke-linecap="round" style="flex:0 0 24px;margin-top:2px"><path d="M6 9a6 6 0 1112 0c0 5 2 6 2 6H4s2-1 2-6z"></path><path d="M10 19a2.5 2.5 0 004 0"></path></svg>
+                  <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:17px;font-weight:800;color:#FBF7F0">Avisos</span><span style="font-size:15px;line-height:1.35;color:#CBDED1">Te avisamos cuando el bus ya viene para tu parada.</span></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <button style="width:100%;min-height:60px;background:#F2B705;color:#241C00;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:20px;font-weight:800;cursor:pointer">Empezar</button>
+                  <button style="width:100%;min-height:52px;background:transparent;color:#CBDED1;border:2px solid #4E6B5A;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:17px;font-weight:700;cursor:pointer">Seguir sin dar permisos</button>
+                  <span style="text-align:center;font-size:14px;color:#8FA69A">No necesitás cuenta ni correo.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="02 Instalar" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">02 · Instalar en pantalla de inicio</span>
+          <div style="display:flex;gap:24px">
+            <div style="width:390px;height:844px;background:#FBF7F0;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;position:relative;display:flex;flex-direction:column">
+              <div style="position:relative;background:#10402A;padding:14px 22px 24px;overflow:hidden">
+                <svg width="100%" height="100%" style="position:absolute;inset:0;opacity:.14" aria-hidden="true"><defs><pattern id="vol4" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M6 56c0-26 18-46 42-46" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path><path d="M48 10c8 0 14 6 14 14s-6 13-13 13" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path></pattern></defs><rect width="100%" height="100%" fill="url(#vol4)"></rect></svg>
+                <div style="position:relative;display:flex;flex-direction:column;gap:14px">
+                  <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums"><span>6:07</span><span style="display:inline-flex;align-items:center;gap:6px">Android · Chrome</span></div>
+                  <span style="font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#F2B705">Android</span>
+                  <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:34px;line-height:1.05;font-weight:800;color:#FBF7F0;letter-spacing:-.02em">Ponelo en tu pantalla de inicio</h2>
+                </div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:22px 22px 24px">
+                <div style="display:flex;flex-direction:column;gap:16px">
+                  <p style="margin:0;font-size:18px;line-height:1.45;color:#2E2A24;text-wrap:pretty">Se abre como una app y gasta menos datos, porque no vuelve a bajar todo cada vez.</p>
+                  <div style="display:flex;flex-direction:column;gap:10px">
+                    <div style="display:flex;gap:12px;align-items:center;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:14px"><span style="width:34px;height:34px;flex:0 0 34px;background:#10402A;color:#FBF7F0;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">1</span><span style="font-size:16px;line-height:1.35;color:#1C1A17;font-weight:600">Toqué el botón verde de abajo.</span></div>
+                    <div style="display:flex;gap:12px;align-items:center;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:14px"><span style="width:34px;height:34px;flex:0 0 34px;background:#10402A;color:#FBF7F0;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">2</span><span style="font-size:16px;line-height:1.35;color:#1C1A17;font-weight:600">Chrome le pregunta si lo agrega. Diga que sí.</span></div>
+                    <div style="display:flex;gap:12px;align-items:center;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:14px"><span style="width:34px;height:34px;flex:0 0 34px;background:#10402A;color:#FBF7F0;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">3</span><span style="font-size:16px;line-height:1.35;color:#1C1A17;font-weight:600">Listo: queda el ícono de EcoRuta.</span></div>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <button style="width:100%;min-height:60px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:19px;font-weight:800;cursor:pointer">Agregar EcoRuta</button>
+                  <button style="width:100%;min-height:52px;background:transparent;color:#4A443A;border:none;font-family:'Public Sans',system-ui,sans-serif;font-size:17px;font-weight:700;cursor:pointer;text-decoration:underline">Ahora no</button>
+                </div>
+              </div>
+            </div>
+            <div style="width:390px;height:844px;background:#FBF7F0;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;position:relative;display:flex;flex-direction:column">
+              <div style="position:relative;background:#8C2B22;padding:14px 22px 24px;overflow:hidden">
+                <svg width="100%" height="100%" style="position:absolute;inset:0;opacity:.16" aria-hidden="true"><defs><pattern id="vol5" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M6 56c0-26 18-46 42-46" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path><path d="M48 10c8 0 14 6 14 14s-6 13-13 13" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path></pattern></defs><rect width="100%" height="100%" fill="url(#vol5)"></rect></svg>
+                <div style="position:relative;display:flex;flex-direction:column;gap:14px">
+                  <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#F6E4E0;font-variant-numeric:tabular-nums"><span>6:07</span><span>iPhone · Safari</span></div>
+                  <span style="font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#FFD65A">iPhone</span>
+                  <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:34px;line-height:1.05;font-weight:800;color:#FBF7F0;letter-spacing:-.02em">Para recibir avisos, guardalo primero</h2>
+                </div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:22px 22px 24px">
+                <div style="display:flex;flex-direction:column;gap:16px">
+                  <div style="display:flex;gap:12px;align-items:flex-start;background:#F4EEE2;border:2px solid #E3DACB;border-radius:20px 6px 20px 6px;padding:16px">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C2B22" stroke-width="2.4" stroke-linecap="round" style="flex:0 0 24px;margin-top:2px"><path d="M6 9a6 6 0 1112 0c0 5 2 6 2 6H4s2-1 2-6z"></path><path d="M10 19a2.5 2.5 0 004 0"></path></svg>
+                    <p style="margin:0;font-size:17px;line-height:1.4;color:#1C1A17;font-weight:600">En iPhone, el aviso de «el bus ya viene» solo llega si EcoRuta está guardada en tu pantalla de inicio.</p>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:10px">
+                    <div style="display:flex;gap:12px;align-items:center;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:14px"><span style="width:34px;height:34px;flex:0 0 34px;background:#8C2B22;color:#FBF7F0;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">1</span><span style="font-size:16px;line-height:1.35;color:#1C1A17;font-weight:600">Toqué el cuadrito con la flecha, abajo en Safari.</span></div>
+                    <div style="display:flex;gap:12px;align-items:center;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:14px"><span style="width:34px;height:34px;flex:0 0 34px;background:#8C2B22;color:#FBF7F0;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">2</span><span style="font-size:16px;line-height:1.35;color:#1C1A17;font-weight:600">Buscá «Agregar a inicio» y tocalo.</span></div>
+                    <div style="display:flex;gap:12px;align-items:center;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:14px"><span style="width:34px;height:34px;flex:0 0 34px;background:#8C2B22;color:#FBF7F0;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">3</span><span style="font-size:16px;line-height:1.35;color:#1C1A17;font-weight:600">Abrí EcoRuta desde el ícono nuevo.</span></div>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <button style="width:100%;min-height:60px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:19px;font-weight:800;cursor:pointer">Ver cómo se hace</button>
+                  <button style="width:100%;min-height:52px;background:transparent;color:#4A443A;border:none;font-family:'Public Sans',system-ui,sans-serif;font-size:17px;font-weight:700;cursor:pointer;text-decoration:underline">Después lo hago</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="03 Inicio" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">03 · Inicio (tira + parada más cercana)</span>
+          <div style="width:390px;height:844px;background:#FBF7F0;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;display:flex;flex-direction:column">
+            <div style="background:#10402A;padding:12px 20px 16px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums"><span>6:06</span><span>3G · 78%</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <svg width="34" height="34" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="#FBF7F0"></circle><path d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8" fill="none" stroke="#10402A" stroke-width="6" stroke-linecap="round"></path></svg>
+                  <span style="font-family:'Archivo',system-ui,sans-serif;font-size:22px;font-weight:800;color:#FBF7F0">EcoRuta</span>
+                </div>
+                <span style="display:inline-flex;align-items:center;gap:6px;background:#F2B705;color:#241C00;font-size:13px;font-weight:800;padding:8px 12px;border-radius:999px;min-height:36px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="3" stroke-linecap="round"><path d="M4 12l5 5L20 6"></path></svg>En servicio</span>
+              </div>
+              <span style="font-size:13px;color:#8FA69A;font-variant-numeric:tabular-nums">Último dato recibido: 6:04</span>
+            </div>
+            <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:14px;padding:16px 18px 0">
+              <div style="background:#F4EEE2;border-radius:26px 6px 26px 6px;padding:16px;border-bottom:4px solid #DDD3C2;display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <span style="display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:#10402A;color:#FBF7F0;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:999px"><span style="width:8px;height:8px;background:#F2B705;transform:rotate(45deg);display:inline-block"></span>Tu parada</span>
+                    <span style="font-size:19px;font-weight:800;color:#1C1A17;line-height:1.2;text-wrap:pretty">Portón azul del Instituto Normal</span>
+                    <span style="font-size:14px;color:#6B6357">3 min a pie · Barrio San Francisco</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:center;background:#FBF7F0;border-radius:14px 4px 14px 4px;padding:8px 12px;min-width:72px">
+                    <span style="font-size:36px;line-height:1;font-weight:800;color:#10402A;font-variant-numeric:tabular-nums">7</span>
+                    <span style="font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#4A443A">esperando</span>
+                  </div>
+                </div>
+                <sc-if value="{{ esHorarioFijo }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;border-top:2px solid #E3DACB;padding-top:12px">
+                    <div style="display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700;color:#4A443A">Próxima salida</span><span style="font-size:44px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">06:20</span></div>
+                    <span style="font-size:17px;font-weight:800;color:#10402A;font-variant-numeric:tabular-nums">en 14 min</span>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ esUmbral }}">
+                  <div style="display:flex;flex-direction:column;gap:8px;border-top:2px solid #E3DACB;padding-top:12px">
+                    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                      <div style="display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700;color:#4A443A">Sale con 10 personas</span><div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:44px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">7</span><span style="font-size:20px;font-weight:700;color:#4A443A">de 10</span></div></div>
+                      <span style="font-size:17px;font-weight:800;color:#10402A">Faltan 3</span>
+                    </div>
+                    <div style="display:flex;gap:3px"><div style="flex:1;height:12px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:12px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:12px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:12px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:12px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:12px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:12px;background:#10402A;border-radius:3px"></div><div style="flex:1;height:12px;background:#DDD3C2;border-radius:3px"></div><div style="flex:1;height:12px;background:#DDD3C2;border-radius:3px"></div><div style="flex:1;height:12px;background:#DDD3C2;border-radius:3px"></div></div>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6B6357">La ruta de hoy</span>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#10402A;border:2px solid #CBDED1;border-radius:999px;padding:6px 12px;min-height:40px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10402A" stroke-width="2.4" stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"></path></svg>Ver mapa</span>
+              </div>
+              <div style="flex:1;overflow:hidden">
+                <dc-import name="TiraDeRuta" items="{{ tiraCorta }}" orientacion="vertical" hint-size="100%,400px"></dc-import>
+              </div>
+            </div>
+            <div style="padding:12px 18px 22px;background:#FBF7F0;border-top:2px solid #F4EEE2">
+              <button style="width:100%;min-height:64px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:21px;font-weight:800;cursor:pointer;transition:opacity .12s ease,transform .12s ease" style-hover="opacity:.92;transform:translateY(-1px)">Estoy esperando aquí</button>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="04 Elegir parada" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">04 · Elegir parada (lista / mapa)</span>
+          <div style="width:390px;height:844px;background:#FBF7F0;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;display:flex;flex-direction:column">
+            <div style="background:#10402A;padding:12px 20px 16px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums"><span>6:08</span><span>3G · 77%</span></div>
+              <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:26px;font-weight:800;color:#FBF7F0">¿En qué parada estás?</h2>
+              <div style="display:flex;background:#0B2E1E;border-radius:999px;padding:4px;gap:4px">
+                <span style="flex:1;text-align:center;background:#FBF7F0;color:#10402A;font-size:15px;font-weight:800;padding:10px;border-radius:999px;min-height:44px;display:flex;align-items:center;justify-content:center">Lista</span>
+                <span style="flex:1;text-align:center;color:#CBDED1;font-size:15px;font-weight:700;padding:10px;border-radius:999px;min-height:44px;display:flex;align-items:center;justify-content:center">Mapa</span>
+              </div>
+            </div>
+            <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:10px;padding:14px 18px">
+              <sc-for list="{{ listaParadas }}" as="p" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;gap:12px;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:14px 16px;min-height:76px;border-bottom:3px solid #DDD3C2">
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                    <span style="font-size:17px;font-weight:700;color:#1C1A17;line-height:1.25;text-wrap:pretty">{{ p.ref }}</span>
+                    <span style="font-size:14px;color:#6B6357;font-variant-numeric:tabular-nums">{{ p.dist }}</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:center;min-width:56px">
+                    <span style="font-size:28px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">{{ p.esperando }}</span>
+                    <span style="font-size:10px;font-weight:800;text-transform:uppercase;color:#6B6357">esperando</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="05 Espera confirmada" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">05 · Espera confirmada</span>
+          <div style="width:390px;height:844px;background:#FBF7F0;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;display:flex;flex-direction:column">
+            <div style="background:#10402A;padding:12px 20px 16px;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums"><span>6:09</span><span>3G · 77%</span></div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="width:34px;height:34px;background:#F2B705;border-radius:999px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="3" stroke-linecap="round"><path d="M4 12l5 5L20 6"></path></svg></span>
+                <span style="font-family:'Archivo',system-ui,sans-serif;font-size:24px;font-weight:800;color:#FBF7F0">Ya avisamos</span>
+              </div>
+              <p style="margin:0;font-size:16px;line-height:1.4;color:#CBDED1">El conductor ya sabe que estás esperando en el portón del Instituto Normal.</p>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px">
+              <div style="background:#F4EEE2;border-radius:26px 6px 26px 6px;padding:18px;border-bottom:4px solid #DDD3C2;display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;justify-content:space-between;gap:14px">
+                  <div style="display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700;color:#4A443A">Personas en tu parada</span><span style="font-size:56px;line-height:1;font-weight:800;color:#10402A;font-variant-numeric:tabular-nums">8</span><span style="font-size:14px;color:#6B6357">vos incluido</span></div>
+                  <div style="width:2px;background:#E3DACB"></div>
+                  <div style="display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700;color:#4A443A">El bus llega en</span><span style="font-size:56px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">11</span><span style="font-size:14px;color:#6B6357">minutos, más o menos</span></div>
+                </div>
+                <span style="font-size:13px;color:#6B6357;font-variant-numeric:tabular-nums;border-top:2px solid #E3DACB;padding-top:10px">Último dato recibido: 6:07</span>
+              </div>
+              <div style="background:#FBF7F0;border:2px solid #E3DACB;border-radius:26px 6px 26px 6px;padding:18px;display:flex;align-items:center;gap:16px">
+                <div style="position:relative;width:92px;height:92px;flex:0 0 92px">
+                  <svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="38" fill="none" stroke="#E3DACB" stroke-width="9"></circle><circle cx="46" cy="46" r="38" fill="none" stroke="#10402A" stroke-width="9" stroke-linecap="round" stroke-dasharray="239" stroke-dashoffset="72" transform="rotate(-90 46 46)"></circle></svg>
+                  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-size:28px;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">{{ minutosRestantes }}</span><span style="font-size:11px;font-weight:800;color:#4A443A">MIN</span></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <span style="font-size:18px;font-weight:800;color:#1C1A17">Tu aviso está activo</span>
+                  <p style="margin:0;font-size:15px;line-height:1.4;color:#4A443A">Se vence solo a los {{ temporizadorMin }} minutos. No tenés que hacer nada.</p>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:auto">
+                <button style="width:100%;min-height:60px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:19px;font-weight:800;cursor:pointer">Sigo esperando otros {{ temporizadorMin }} min</button>
+                <button style="width:100%;min-height:52px;background:transparent;color:#8C2B22;border:2px solid #E3DACB;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:17px;font-weight:800;cursor:pointer">Ya no voy a esperar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="06 Bus en camino" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">06 · Bus en camino</span>
+          <div style="width:390px;height:844px;background:#F2B705;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;display:flex;flex-direction:column">
+            <div style="padding:12px 22px 0;display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#241C00;font-variant-numeric:tabular-nums"><span>6:18</span><span>3G · 76%</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:24px">
+              <span style="display:inline-flex;align-items:center;gap:8px;align-self:flex-start;background:#241C00;color:#F2B705;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:8px 14px;border-radius:999px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F2B705" stroke-width="2.4" stroke-linecap="round"><rect x="3" y="5" width="18" height="11" rx="2"></rect><path d="M3 11h18M7 20v-2M17 20v-2"></path></svg>El bus ya viene</span>
+              <span style="font-family:'Archivo',system-ui,sans-serif;font-size:150px;line-height:.85;font-weight:900;color:#241C00;font-variant-numeric:tabular-nums;letter-spacing:-.05em">2</span>
+              <span style="font-family:'Archivo',system-ui,sans-serif;font-size:40px;line-height:1;font-weight:800;color:#241C00">minutos</span>
+              <p style="margin:8px 0 0;font-size:26px;line-height:1.3;font-weight:800;color:#241C00;text-wrap:pretty">Salí a la parada: el portón azul del Instituto Normal.</p>
+              <span style="font-size:16px;font-weight:700;color:#4A3B00;font-variant-numeric:tabular-nums">Dato de las 6:17 · la hora puede variar un poco</span>
+            </div>
+            <div style="background:#241C00;padding:18px 22px 26px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                <div style="display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700;color:#F2B705">En tu parada</span><span style="font-size:34px;line-height:1;font-weight:800;color:#FBF7F0;font-variant-numeric:tabular-nums">8 personas</span></div>
+                <span style="width:56px;height:56px;background:#F2B705;border-radius:16px 4px 16px 4px;display:flex;align-items:center;justify-content:center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="2.4" stroke-linecap="round"><rect x="3" y="5" width="18" height="11" rx="2"></rect><path d="M3 11h18M7 20v-2M17 20v-2"></path></svg></span>
+              </div>
+              <button style="width:100%;min-height:56px;background:transparent;color:#F2B705;border:2px solid #6B5A00;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:17px;font-weight:800;cursor:pointer">Ver la ruta completa</button>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="07 Horarios" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">07 · Horarios</span>
+          <div style="width:390px;height:844px;background:#FBF7F0;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;display:flex;flex-direction:column">
+            <div style="background:#10402A;padding:12px 20px 18px;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums"><span>6:10</span><span>3G · 77%</span></div>
+              <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:30px;font-weight:800;color:#FBF7F0">¿A qué hora sale?</h2>
+              <p style="margin:0;font-size:16px;line-height:1.4;color:#CBDED1">Estas son las salidas de siempre desde el parque central.</p>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px">
+              <div style="background:#F4EEE2;border-radius:26px 6px 26px 6px;padding:18px;border-bottom:4px solid #DDD3C2;display:flex;flex-direction:column;gap:14px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#4A443A">De lunes a viernes</span>
+                <div style="display:flex;gap:14px;align-items:center">
+                  <div style="display:flex;flex-direction:column;flex:1"><span style="font-size:46px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">06:20</span><span style="font-size:15px;color:#4A443A">de la mañana</span></div>
+                  <div style="width:2px;height:52px;background:#E3DACB"></div>
+                  <div style="display:flex;flex-direction:column;flex:1"><span style="font-size:46px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">10:15</span><span style="font-size:15px;color:#4A443A">de la mañana</span></div>
+                </div>
+              </div>
+              <div style="background:#F4EEE2;border-radius:26px 6px 26px 6px;padding:18px;border-bottom:4px solid #DDD3C2;display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#4A443A">Solo los jueves, además</span>
+                <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:46px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">09:00</span><span style="font-size:16px;font-weight:700;color:#8C2B22">día de plaza</span></div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;background:#FBF7F0;border:2px solid #E3DACB;border-radius:26px 6px 26px 6px;padding:18px">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C2B22" stroke-width="2.4" stroke-linecap="round" style="flex:0 0 24px;margin-top:2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:17px;font-weight:800;color:#1C1A17">Descanso de la tarde</span><span style="font-size:16px;line-height:1.4;color:#4A443A;font-variant-numeric:tabular-nums">De 1:30 a 3:30 de la tarde el bus no anda. Vuelve a las 3:30.</span></div>
+              </div>
+              <p style="margin:auto 0 0;font-size:15px;line-height:1.45;color:#6B6357">Las horas son de referencia. El tráfico y la lluvia pueden atrasar el bus unos minutos.</p>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="08 Fuera de servicio" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">08 · Fuera de servicio</span>
+          <div style="width:390px;height:844px;background:#8C2B22;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;position:relative;display:flex;flex-direction:column">
+            <svg width="100%" height="100%" style="position:absolute;inset:0;opacity:.14" aria-hidden="true"><defs><pattern id="vol6" width="70" height="70" patternUnits="userSpaceOnUse"><path d="M8 62c0-28 20-48 46-48" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path><path d="M52 12c9 0 16 7 16 16s-7 15-15 15" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path></pattern></defs><rect width="100%" height="100%" fill="url(#vol6)"></rect></svg>
+            <div style="position:relative;display:flex;justify-content:space-between;padding:12px 22px 0;font-size:13px;font-weight:700;color:#F6E4E0;font-variant-numeric:tabular-nums"><span>13:52</span><span>3G · 61%</span></div>
+            <div style="position:relative;flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px;padding:24px">
+              <svg width="240" height="150" viewBox="0 0 240 150" aria-label="Ilustración: cántaro de barro con volutas">
+                <path d="M0 148 L52 96 L80 124 L108 100 L138 130 L166 102 L240 148 Z" fill="#6E1F18"></path>
+                <path d="M96 44c0-10 20-10 20 0v6h8c16 0 28 14 28 32s-14 34-38 34-38-16-38-34 12-32 28-32h8v-6z" fill="#FBF7F0"></path>
+                <path d="M96 92c0-14 10-24 24-24" fill="none" stroke="#8C2B22" stroke-width="4" stroke-linecap="round"></path>
+                <path d="M120 68c8 0 14 6 14 14s-6 12-12 12-10-4-10-10" fill="none" stroke="#8C2B22" stroke-width="4" stroke-linecap="round"></path>
+                <path d="M104 116h32" stroke="#8C2B22" stroke-width="4" stroke-linecap="round"></path>
+              </svg>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <span style="display:inline-flex;align-items:center;gap:8px;align-self:flex-start;background:#FBF7F0;color:#8C2B22;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:8px 14px;border-radius:4px 999px 999px 999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C2B22" stroke-width="3" stroke-linecap="round"><path d="M12 4v10M12 18v1.5"></path></svg>Ahora no está andando</span>
+                <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:40px;line-height:1.02;font-weight:800;color:#FBF7F0;letter-spacing:-.02em">El bus está en su descanso del mediodía</h2>
+                <div style="background:#FBF7F0;border-radius:26px 6px 26px 6px;padding:18px;display:flex;flex-direction:column;gap:4px">
+                  <span style="font-size:15px;font-weight:700;color:#4A443A">Vuelve a andar a las</span>
+                  <span style="font-size:60px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">15:30</span>
+                  <span style="font-size:17px;font-weight:700;color:#8C2B22;font-variant-numeric:tabular-nums">faltan 1 hora 38 minutos</span>
+                </div>
+                <p style="margin:0;font-size:17px;line-height:1.45;color:#F6E4E0">Podés dejar tu aviso ahora y te llegamos a avisar cuando el bus arranque otra vez.</p>
+              </div>
+            </div>
+            <div style="position:relative;padding:0 22px 26px;display:flex;flex-direction:column;gap:10px">
+              <button style="width:100%;min-height:60px;background:#FBF7F0;color:#8C2B22;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:19px;font-weight:800;cursor:pointer">Avisame cuando vuelva</button>
+              <button style="width:100%;min-height:52px;background:transparent;color:#F6E4E0;border:2px solid #A85348;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:17px;font-weight:700;cursor:pointer">Ver los horarios</button>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="09 Sin conexión" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">09 · Sin conexión</span>
+          <div style="width:390px;height:844px;background:#FBF7F0;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;display:flex;flex-direction:column">
+            <div style="background:#2E2A24;padding:12px 20px 16px;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#C2B8A8;font-variant-numeric:tabular-nums"><span>6:44</span><span>sin señal · 74%</span></div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.6" stroke-linecap="round"><path d="M3 3l18 18M5 12a12 12 0 0114 0"></path></svg>
+                <span style="font-family:'Archivo',system-ui,sans-serif;font-size:24px;font-weight:800;color:#FBF7F0">Sin internet</span>
+              </div>
+              <span style="font-size:16px;color:#C2B8A8;font-variant-numeric:tabular-nums">Esto es lo último que sabemos, de las 6:41</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px">
+              <svg width="200" height="120" viewBox="0 0 200 120" style="align-self:center" aria-label="Ilustración: voluta interrumpida">
+                <path d="M14 104c0-44 32-78 74-78" fill="none" stroke="#C2B8A8" stroke-width="6" stroke-linecap="round" stroke-dasharray="18 14"></path>
+                <path d="M96 26c22 0 38 16 38 36s-16 34-34 34-30-14-30-30 12-26 26-26" fill="none" stroke="#DDD3C2" stroke-width="6" stroke-linecap="round" stroke-dasharray="18 14"></path>
+                <circle cx="14" cy="104" r="9" fill="#8C2B22"></circle>
+              </svg>
+              <div style="opacity:.55;flex:1;overflow:hidden">
+                <dc-import name="TiraDeRuta" items="{{ tiraOffline }}" orientacion="vertical" hint-size="100%,340px"></dc-import>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;gap:10px;align-items:flex-start;background:#F4EEE2;border-radius:20px 6px 20px 6px;padding:14px">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A443A" stroke-width="2.6" stroke-linecap="round" style="flex:0 0 20px;margin-top:2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                  <span style="font-size:16px;line-height:1.4;color:#2E2A24;font-weight:600">Los números pueden haber cambiado. Cuando vuelva la señal se actualizan solos.</span>
+                </div>
+                <button style="width:100%;min-height:60px;background:#10402A;color:#FBF7F0;border:none;border-radius:999px;font-family:'Public Sans',system-ui,sans-serif;font-size:19px;font-weight:800;cursor:pointer">Intentar de nuevo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-screen-label="10 Notificaciones" style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:800;color:#4A443A">10 · Notificaciones</span>
+          <div style="width:390px;height:844px;background:#1C1A17;border:8px solid #1C1A17;border-radius:44px;overflow:hidden;display:flex;flex-direction:column;gap:14px;padding:26px 16px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:6px">
+              <span style="font-size:15px;font-weight:700;color:#C2B8A8">jueves 14 de agosto</span>
+              <span style="font-family:'Archivo',system-ui,sans-serif;font-size:64px;line-height:1;font-weight:800;color:#FBF7F0;font-variant-numeric:tabular-nums">6:18</span>
+            </div>
+            <sc-for list="{{ notificaciones }}" as="n" hint-placeholder-count="4">
+              <div style="background:#F4EEE2;border-radius:22px 6px 22px 6px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start">
+                <div style="width:40px;height:40px;flex:0 0 40px;background:#10402A;border-radius:12px 3px 12px 3px;display:flex;align-items:center;justify-content:center">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FBF7F0" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="11" rx="2"></rect><path d="M3 11h18M7 20v-2M17 20v-2"></path></svg>
+                </div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <div style="display:flex;justify-content:space-between;gap:8px"><span style="font-size:14px;font-weight:800;color:#4A443A">EcoRuta Jalapa</span><span style="font-size:13px;color:#6B6357;font-variant-numeric:tabular-nums">{{ n.hora }}</span></div>
+                  <span style="font-size:17px;font-weight:800;color:#1C1A17;line-height:1.25">{{ n.titulo }}</span>
+                  <span style="font-size:16px;line-height:1.35;color:#2E2A24;text-wrap:pretty">{{ n.cuerpo }}</span>
+                </div>
+              </div>
+            </sc-for>
+            <p style="margin:auto 0 0;font-size:14px;line-height:1.45;color:#938A7C;text-align:center">Nunca mandamos avisos de publicidad. Solo del bus.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">08 · Conductor (tablet 1280×800, sin ornamento)</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div data-screen-label="Conductor" style="width:1280px;height:800px;background:#0B1F16;border:10px solid #1C1A17;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;padding:28px 30px;gap:22px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:20px">
+          <div style="display:flex;align-items:center;gap:18px">
+            <span style="font-family:'Public Sans',system-ui,sans-serif;font-size:34px;font-weight:800;color:#FBF7F0">Viaje 06:20</span>
+            <span style="display:inline-flex;align-items:center;gap:10px;background:#F2B705;color:#241C00;font-size:22px;font-weight:800;padding:10px 18px;border-radius:999px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#241C00" stroke-width="3" stroke-linecap="round"><path d="M4 12l5 5L20 6"></path></svg>En ruta</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:24px">
+            <div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:18px;font-weight:700;color:#8FA69A">Total esperando</span><span style="font-size:52px;line-height:1;font-weight:800;color:#FBF7F0;font-variant-numeric:tabular-nums">26</span></div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:18px;font-weight:700;color:#8FA69A">Hora</span><span style="font-size:52px;line-height:1;font-weight:800;color:#FBF7F0;font-variant-numeric:tabular-nums">6:31</span></div>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <dc-import name="TiraDeRuta" items="{{ tiraConductor }}" orientacion="horizontal" hint-size="100%,260px"></dc-import>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px;background:#12362A;border-radius:14px;padding:16px 20px">
+            <span style="font-size:18px;font-weight:700;color:#8FA69A">Siguiente parada</span>
+            <span style="font-size:30px;font-weight:800;color:#FBF7F0">Portón azul del Instituto Normal · 8 personas</span>
+          </div>
+          <button style="min-height:88px;padding:0 42px;background:#F2B705;color:#241C00;border:none;border-radius:14px;font-family:'Public Sans',system-ui,sans-serif;font-size:30px;font-weight:800;cursor:pointer">Llegué a la parada</button>
+          <button style="min-height:88px;padding:0 42px;background:transparent;color:#FBF7F0;border:4px solid #4E6B5A;border-radius:14px;font-family:'Public Sans',system-ui,sans-serif;font-size:30px;font-weight:800;cursor:pointer">Terminar viaje</button>
+        </div>
+        <span style="font-size:16px;color:#8FA69A;font-variant-numeric:tabular-nums">Datos del servidor: 6:29 · se actualizan cada 2 a 5 minutos</span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <h2 style="margin:0;font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8C2B22">09 · Panel municipal (1440×900)</h2>
+        <span style="height:2px;flex:1;background:#DDD3C2"></span>
+      </div>
+      <div data-screen-label="Panel municipal" style="width:1440px;background:#F4EEE2;border:2px solid #DDD3C2;border-radius:20px;overflow:hidden;display:flex;flex-direction:column">
+        <div style="position:relative;background:#10402A;padding:20px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px;overflow:hidden">
+          <svg width="100%" height="100%" style="position:absolute;inset:0;opacity:.1" aria-hidden="true"><defs><pattern id="vol7" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M6 56c0-26 18-46 42-46" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path><path d="M48 10c8 0 14 6 14 14s-6 13-13 13" fill="none" stroke="#FBF7F0" stroke-width="2.5" stroke-linecap="round"></path></pattern></defs><rect width="100%" height="100%" fill="url(#vol7)"></rect></svg>
+          <div style="position:relative;display:flex;align-items:center;gap:16px">
+            <div style="width:44px;height:44px;border:2px dashed #4E6B5A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#8FA69A;text-align:center;line-height:1.1">ESCU<br>DO</div>
+            <div style="width:2px;height:34px;background:#4E6B5A"></div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <svg width="30" height="30" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="#FBF7F0"></circle><path d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8" fill="none" stroke="#10402A" stroke-width="6" stroke-linecap="round"></path></svg>
+              <span style="font-family:'Archivo',system-ui,sans-serif;font-size:22px;font-weight:800;color:#FBF7F0">EcoRuta · Panel de servicio</span>
+            </div>
+          </div>
+          <span style="position:relative;font-size:15px;font-weight:700;color:#CBDED1;font-variant-numeric:tabular-nums">Jueves 14 de agosto de 2026 · datos de las 18:05</span>
+        </div>
+        <div style="padding:26px 32px;display:flex;flex-direction:column;gap:22px">
+          <div style="display:flex;gap:16px">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+              <div style="flex:1;background:#FBF7F0;border:2px solid #E3DACB;border-radius:14px 4px 14px 4px;padding:18px;display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B6357">{{ k.titulo }}</span>
+                <span style="font-size:46px;line-height:1;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">{{ k.valor }}</span>
+                <span style="font-size:14px;color:#4A443A">{{ k.nota }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:20px;align-items:stretch">
+            <div style="flex:1.4;background:#FBF7F0;border:2px solid #E3DACB;border-radius:14px 4px 14px 4px;padding:20px;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline"><h3 style="margin:0;font-size:18px;font-weight:800;color:#1C1A17">Pasajeros por parada y horario</h3><span style="font-size:13px;color:#6B6357">últimos 7 días</span></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ demandaParadas }}" as="d" hint-placeholder-count="6">
+                  <div style="display:grid;grid-template-columns:230px 1fr 48px;align-items:center;gap:14px">
+                    <span style="font-size:15px;font-weight:600;color:#2E2A24;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.ref }}</span>
+                    <div style="height:22px;background:#EDE6DA;border-radius:4px;overflow:hidden"><div style="height:100%;background:#10402A;width:{{ d.ancho }}"></div></div>
+                    <span style="font-size:17px;font-weight:800;color:#1C1A17;text-align:right;font-variant-numeric:tabular-nums">{{ d.total }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="border-top:2px solid #F4EEE2;padding-top:14px;display:flex;flex-direction:column;gap:10px">
+                <h3 style="margin:0;font-size:18px;font-weight:800;color:#1C1A17">Hora prometida contra hora real</h3>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <sc-for list="{{ puntualidad }}" as="p" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:96px 1fr 120px;align-items:center;gap:14px">
+                      <span style="font-size:16px;font-weight:800;color:#1C1A17;font-variant-numeric:tabular-nums">{{ p.prometida }}</span>
+                      <div style="position:relative;height:20px;background:#EDE6DA;border-radius:4px">
+                        <div style="position:absolute;left:0;top:0;bottom:0;background:#C2B8A8;width:{{ p.anchoBase }};border-radius:4px"></div>
+                        <div style="position:absolute;left:0;top:0;bottom:0;background:#8C2B22;width:{{ p.anchoAtraso }};border-radius:4px"></div>
+                      </div>
+                      <span style="font-size:15px;font-weight:700;color:#8C2B22;text-align:right;font-variant-numeric:tabular-nums">{{ p.atraso }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+            <div style="flex:1;background:#FBF7F0;border:2px solid #E3DACB;border-radius:14px 4px 14px 4px;padding:20px;display:flex;flex-direction:column;gap:14px">
+              <h3 style="margin:0;font-size:18px;font-weight:800;color:#1C1A17">Mapa histórico de demanda</h3>
+              <div style="flex:1;min-height:300px;background:#EDE6DA;border-radius:8px;position:relative;overflow:hidden">
+                <svg width="100%" height="100%" viewBox="0 0 420 320" preserveAspectRatio="none" aria-label="Mapa esquemático de Jalapa con demanda por zona">
+                  <rect width="420" height="320" fill="#E7DFD1"></rect>
+                  <path d="M20 300 L120 220 L200 240 L260 180 L340 150 L400 60" fill="none" stroke="#C2B8A8" stroke-width="10"></path>
+                  <path d="M60 20 L110 120 L150 200 L210 300" fill="none" stroke="#C2B8A8" stroke-width="6"></path>
+                  <path d="M20 300 L120 220 L200 240 L260 180 L340 150 L400 60" fill="none" stroke="#10402A" stroke-width="4" stroke-dasharray="12 8"></path>
+                  <circle cx="120" cy="220" r="26" fill="#10402A" opacity=".22"></circle>
+                  <circle cx="200" cy="240" r="16" fill="#10402A" opacity=".22"></circle>
+                  <circle cx="260" cy="180" r="34" fill="#8C2B22" opacity=".26"></circle>
+                  <circle cx="340" cy="150" r="20" fill="#10402A" opacity=".22"></circle>
+                  <circle cx="120" cy="220" r="5" fill="#1C1A17"></circle>
+                  <circle cx="200" cy="240" r="5" fill="#1C1A17"></circle>
+                  <circle cx="260" cy="180" r="5" fill="#1C1A17"></circle>
+                  <circle cx="340" cy="150" r="5" fill="#1C1A17"></circle>
+                </svg>
+                <span style="position:absolute;right:10px;bottom:10px;background:#FBF7F0;border:1px solid #DDD3C2;color:#2E2A24;font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px 2px 6px 2px">© OpenStreetMap · contribuidores</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;align-items:center;gap:10px"><span style="width:18px;height:18px;border-radius:999px;background:#8C2B22;opacity:.4"></span><span style="font-size:14px;color:#2E2A24">Zona de mayor demanda: Mercado La Terminal</span></div>
+                <div style="display:flex;align-items:center;gap:10px"><span style="width:18px;height:18px;border-radius:999px;background:#10402A;opacity:.3"></span><span style="font-size:14px;color:#2E2A24">Demanda media</span></div>
+                <p style="margin:0;font-size:14px;line-height:1.45;color:#4A443A;border-top:2px solid #F4EEE2;padding-top:10px">Sirve para justificar una salida extra a las 12:40 los días de plaza.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;modeloSalida&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;horario&quot;,&quot;umbral&quot;],&quot;default&quot;:&quot;horario&quot;,&quot;tsType&quot;:&quot;'horario'|'umbral'&quot;,&quot;section&quot;:&quot;Modelo de salida&quot;},&quot;temporizadorMin&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:20,&quot;min&quot;:10,&quot;max&quot;:45,&quot;step&quot;:5,&quot;unit&quot;:&quot;min&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Espera&quot;},&quot;nivelOrnamento&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;alto&quot;,&quot;bajo&quot;],&quot;default&quot;:&quot;alto&quot;,&quot;tsType&quot;:&quot;'alto'|'bajo'&quot;,&quot;section&quot;:&quot;Identidad&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = (ref, zona, esperando, tuya) => ({ tipo: 'parada', ref, zona, esperando, tuya: !!tuya });
+    const tiraCorta = [
+      p('Esquina de la Farmacia Santa Cruz', 'Barrio La Democracia', 3),
+      { tipo: 'bus', ref: 'bus', zona: 'entre La Democracia y El Calvario' },
+      p('Frente a la Tienda La Bendición', 'Barrio El Calvario', 5),
+      p('Portón azul del Instituto Normal', 'Barrio San Francisco', 7, true),
+      p('Frente al molino de nixtamal', 'Colonia Los Llanos', 2),
+      p('Entrada del Mercado La Terminal', 'Centro', 9)
+    ];
+    const tiraLarga = [
+      p('Parque central, lado del kiosco', 'Centro', 4),
+      { tipo: 'colapso', ref: '+4 paradas' },
+      p('Esquina de la Farmacia Santa Cruz', 'La Democracia', 3),
+      { tipo: 'bus', ref: 'bus', zona: 'entre La Democracia y El Calvario' },
+      p('Frente a la Tienda La Bendición', 'El Calvario', 5),
+      p('Portón azul del Instituto Normal', 'San Francisco', 7, true),
+      { tipo: 'colapso', ref: '+7 paradas' },
+      p('Entrada del Mercado La Terminal', 'Centro', 9)
+    ];
+    const tiraOffline = [
+      p('Frente a la Tienda La Bendición', 'El Calvario', 5),
+      p('Portón azul del Instituto Normal', 'San Francisco', 7, true),
+      p('Entrada del Mercado La Terminal', 'Centro', 9)
+    ];
+    const tiraConductor = [
+      p('Parque central', '', 4),
+      p('Farmacia Santa Cruz', '', 3),
+      { tipo: 'bus', ref: 'bus' },
+      p('Tienda La Bendición', '', 5),
+      p('Instituto Normal', '', 8, true),
+      p('Molino de nixtamal', '', 2),
+      { tipo: 'colapso', ref: '+2' },
+      p('Mercado La Terminal', '', 9)
+    ];
+    const modelo = this.props.modeloSalida ?? 'horario';
+    const temporizadorMin = this.props.temporizadorMin ?? 20;
+    const nivel = this.props.nivelOrnamento ?? 'alto';
+    return {
+      tiraCorta, tiraLarga, tiraOffline, tiraConductor,
+      esHorarioFijo: modelo === 'horario',
+      esUmbral: modelo === 'umbral',
+      temporizadorMin,
+      minutosRestantes: Math.max(1, Math.round(temporizadorMin * 0.7)),
+      opacidadPatron: nivel === 'alto' ? 0.14 : 0.05,
+      capasMapa: [
+        { capa: 'Fondo de manzanas', claro: '#E6DCC8', oscuro: '#1A1712' },
+        { capa: 'Calles secundarias', claro: '#F4EEE2', oscuro: '#302B23' },
+        { capa: 'Calzada principal', claro: '#FBF7F0', oscuro: '#3B352B' },
+        { capa: 'Áreas verdes', claro: '#CBD9BD', oscuro: '#20291F' },
+        { capa: 'Parque central', claro: '#B9CDA6', oscuro: '#25301F' },
+        { capa: 'Etiquetas de calle', claro: '#6B6357', oscuro: '#9A9082' },
+        { capa: 'Trazo de la ruta', claro: '#10402A', oscuro: '#10402A' },
+        { capa: 'Tu parada', claro: '#F2B705', oscuro: '#F2B705' }
+      ],
+      tokensMarca: [
+        { nombre: 'Verde bosque', uso: 'Primario y de acción', hex: '#10402A', token: '--marca-verde' },
+        { nombre: 'Verde profundo', uso: 'Superficie de identidad', hex: '#0B2E1E', token: '--marca-verde-oscuro' },
+        { nombre: 'Amarillo volcán', uso: 'Acento y estado esperando', hex: '#F2B705', token: '--marca-amarillo' },
+        { nombre: 'Rojo memoria 1773', uso: 'Franja de identidad y crítico', hex: '#8C2B22', token: '--marca-rojo' },
+        { nombre: 'Blanco cálido', uso: 'Superficie base', hex: '#FBF7F0', token: '--marca-blanco' }
+      ],
+      escalaNeutra: [
+        { paso: '900', hex: '#1C1A17', tinta: '#FBF7F0' },
+        { paso: '800', hex: '#2E2A24', tinta: '#FBF7F0' },
+        { paso: '700', hex: '#4A443A', tinta: '#FBF7F0' },
+        { paso: '600', hex: '#6B6357', tinta: '#FBF7F0' },
+        { paso: '400', hex: '#938A7C', tinta: '#1C1A17' },
+        { paso: '300', hex: '#C2B8A8', tinta: '#1C1A17' },
+        { paso: '200', hex: '#E3DACB', tinta: '#1C1A17' },
+        { paso: '100', hex: '#F4EEE2', tinta: '#1C1A17' }
+      ],
+      escalaTipo: [
+        { nombre: 'dato-xl', valor: '56 / 800 tnum' },
+        { nombre: 'dato-l', valor: '40 / 800 tnum' },
+        { nombre: 'titulo-l', valor: '34 / 800' },
+        { nombre: 'titulo-m', valor: '24 / 800' },
+        { nombre: 'cuerpo-l', valor: '19 / 600' },
+        { nombre: 'cuerpo', valor: '17 / 400' },
+        { nombre: 'etiqueta', valor: '13 / 800 caps' },
+        { nombre: 'mínimo', valor: '13 nunca menor' }
+      ],
+      espaciado: [
+        { nombre: '4', px: '4px' }, { nombre: '8', px: '8px' }, { nombre: '12', px: '12px' },
+        { nombre: '16', px: '16px' }, { nombre: '24', px: '24px' }, { nombre: '32', px: '32px' }, { nombre: '48', px: '48px' }
+      ],
+      listaParadas: [
+        { ref: 'Portón azul del Instituto Normal', dist: 'a 3 min a pie · 240 m', esperando: 7 },
+        { ref: 'Frente a la Tienda La Bendición', dist: 'a 6 min a pie · 480 m', esperando: 5 },
+        { ref: 'Esquina de la Farmacia Santa Cruz', dist: 'a 9 min a pie · 700 m', esperando: 3 },
+        { ref: 'Frente al molino de nixtamal', dist: 'a 12 min a pie · 950 m', esperando: 2 },
+        { ref: 'Entrada del Mercado La Terminal', dist: 'a 18 min a pie · 1.4 km', esperando: 9 },
+        { ref: 'Parque central, lado del kiosco', dist: 'a 21 min a pie · 1.7 km', esperando: 4 }
+      ],
+      notificaciones: [
+        { hora: '6:20', titulo: 'El bus ya salió del parque', cuerpo: 'Va rumbo a tu parada. Calculamos que llega en 12 minutos.' },
+        { hora: '6:31', titulo: 'El bus está cerca de tu parada', cuerpo: 'Salí al portón azul del Instituto Normal: llega en 2 minutos.' },
+        { hora: '6:36', titulo: 'Tu aviso se vence en 3 minutos', cuerpo: '¿Seguís esperando? Tocá aquí para que no se borre.' },
+        { hora: '15:30', titulo: 'El bus volvió a andar', cuerpo: 'Ya terminó el descanso del mediodía. Podés avisar que estás esperando.' }
+      ],
+      kpis: [
+        { titulo: 'Viajes de hoy', valor: '6', nota: '5 completos, 1 en ruta' },
+        { titulo: 'Pasajeros avisados', valor: '148', nota: '+18% contra el jueves pasado' },
+        { titulo: 'Salidas a tiempo', valor: '4 de 6', nota: 'margen de 5 minutos' },
+        { titulo: 'Atraso promedio', valor: '7 min', nota: 'mayor entre 10:15 y 11:00' }
+      ],
+      demandaParadas: [
+        { ref: 'Mercado La Terminal', ancho: '100%', total: 412 },
+        { ref: 'Instituto Normal', ancho: '78%', total: 322 },
+        { ref: 'Tienda La Bendición', ancho: '54%', total: 224 },
+        { ref: 'Parque central', ancho: '47%', total: 194 },
+        { ref: 'Farmacia Santa Cruz', ancho: '31%', total: 128 },
+        { ref: 'Molino de nixtamal', ancho: '18%', total: 74 }
+      ],
+      puntualidad: [
+        { prometida: '06:20', anchoBase: '34%', anchoAtraso: '6%', atraso: '+3 min' },
+        { prometida: '10:15', anchoBase: '58%', anchoAtraso: '22%', atraso: '+12 min' },
+        { prometida: '09:00 jue', anchoBase: '46%', anchoAtraso: '10%', atraso: '+5 min' },
+        { prometida: '15:30', anchoBase: '40%', anchoAtraso: '3%', atraso: '+1 min' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
