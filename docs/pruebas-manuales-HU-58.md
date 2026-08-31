@@ -42,7 +42,7 @@ direcciones → Configuración del sitio → Notificaciones → Restablecer.
 
 ---
 
-## PM-1 · El permiso se pide explicando antes
+## PRUEBA-1 · El permiso se pide explicando antes
 
 Cubre el criterio 1. Automatizado a nivel de componente, pero conviene verlo con
 el diálogo real del navegador al menos una vez.
@@ -59,7 +59,7 @@ el diálogo real del navegador al menos una vez.
 
 ---
 
-## PM-2 · Rechazar no rompe nada y no se insiste
+## PRUEBA-2 · Rechazar no rompe nada y no se insiste
 
 Cubre el criterio 2.
 
@@ -71,9 +71,9 @@ Cubre el criterio 2.
 
 ---
 
-## PM-3 · El Service Worker queda registrado
+## PRUEBA-3 · El Service Worker queda registrado
 
-Prerrequisito de PM-4 y PM-5.
+Prerrequisito de PRUEBA-4 y PRUEBA-5.
 
 1. Conceder el permiso de avisos.
 2. DevTools → **Application → Service Workers**.
@@ -89,12 +89,12 @@ cachea los service workers y es fácil quedarse probando una versión vieja.
 
 ---
 
-## PM-4 · Los avisos llegan con la pestaña cerrada
+## PRUEBA-4 · Los avisos llegan con la pestaña cerrada
 
 **Escenario `@manual` — criterio 7.** Es el que ninguna herramienta cubre: hace
 falta que el push viaje de verdad.
 
-1. Con el Service Worker activo (PM-3), **cerrar la pestaña** de la aplicación.
+1. Con el Service Worker activo (PRUEBA-3), **cerrar la pestaña** de la aplicación.
 2. En DevTools → Application → Service Workers, usar el botón **Push** con:
 
    ```json
@@ -113,11 +113,11 @@ la parada y **no** llevar botones.
 
 ---
 
-## PM-5 · Tocar el aviso abre la aplicación en el mapa
+## PRUEBA-5 · Tocar el aviso abre la aplicación en el mapa
 
 **Escenario `@manual` — criterio 6.**
 
-1. Con la notificación de PM-4 en pantalla, tocar el **cuerpo** del aviso.
+1. Con la notificación de PRUEBA-4 en pantalla, tocar el **cuerpo** del aviso.
 2. **Verificar:** la aplicación se abre —o se enfoca, si ya estaba abierta— en la
    pantalla del mapa.
 3. **Verificar:** aparece la tarjeta **"¿Lograste subir?"** abajo, y **no tapa el
@@ -130,7 +130,7 @@ Después, con una notificación nueva, tocar directamente el botón **"Sí subí
 
 ---
 
-## PM-6 · La respuesta se refleja sin recargar
+## PRUEBA-6 · La respuesta se refleja sin recargar
 
 Cubre el criterio 5. Automatizado, pero conviene verlo en la demo.
 
@@ -147,7 +147,7 @@ Cubre el criterio 5. Automatizado, pero conviene verlo en la demo.
 
 ---
 
-## PM-7 · En pantalla de teléfono
+## PRUEBA-7 · En pantalla de teléfono
 
 El diseño es móvil primero y la referencia es 390×844.
 
