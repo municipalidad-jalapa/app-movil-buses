@@ -1,0 +1,134 @@
+RESULTADOS DE PRUEBAS — Contador de demanda (HU: hook, componente, polling, estados)
+Generado:  2026-08-31T04:11:02.131Z
+Node:      v22.20.0    SO: win32
+Backend:   http://localhost:8080
+
+================================================================
+1) TESTS AUTOMÁTICOS DEL CONTADOR  (vitest — 3 archivos de esta HU)
+================================================================
+RUN  v3.2.7 C:/Users/norma/OneDrive/Escritorio/Fronted/app-movil-buses
+
+ ✓ src/hooks/useEstadoDemandaConPolling.test.ts > useEstadoDemandaConPolling > consulta el estado inicial 15ms
+ ✓ src/hooks/useEstadoDemandaConPolling.test.ts > useEstadoDemandaConPolling > hace polling cada intervalo 3ms
+ ✓ src/hooks/useEstadoDemandaConPolling.test.ts > useEstadoDemandaConPolling > pausa cuando documento está oculto 3ms
+ ✓ src/hooks/useEstadoDemandaConPolling.test.ts > useEstadoDemandaConPolling > reanuda cuando documento es visible 2ms
+ ✓ src/hooks/useEstadoDemandaConPolling.test.ts > useEstadoDemandaConPolling > maneja errores 2ms
+ ✓ src/hooks/useEstadoDemandaConPolling.test.ts > useEstadoDemandaConPolling > reintentar después de error 2ms
+ ✓ src/hooks/useEstadoDemandaConPolling.test.ts > useEstadoDemandaConPolling > limpia recursos al desmontar 1ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > muestra el número de personas esperando en una tarjeta legible 26ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: cargando > marca la región como ocupada y no muestra un número 4ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: cargando > el esqueleto es decorativo y se oculta a lectores de pantalla 2ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: error con reintento > usa el traductor del cliente de API para el texto (sin código HTTP) 3ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: error con reintento > traduce un 500 a un mensaje sin jerga 2ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: error con reintento > el botón Reintentar dispara onReintentar 37ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: error con reintento > sin onReintentar no se muestra botón 2ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: error con reintento > el aviso de error tiene rol de alerta y un icono redundante al color 6ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: umbral alcanzado > cuando hay 10 o más personas anuncia que el bus ya puede salir 4ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: umbral alcanzado > por debajo del umbral muestra cuántas personas faltan, en singular y plural 4ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: umbral alcanzado > no dice la palabra "umbral" al usuario (DESIGN.md §10) 2ms
+ ✓ src/componentes/ContadorDemanda.test.tsx > ContadorDemanda > variante: umbral alcanzado > la barra de progreso expone su valor y su máximo 5ms
+ ✓ src/hooks/useEstadoDemanda.test.ts > useEstadoDemanda > consulta el estado y expone registros activos, umbral y faltantes 87ms
+ ✓ src/hooks/useEstadoDemanda.test.ts > useEstadoDemanda > expone ErrorApi para que la pantalla use el traductor existente 76ms
+ ✓ src/hooks/useEstadoDemanda.test.ts > useEstadoDemanda > permite reintentar la consulta después de un fallo 155ms
+ ✓ src/hooks/useEstadoDemanda.test.ts > useEstadoDemanda > no actualiza el estado cuando la consulta termina después de desmontar 2ms
+
+ Test Files  3 passed (3)
+      Tests  23 passed (23)
+   Start at  22:11:03
+   Duration  1.53s (transform 176ms, setup 36ms, collect 756ms, tests 448ms, environment 1.42s, prepare 314ms)
+
+--> PASÓ  (23 pruebas, 0 fallidas)
+
+================================================================
+2) SUITE COMPLETA  (vitest — todo el repositorio)
+================================================================
+RUN  v3.2.7 C:/Users/norma/OneDrive/Escritorio/Fronted/app-movil-buses
+
+ ✓ src/core/identidadDispositivo.test.ts (2 tests) 6ms
+ ✓ src/core/interpolacionPosicion.test.ts (10 tests) 6ms
+ ✓ src/core/flujoDePosiciones.test.ts (10 tests) 14ms
+ ✓ src/core/apiClient.test.ts (6 tests) 9ms
+ ✓ src/core/errores.test.ts (11 tests) 7ms
+ ✓ src/core/recorridoDeRuta.test.ts (4 tests) 5ms
+ ✓ src/core/config.test.ts (4 tests) 4ms
+ ✓ src/core/registroDemanda.test.ts (1 test) 6ms
+ ✓ src/componentes/EstadoSinPosicion.test.tsx (1 test) 94ms
+ ✓ src/componentes/BannerConexion.test.tsx (3 tests) 84ms
+ ✓ src/hooks/useUbicacion.test.ts (3 tests) 40ms
+ ✓ src/componentes/HoraUltimoDato.test.tsx (1 test) 30ms
+ ✓ src/componentes/MarcadorBus.test.tsx (8 tests) 120ms
+ ✓ src/hooks/useEstadoDemandaConPolling.test.ts (7 tests) 48ms
+ ✓ src/componentes/ContadorDemanda.test.tsx (12 tests) 137ms
+ ✓ src/paginas/PantallaRegistro.test.tsx (2 tests) 147ms
+ ✓ src/hooks/useEstadoDemanda.test.ts (4 tests) 308ms
+ ✓ src/componentes/MapaJalapa.test.tsx (10 tests) 87ms
+ ✓ src/hooks/usePosicionBus.test.ts (7 tests) 517ms
+
+ Test Files  19 passed (19)
+      Tests  106 passed (106)
+   Start at  22:11:05
+   Duration  2.84s (transform 1.77s, setup 231ms, collect 6.76s, tests 1.67s, environment 12.91s, prepare 3.80s)
+
+--> PASÓ  (106 pruebas, 0 fallidas)
+
+================================================================
+3) BUILD  (tsc --noEmit + vite build)
+================================================================
+> app-movil-buses@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 63 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.96 kB │ gzip:  0.52 kB
+dist/assets/index-AIYVgGPr.css    6.33 kB │ gzip:  1.88 kB
+dist/assets/index-DxnJjdrS.js   292.96 kB │ gzip: 89.27 kB
+✓ built in 1.20s
+
+--> PASÓ  (exit 0)
+
+================================================================
+4) CONTRATO CONTRA EL BACKEND REAL  (node test/contrato-demanda.mjs)
+================================================================
+Contrato de demanda  →  http://localhost:8080/api/v1/demanda/estado
+
+  ! el backend responde 404: el endpoint de demanda todavía no está implementado.
+
+  Esto es esperado según la nota de "Independencia" de la HU: la historia es
+  de frontend y se demuestra contra el contrato con datos simulados.
+  src/core/apiClient.ts detecta este 404 y devuelve DEMANDA_SIMULADA,
+  así que la UI y el polling funcionan igual.
+
+  PENDIENTE: repetí esta prueba cuando el backend exponga /api/v1/demanda/estado.
+
+--> PENDIENTE  (endpoint 404, backend no lo expone aún)
+
+================================================================
+RESUMEN
+================================================================
+[PASÓ     ] Tests automáticos del contador     23 pruebas, 0 fallidas
+[PASÓ     ] Suite completa                     106 pruebas, 0 fallidas
+[PASÓ     ] Build (tipos + bundle)             exit 0
+[PENDIENTE] Contrato backend real              endpoint 404, backend no lo expone aún
+
+TODO LO AUTOMÁTICO: PASÓ
+
+================================================================
+PRUEBAS MANUALES  (no automatizables — ver test/MANUAL.md, sección PM)
+================================================================
+[  ]  PM-1  Estado de carga (esqueleto + "Actualizando el conteo…")
+[  ]  PM-2  Dato normal (número 7, "Faltan 3 personas", chip "En espera")
+[  ]  PM-3  Singular "Falta 1 persona" y el número cambia sin recargar
+[  ]  PM-4  Umbral alcanzado (tarjeta verde, "Ya se puede ir.", sin la palabra "umbral")
+[  ]  PM-5  Error con mensaje traducido (sin ver 500 ni "Internal Server Error")
+[  ]  PM-6  Botón Reintentar dispara una petición al instante
+[  ]  PM-7  Una petición cada ~15 s, sin ráfagas, sin recargar
+[  ]  PM-8  Pausa al ocultar la pestaña; al volver, petición inmediata + aviso
+[  ]  PM-9  Sobrevive a la recarga (F5)
+[  ]  PM-10 Botón >= 48px, nada < 11.5px, legible en modo oscuro, color+icono+texto
+[  ]  PM-11 (opcional) Contra backend real: hoy muestra 7/10 simulado, sin error
+
+Firma / fecha de la prueba manual: ______________________________
+

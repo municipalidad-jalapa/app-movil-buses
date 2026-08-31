@@ -11,7 +11,7 @@
   border-top-right-radius: 0.75rem;
   border-bottom-right-radius: 1.25rem;
   border-bottom-left-radius: 0.75rem;
-  background: linear-gradient(180deg, var(--color-fondo) 0%, #f5f3eb 100%);
+  background: var(--color-fondo);
   box-shadow: var(--sombra);
 }
 
@@ -31,26 +31,35 @@
   border-radius: 999px;
   background: var(--color-marca-claro);
   color: var(--color-marca-oscuro);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .contador-demanda__estado {
-  padding: 0.25rem 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem 0.25rem 0.375rem;
   border-radius: 999px;
-  background: #f3efe3;
+  background: var(--color-superficie);
   color: var(--color-texto-suave);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .contador-demanda__estado.is-alcanzado {
-  background: #f7e8b2;
-  color: #4a3406;
+  background: var(--color-marca-claro);
+  color: var(--color-marca-oscuro);
+}
+
+.contador-demanda__icono {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
 }
 
 .contador-demanda__parada {
@@ -93,21 +102,23 @@
   width: 100%;
   height: 0.7rem;
   border-radius: 999px;
-  background: #e7e1d2;
+  background: var(--color-borde);
   overflow: hidden;
 }
 
 .contador-demanda__progreso-barra {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--color-marca) 0%, #0f7a4d 100%);
+  background: var(--color-marca);
   min-width: 0.5rem;
+  transition: width 0.4s ease;
 }
 
 .contador-demanda__mensaje {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
+  margin: 0;
   color: var(--color-texto);
   font-size: 0.9375rem;
 }
@@ -116,34 +127,99 @@
   color: var(--color-marca-oscuro);
 }
 
+.contador-demanda__mensaje .contador-demanda__icono {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-marca-oscuro);
+}
+
+/* --- Variante: umbral alcanzado --- */
+/* Se distingue por icono + texto + luminancia, no solo por color (DESIGN.md §3.1). */
+.contador-demanda--alcanzado {
+  border-color: var(--color-marca);
+  background: var(--color-marca-claro);
+}
+
+.contador-demanda--alcanzado .contador-demanda__mensaje {
+  padding: 0.5rem 0.625rem;
+  border-left: 4px solid var(--color-marca);
+  border-radius: 0.5rem;
+  background: var(--color-fondo);
+}
+
+/* --- Variante: error con reintento --- */
+.contador-demanda--error {
+  gap: 0.75rem;
+  border-color: var(--color-error);
+}
+
+.contador-demanda--error .aviso-error {
+  margin: 0;
+}
+
+/* --- Variante: cargando --- */
 .contador-demanda--cargando {
   align-items: flex-start;
 }
 
-.contador-demanda__carga {
+.contador-demanda__esqueleto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   width: 100%;
-  height: 4.5rem;
-  border-radius: 1rem;
-  background: linear-gradient(90deg, #edf0ec 25%, #e2e7e4 50%, #edf0ec 75%);
+}
+
+.contador-demanda__hueso {
+  display: block;
+  border-radius: 0.5rem;
+  background: linear-gradient(
+    90deg,
+    var(--color-superficie) 25%,
+    var(--color-borde) 50%,
+    var(--color-superficie) 75%
+  );
   background-size: 200% 100%;
   animation: contador-carga 1.2s ease-in-out infinite;
 }
 
-.contador-demanda__estado--cargando {
-  color: var(--color-texto-suave);
+.contador-demanda__hueso--titulo {
+  width: 65%;
+  height: 1.4rem;
 }
 
-.contador-demanda--error .aviso-error {
-  margin-top: 0;
+.contador-demanda__hueso--numero {
+  width: 40%;
+  height: 3rem;
+}
+
+.contador-demanda__hueso--barra {
+  width: 100%;
+  height: 0.7rem;
+  border-radius: 999px;
+}
+
+.contador-demanda__nota {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 @keyframes contador-carga {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .contador-demanda__carga {
+  .contador-demanda__hueso {
     animation: none;
+  }
+
+  .contador-demanda__progreso-barra {
+    transition: none;
   }
 }

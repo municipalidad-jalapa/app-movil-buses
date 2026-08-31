@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../core/apiClient';
-import { Cargando } from '../componentes/Cargando';
 import { ContadorDemanda } from '../componentes/ContadorDemanda';
 import { useEstadoDemandaConPolling } from '../hooks/useEstadoDemandaConPolling';
 import type { Ruta } from '../core/tipos';
@@ -46,23 +45,15 @@ export function Mapa() {
     <>
       <h1>Bus electrico de Jalapa</h1>
 
-      {demandaError && (
-        <ContadorDemanda
-          error={demandaError}
-          onReintentar={reintentarDemanda}
-        />
-      )}
-      {!demandaError && demandaCargando && (
-        <Cargando texto="Consultando demanda…" />
-      )}
-      {!demandaError && !demandaCargando && totalEsperando !== null && (
-        <ContadorDemanda
-          totalEsperando={totalEsperando}
-          umbralSalida={umbral ?? 10}
-          faltanParaSalir={faltantes ?? 0}
-          nombreParada="Portón azul del Instituto Normal"
-        />
-      )}
+      <ContadorDemanda
+        cargando={demandaCargando}
+        error={demandaError}
+        onReintentar={reintentarDemanda}
+        totalEsperando={totalEsperando}
+        umbralSalida={umbral ?? 10}
+        faltanParaSalir={faltantes ?? 0}
+        nombreParada="Portón azul del Instituto Normal"
+      />
 
       {rutasError && (
         <p>
