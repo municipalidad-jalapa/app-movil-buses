@@ -1,0 +1,136 @@
+Evidencia de ejecucion real de la suite de pruebas (npm test).
+Generado automaticamente, no editar a mano.
+
+Comando:  npx vitest run --reporter=verbose
+Rama:     feature/HU-Desarrollo-62-panel-conductor
+Commit:   96ee930
+Fecha:    2026-08-30 20:55 -0600
+
+================================================================
+
+
+ RUN  v3.2.7 C:/Users/josec/OneDrive/Escritorio/FRONTEND/app-movil-buses
+
+ ✓ src/hooks/useUbicacion.test.ts > useUbicacion > obtiene latitud y longitud del navegador 47ms
+ ✓ src/hooks/useUbicacion.test.ts > useUbicacion > muestra un mensaje claro cuando el usuario niega el permiso 14ms
+ ✓ src/hooks/useUbicacion.test.ts > useUbicacion > informa cuando el navegador no soporta geolocalizacion 5ms
+ ✓ src/componentes/HoraUltimoDato.test.tsx > HoraUltimoDato > muestra la hora del ultimo dato con numeros tabulares 116ms
+ ✓ src/componentes/EstadoSinPosicion.test.tsx > EstadoSinPosicion > explica que aun no hay datos, sin tono de error 475ms
+ ✓ src/componentes/BannerConexion.test.tsx > BannerConexion > al reconectar informa, no alarma 483ms
+ ✓ src/componentes/BannerConexion.test.tsx > BannerConexion > en vivo combina color, icono y texto 38ms
+ ✓ src/componentes/BannerConexion.test.tsx > BannerConexion > mientras conecta dice que busca al bus 27ms
+ ✓ src/componentes/TiraParadasConductor.test.tsx > TiraParadasConductor > lista las paradas en el orden recibido 479ms
+ ✓ src/componentes/TiraParadasConductor.test.tsx > TiraParadasConductor > muestra el numero grande cuando hay gente esperando (criterio 2) 64ms
+ ✓ src/componentes/TiraParadasConductor.test.tsx > TiraParadasConductor > distingue una parada sin nadie esperando en vez de mostrar un numero (criterio 4) 38ms
+ ✓ src/componentes/TiraParadasConductor.test.tsx > TiraParadasConductor > no confunde "sin datos" con "nadie esperando" 17ms
+ ✓ src/hooks/usePanelConductor.test.ts > usePanelConductor > sin JWT de conductor, la sesion es invalida (criterio 6) 58ms
+ ✓ src/hooks/usePanelConductor.test.ts > usePanelConductor > lista las paradas en el orden del recorrido, no como llegan del catalogo (criterio 1) 103ms
+ ✓ src/hooks/usePanelConductor.test.ts > usePanelConductor > se actualiza sola cada intervalo, sin recargar (criterio 3) 43ms
+ ✓ src/componentes/MarcadorBus.test.tsx > MarcadorBus > no pinta nada si aun no hay posicion 103ms
+ ✓ src/hooks/usePanelConductor.test.ts > usePanelConductor > si una parada falla en un ciclo, conserva el ultimo valor conocido en vez de mostrar cero 9ms
+ ✓ src/hooks/usePanelConductor.test.ts > usePanelConductor > si todas las paradas rechazan por falta de sesion, invalida la sesion 87ms
+ ✓ src/componentes/MarcadorBus.test.tsx > MarcadorBus > el primer punto llega de golpe, sin interpolar 460ms
+ ✓ src/componentes/MarcadorBus.test.tsx > MarcadorBus > con movimiento reducido salta al destino nuevo 41ms
+ ✓ src/componentes/MarcadorBus.test.tsx > MarcadorBus > mueve con transform, nunca con top o left 26ms
+ ✓ src/componentes/MarcadorBus.test.tsx > MarcadorBus > quita el ancla al desmontar 15ms
+ ✓ src/componentes/MarcadorBus.test.tsx > MarcadorBus > interpola el segundo punto con requestAnimationFrame 27ms
+ ✓ src/componentes/MarcadorBus.test.tsx > MarcadorBus > ancla una sola vez aunque la posicion cambie varias veces 11ms
+ ✓ src/componentes/MarcadorBus.test.tsx > MarcadorBus > ancla el marcador aunque el mapa llegue antes que la primera posicion 7ms
+ ✓ src/hooks/usePosicionBus.test.ts > usePosicionBus > pinta la ultima posicion conocida sin esperar al primer evento 122ms
+ ✓ src/paginas/PanelConductor.test.tsx > PanelConductor > sin sesion de conductor, avisa y lleva al inicio de sesion (criterio 6) 606ms
+ ✓ src/paginas/PanelConductor.test.tsx > PanelConductor > mientras carga, muestra un estado accesible en vez de una lista vacia 38ms
+ ✓ src/hooks/usePosicionBus.test.ts > usePosicionBus > un 204 significa que aun no hay posicion, no un error 107ms
+ ✓ src/paginas/PanelConductor.test.tsx > PanelConductor > con datos, pinta la tira de paradas con la demanda de cada una 117ms
+ ✓ src/paginas/PanelConductor.test.tsx > PanelConductor > si una actualizacion falla pero ya hay datos, avisa sin tapar la lista 37ms
+ ✓ src/hooks/usePosicionBus.test.ts > usePosicionBus > actualiza con cada posicion que llega por el flujo 126ms
+ ✓ src/hooks/usePosicionBus.test.ts > usePosicionBus > la carga inicial no pisa una posicion mas nueva del flujo 28ms
+ ✓ src/paginas/PantallaRegistro.test.tsx > PantallaRegistro > registra al pasajero con parada, dispositivo y ubicacion 831ms
+ ✓ src/paginas/PantallaRegistro.test.tsx > PantallaRegistro > muestra que ya esta anotado cuando existe un registro activo 117ms
+ ✓ src/hooks/usePosicionBus.test.ts > usePosicionBus > registra cuando llego el dato al cliente 83ms
+ ✓ src/hooks/usePosicionBus.test.ts > usePosicionBus > si falla la carga inicial, el flujo en vivo sigue funcionando 900ms
+ ✓ src/componentes/MapaJalapa.test.tsx > MapaJalapa > la atribucion de OpenStreetMap esta siempre visible 379ms
+ ✓ src/hooks/usePosicionBus.test.ts > usePosicionBus > cierra el flujo al desmontar el componente 113ms
+stderr | src/componentes/MapaJalapa.test.tsx > MapaJalapa > sin WebGL2 cae al croquis en vez de romperse
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+ ✓ src/componentes/MapaJalapa.test.tsx > MapaJalapa > sin WebGL2 cae al croquis en vez de romperse 103ms
+ ✓ src/componentes/MapaJalapa.test.tsx > MapaJalapa > dibuja una parada por cada parada de la ruta 104ms
+ ✓ src/componentes/MapaJalapa.test.tsx > MapaJalapa > sin posicion no dibuja el bus, pero si la ruta 110ms
+ ✓ src/componentes/MapaJalapa.test.tsx > MapaJalapa > las paradas caen dentro del lienzo del mock 91ms
+ ✓ src/componentes/MapaJalapa.test.tsx > MapaJalapa > el modo oscuro se declara en el contenedor 44ms
+ ✓ src/core/identidadDispositivo.test.ts > obtenerIdDispositivo > genera y guarda un identificador cuando no existe 8ms
+ ✓ src/core/identidadDispositivo.test.ts > obtenerIdDispositivo > reutiliza el mismo identificador en llamadas posteriores 1ms
+ ✓ src/core/interpolacionPosicion.test.ts > interpolarPunto > en t=0 queda en el origen 4ms
+ ✓ src/core/interpolacionPosicion.test.ts > interpolarPunto > en t=1 queda en el destino 1ms
+ ✓ src/core/interpolacionPosicion.test.ts > interpolarPunto > en t=0.5 queda a mitad de camino 1ms
+ ✓ src/core/interpolacionPosicion.test.ts > interpolarPunto > acota un progreso fuera de 0–1 1ms
+ ✓ src/core/interpolacionPosicion.test.ts > rumboEntre > hacia el norte queda cerca de 0° 1ms
+ ✓ src/core/interpolacionPosicion.test.ts > rumboEntre > hacia el este queda cerca de 90° 0ms
+ ✓ src/core/interpolacionPosicion.test.ts > rumboEntre > si el punto no cambia, el rumbo es 0 1ms
+ ✓ src/core/interpolacionPosicion.test.ts > progresoAnimacion > con movimiento reducido salta al final 0ms
+ ✓ src/core/interpolacionPosicion.test.ts > progresoAnimacion > avanza lineal entre inicio y duracion 1ms
+ ✓ src/core/interpolacionPosicion.test.ts > progresoAnimacion > no se pasa de 1 0ms
+ ✓ src/core/errores.test.ts > traducirError > traduce 400 a un mensaje claro en espanol 3ms
+ ✓ src/core/errores.test.ts > traducirError > traduce 404 a un mensaje claro en espanol 1ms
+ ✓ src/core/errores.test.ts > traducirError > en 422 muestra la regla de negocio si viene en lenguaje claro 1ms
+ ✓ src/core/errores.test.ts > traducirError > en 422 con mensaje tecnico usa el fallback de negocio 1ms
+ ✓ src/core/errores.test.ts > traducirError > usa el mensaje generico cuando el codigo no esta contemplado 1ms
+ ✓ src/core/errores.test.ts > traducirError > no expone el codigo HTTP ni el texto en ingles al usuario 2ms
+ ✓ src/core/errores.test.ts > traducirError > traduce una falla de red (status 0) sin mencionar fetch ni TypeError 1ms
+ ✓ src/core/errores.test.ts > traducirError > agrupa 5xx en un aviso de servicio no disponible 1ms
+ ✓ src/core/errores.test.ts > traducirError > traduce 401 y 403 sin mostrar el codigo 1ms
+ ✓ src/core/errores.test.ts > traducirError > traduce 429 a un aviso de espera 0ms
+ ✓ src/core/errores.test.ts > traducirError > en 422 descarta un mensaje en ingles tecnico 0ms
+ ✓ src/componentes/MapaJalapa.test.tsx > MapaJalapa > la capa de croquis no dice que algo fallo 43ms
+ ✓ src/componentes/MapaJalapa.test.tsx > MapaJalapa > mientras carga avisa sin tapar el mapa con un error 185ms
+ ✓ src/componentes/MapaJalapa.test.tsx > MapaJalapa > en desvio la ruta oficial se atenua pero sigue visible 86ms
+ ✓ src/componentes/MapaJalapa.test.tsx > MapaJalapa > marca tu parada de forma distinta al resto 98ms
+ ✓ src/core/config.test.ts > leerConfiguracion > devuelve apiBaseUrl cuando la variable es valida 3ms
+ ✓ src/core/config.test.ts > leerConfiguracion > acepta una URL http de desarrollo local 1ms
+ ✓ src/core/config.test.ts > leerConfiguracion > quita la barra final de la URL para no duplicarla al concatenar rutas 0ms
+ ✓ src/core/config.test.ts > leerConfiguracion > falla con un mensaje claro si falta la variable obligatoria 3ms
+ ✓ src/core/config.test.ts > leerConfiguracion > falla con un mensaje claro si la URL tiene formato invalido 1ms
+ ✓ src/core/config.test.ts > config > queda validada y congelada al cargar el modulo 0ms
+ ✓ src/core/flujoDePosiciones.test.ts > suscribirseAPosiciones > se conecta a la ruta del stream del backend 6ms
+ ✓ src/core/flujoDePosiciones.test.ts > suscribirseAPosiciones > entrega la posicion que llega en el evento 6ms
+ ✓ src/core/flujoDePosiciones.test.ts > suscribirseAPosiciones > pasa de conectando a en-vivo cuando abre la conexion 2ms
+ ✓ src/core/flujoDePosiciones.test.ts > suscribirseAPosiciones > un corte del flujo se reporta como reconectando, no como error 1ms
+ ✓ src/core/flujoDePosiciones.test.ts > suscribirseAPosiciones > un evento con JSON roto se descarta sin tumbar la pantalla 2ms
+ ✓ src/core/flujoDePosiciones.test.ts > suscribirseAPosiciones > el latido del servidor no llega como posicion 1ms
+ ✓ src/core/flujoDePosiciones.test.ts > suscribirseAPosiciones > cerrar la suscripcion cierra la fuente 1ms
+ ✓ src/core/flujoDePosiciones.test.ts > esMasReciente > cualquier posicion gana cuando no hay ninguna 1ms
+ ✓ src/core/flujoDePosiciones.test.ts > esMasReciente > una posicion mas nueva reemplaza a la actual 1ms
+ ✓ src/core/flujoDePosiciones.test.ts > esMasReciente > una posicion vieja NO reemplaza a la actual 0ms
+ ✓ src/core/apiClient.test.ts > peticion > devuelve el cuerpo ya parseado en una respuesta correcta 7ms
+ ✓ src/core/apiClient.test.ts > peticion > devuelve null en 204 porque no es un error (HU-44 responde asi sin posicion) 1ms
+ ✓ src/core/apiClient.test.ts > peticion > convierte un ApiError 422 en ErrorApi y conserva el mensaje del backend 3ms
+ ✓ src/core/apiClient.test.ts > peticion > traduce una falla de red a ErrorApi con status 0 y mensaje entendible 2ms
+ ✓ src/core/apiClient.test.ts > peticion > usa un mensaje generico cuando el error 500 no trae cuerpo ApiError 2ms
+ ✓ src/core/apiClient.test.ts > reintentos > reintenta un 5xx y devuelve el cuerpo cuando un intento posterior funciona 2ms
+ ✓ src/core/apiClient.test.ts > reintentos > reintenta un fallo de red y se rinde despues de 3 intentos 1ms
+ ✓ src/core/apiClient.test.ts > reintentos > no reintenta un 4xx: propaga el error en el primer intento 6ms
+ ✓ src/core/apiClient.test.ts > reintentos > no reintenta un 400 ni un 422 4ms
+ ✓ src/core/apiClient.test.ts > reintentos > espera con backoff exponencial entre intentos de red 10ms
+ ✓ src/core/apiClient.test.ts > timeout > aborta la peticion al agotar el tiempo de espera 43ms
+ ✓ src/core/apiClient.test.ts > timeout > trata el timeout como fallo de red y lo reintenta 128ms
+ ✓ src/core/apiClient.test.ts > Authorization > adjunta Bearer cuando el proveedor tiene un token 24ms
+ ✓ src/core/apiClient.test.ts > Authorization > no envia Authorization cuando no hay sesion 1ms
+ ✓ src/core/apiClient.test.ts > Authorization > lee el JWT temporal de localStorage bajo ecoruta_jwt 1ms
+ ✓ src/core/apiClient.test.ts > apiClient > expone put y envia el verbo PUT 41ms
+ ✓ src/core/recorridoDeRuta.test.ts > recorridoDeRuta > prefiere el trazado, que es el que sigue las calles 4ms
+ ✓ src/core/recorridoDeRuta.test.ts > recorridoDeRuta > cae a las paradas cuando la ruta aun no tiene trazado cargado 1ms
+ ✓ src/core/recorridoDeRuta.test.ts > recorridoDeRuta > ignora un trazado de un solo punto: no dibuja una linea 2ms
+ ✓ src/core/recorridoDeRuta.test.ts > recorridoDeRuta > sin ruta no hay nada que dibujar 1ms
+ ✓ src/core/registroDemanda.test.ts > registrarDemanda > envia dispositivo, parada y coordenadas al endpoint de demanda 8ms
+ ✓ src/core/reservas.test.ts > rutaReservasParada > arma la ruta del contrato con el id de la parada 4ms
+ ✓ src/core/reservas.test.ts > obtenerReservasParada > consulta la parada correcta y devuelve activas y reservas 8ms
+ ✓ src/core/reservas.test.ts > obtenerReservasParada > propaga el rechazo del backend como ErrorApi (sin sesion de conductor) 2ms
+ ✓ src/core/sesionConductor.test.ts > haySesionConductor > es falso sin token guardado 2ms
+ ✓ src/core/sesionConductor.test.ts > haySesionConductor > es verdadero cuando hay un JWT de conductor en localStorage 1ms
+ ✓ src/core/sesionConductor.test.ts > haySesionConductor > respeta el proveedor de token activo, no solo localStorage 0ms
+
+ Test Files  21 passed (21)
+      Tests  114 passed (114)
+   Start at  20:55:12
+   Duration  18.95s (transform 11.92s, setup 0ms, collect 38.42s, tests 7.74s, environment 102.67s, prepare 15.45s)
+
