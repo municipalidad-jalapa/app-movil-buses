@@ -31,6 +31,12 @@ export default defineConfig({
       // null y las pruebas comprueban que la app funciona con los avisos
       // apagados, que es como corre hoy en CI. Los casos con Firebase
       // configurado pasan el entorno a mano a leerConfiguracion().
+      //
+      // Este 'false' es obligatorio, no decorativo: Vitest carga el .env del
+      // desarrollador, y si alguien tiene VITE_SIMULAR_ABORDAJE=true para
+      // demostrar la historia, confirmarAbordaje devolveria la respuesta
+      // simulada y las pruebas del contrato pasarian sin tocar la API.
+      VITE_SIMULAR_ABORDAJE: 'false',
     },
   },
 });

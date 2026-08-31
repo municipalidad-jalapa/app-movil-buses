@@ -122,6 +122,32 @@ Dos límites conocidos:
   respuesta de abordaje se puede usar `VITE_SIMULAR_ABORDAJE=true`, que la resuelve en el
   navegador. Nunca en producción.
 
+## Pruebas de aceptación
+
+Los criterios de aceptación de Jira se escriben en Gherkin, con la misma convención que el
+backend: español, un tag por historia y un `@criterio-N` por cada criterio.
+
+```
+src/pruebas/features/*.feature       los escenarios
+src/pruebas/features/*.test.tsx      los pasos, sobre Vitest
+```
+
+Corren con `npm test` junto al resto, sin runner aparte. `@amiceli/vitest-cucumber` avisa si un
+escenario del `.feature` se quedó sin implementar, que es media gracia del asunto.
+
+Dos detalles que ahorran un rato de depuración:
+
+- **Cada paso es un `test` de Vitest independiente.** Un `beforeEach`/`afterEach` normal corre
+  *entre pasos* y desmonta lo que el paso anterior renderizó. El montaje y la limpieza van en
+  `BeforeEachScenario` / `AfterEachScenario`.
+- Los escenarios `@manual` se excluyen con `excludeTags`. Son los que dependen de un push real
+  o de un navegador de verdad. Se dejan escritos en el `.feature` para que el criterio no
+  desaparezca solo porque ninguna herramienta lo alcanza; su guion está en
+  [`docs/pruebas-manuales-HU-58.md`](docs/pruebas-manuales-HU-58.md).
+
+Las pruebas no leen tu `.env`: `vite.config.ts` fija el entorno de test. Si dependieran de él,
+alguien con `VITE_SIMULAR_ABORDAJE=true` vería pasar pruebas que en realidad no tocan la API.
+
 ## Capa de red
 
 Todo acceso al backend pasa por `src/core/apiClient.ts`. Centraliza:
