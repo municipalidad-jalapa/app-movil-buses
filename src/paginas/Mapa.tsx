@@ -1,59 +1,60 @@
-import { useEffect, useState } from 'react';
-import { apiClient } from '../core/apiClient';
-import { obtenerConfiguracion } from '../core/config';
-import { Cargando } from '../componentes/Cargando';
+import { usePosicionBus } from '../hooks/usePosicionBus';
+import { usePrefiereOscuro } from '../hooks/usePrefiereOscuro';
+import { useRutas } from '../hooks/useRutas';
+import { MapaJalapa } from '../componentes/MapaJalapa';
+import { BannerConexion } from '../componentes/BannerConexion';
+import { EstadoSinPosicion } from '../componentes/EstadoSinPosicion';
+import { HoraUltimoDato } from '../componentes/HoraUltimoDato';
 import { MensajeError } from '../componentes/MensajeError';
-import type { Ruta } from '../core/tipos';
+import './Mapa.css';
 
 /**
- * Pantalla principal. Por ahora es el esqueleto de HU-26: solo comprueba que la
- * capa de red y la configuracion funcionan de punta a punta.
+ * Pantalla del pasajero: el mapa con la ruta y el bus encima (HU-50 + HU-51).
  *
- * El mapa real lo trae HU-50, el bus en movimiento HU-51 y el contador HU-52.
+ * <p>El mapa ocupa la pantalla completa y la informacion va flotando encima,
+ * como en `design/EcoRuta.dc.html`. DESIGN.md seccion 8 lo pide explicito: la
+ * tarjeta flotante no puede tapar el marcador del bus, por eso va abajo.
  */
 export function Mapa() {
-  const [rutas, setRutas] = useState<Ruta[] | null>(null);
-  const [error, setError] = useState<unknown>(null);
-  const [intento, setIntento] = useState(0);
+  const { rutaActiva, cargando, error, reintentar } = useRutas();
+  const { posicion, estadoConexion, recibidoEn, cargaInicialLista } = usePosicionBus();
+  const oscuro = usePrefiereOscuro();
 
-  const { apiUrl } = obtenerConfiguracion();
-
-  useEffect(() => {
-    const control = new AbortController();
-    setError(null);
-    setRutas(null);
-
-    apiClient
-      .get<Ruta[]>('/api/v1/rutas', { signal: control.signal })
-      .then((datos) => setRutas(datos ?? []))
-      .catch((causa) => setError(causa));
-
-    return () => control.abort();
-  }, [intento]);
+  // Sin red no se cae a una pantalla de error: se cae al croquis, que es una
+  // pantalla de primera clase (DESIGN.md seccion 7).
+  const capa = cargando ? 'cargando' : estadoConexion === 'reconectando' ? 'croquis' : 'mapa';
 
   return (
-    <>
-      <h1>Bus electrico de Jalapa</h1>
-      <p style={{ color: 'var(--color-texto-suave)', fontSize: '0.875rem' }}>
-        Backend: <code>{apiUrl}</code>
-      </p>
+    <div className="pantalla-mapa">
+      <MapaJalapa
+        ruta={rutaActiva}
+        posicionBus={posicion}
+        capa={capa}
+        modo={oscuro ? 'oscuro' : 'claro'}
+      />
 
-      {error && <MensajeError error={error} onReintentar={() => setIntento((n) => n + 1)} />}
-      {!error && rutas === null && <Cargando texto="Consultando rutas…" />}
-      {rutas !== null && rutas.length === 0 && <p>No hay rutas activas todavia.</p>}
-      {rutas !== null && rutas.length > 0 && (
-        <ul>
-          {rutas.map((ruta) => (
-            <li key={ruta.id}>
-              {ruta.nombre} — {ruta.paradas.length} paradas
-            </li>
-          ))}
-        </ul>
+      <div className="pantalla-mapa__encima">
+        <BannerConexion estadoConexion={estadoConexion} />
+
+        {error && (
+          <div className="pantalla-mapa__aviso">
+            <MensajeError error={error} onReintentar={reintentar} />
+          </div>
+        )}
+
+        {cargaInicialLista && posicion === null && !error && (
+          <div className="pantalla-mapa__aviso">
+            <EstadoSinPosicion />
+          </div>
+        )}
+      </div>
+
+      {/* Abajo a proposito: arriba taparia el marcador del bus. */}
+      {posicion && recibidoEn && (
+        <div className="pantalla-mapa__pie">
+          <HoraUltimoDato recibidoEn={recibidoEn} />
+        </div>
       )}
-
-      <p style={{ marginTop: 'var(--esp-8)', color: 'var(--color-texto-suave)' }}>
-        Esqueleto de HU-26. El mapa llega en HU-50 y el contador en HU-52.
-      </p>
-    </>
+    </div>
   );
 }

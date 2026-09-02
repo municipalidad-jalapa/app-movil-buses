@@ -9,8 +9,9 @@ dist-ssr/
 coverage/
 *.tsbuildinfo
 
-# Secretos - NUNCA subir
+# Secretos - NUNCA subir (.env, .env.local, .env.development, etc.)
 .env
+.env.local
 .env.*
 !.env.example
 # La llave de Google Maps (HU-27/HU-50) va por entorno, jamas en el repositorio
@@ -21,6 +22,9 @@ coverage/
 *.iml
 .DS_Store
 Thumbs.db
+
+# Herramientas locales de prueba (nunca subirlas)
+herramientas-dev/
 
 # Logs
 *.log

@@ -1,0 +1,39 @@
+/* Aviso de fallo real (4xx/5xx/red). Color + icono + texto: DESIGN.md §3 y §12. */
+.aviso-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--esp-3);
+  padding: var(--esp-4);
+  border: 1px solid var(--color-error);
+  border-radius: 12px;
+  background: var(--color-error-fondo);
+  color: var(--color-texto);
+}
+
+.aviso-error__icono {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+  color: var(--color-error);
+}
+
+.aviso-error__cuerpo {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.aviso-error__cuerpo p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.aviso-error__accion {
+  min-width: 48px;
+  min-height: 48px;
+  background: transparent;
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
