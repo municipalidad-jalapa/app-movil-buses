@@ -1,0 +1,44 @@
+.banner-conexion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 16px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+}
+
+.banner-conexion p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+}
+
+.banner-conexion__icono {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.banner-conexion--conectando {
+  background: var(--verde-jumay-superficie);
+  color: var(--verde-jumay);
+}
+
+.banner-conexion--en-vivo {
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+}
+
+.banner-conexion--en-vivo .banner-conexion__icono {
+  color: var(--verde-jumay);
+}
+
+.banner-conexion--reconectando {
+  background: var(--amarillo-volcan-superficie);
+  color: var(--amarillo-volcan-tinta);
+  border-color: var(--amarillo-volcan);
+}

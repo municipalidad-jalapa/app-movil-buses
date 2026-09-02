@@ -1,0 +1,11 @@
+.hora-ultimo-dato {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 16px;
+  font-weight: 400;
+  color: var(--tinta-tenue);
+}
+
+.hora-ultimo-dato time {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,34 +1,52 @@
-import { afterEach, describe, expect, it } from 'vitest';
-import { obtenerConfiguracion } from './config';
+import { describe, expect, it } from 'vitest';
+import { config, leerConfiguracion } from './config';
 
-describe('obtenerConfiguracion', () => {
-  afterEach(() => {
-    delete (globalThis as { window?: unknown }).window;
+const entornoValido = {
+  VITE_API_BASE_URL: 'https://api.ejemplo.com',
+};
+
+describe('leerConfiguracion', () => {
+  it('devuelve apiBaseUrl cuando la variable es valida', () => {
+    const resultado = leerConfiguracion(entornoValido);
+
+    expect(resultado.apiBaseUrl).toBe('https://api.ejemplo.com');
+    expect(Object.isFrozen(resultado)).toBe(true);
   });
 
-  function simularConfigDeRuntime(apiUrl?: string) {
-    (globalThis as { window?: unknown }).window = {
-      __ECORUTA__: apiUrl === undefined ? undefined : { apiUrl },
-    };
-  }
+  it('acepta una URL http de desarrollo local', () => {
+    const resultado = leerConfiguracion({
+      ...entornoValido,
+      VITE_API_BASE_URL: 'http://localhost:8080',
+    });
 
-  it('usa la configuracion de runtime cuando esta definida', () => {
-    simularConfigDeRuntime('https://api.ecoruta.gob.gt');
-    expect(obtenerConfiguracion().apiUrl).toBe('https://api.ecoruta.gob.gt');
+    expect(resultado.apiBaseUrl).toBe('http://localhost:8080');
   });
 
-  it('quita la barra final para no duplicarla al concatenar rutas', () => {
-    simularConfigDeRuntime('https://api.ecoruta.gob.gt/');
-    expect(obtenerConfiguracion().apiUrl).toBe('https://api.ecoruta.gob.gt');
+  it('quita la barra final de la URL para no duplicarla al concatenar rutas', () => {
+    const resultado = leerConfiguracion({
+      ...entornoValido,
+      VITE_API_BASE_URL: 'https://api.ejemplo.com/',
+    });
+
+    expect(resultado.apiBaseUrl).toBe('https://api.ejemplo.com');
   });
 
-  it('cae al valor por defecto si no hay configuracion de runtime', () => {
-    simularConfigDeRuntime(undefined);
-    expect(obtenerConfiguracion().apiUrl).toBe('http://localhost:8080');
+  it('falla con un mensaje claro si falta la variable obligatoria', () => {
+    expect(() => leerConfiguracion({})).toThrow(/Falta la variable VITE_API_BASE_URL/);
   });
 
-  it('respeta una cadena vacia en runtime para permitir rutas relativas', () => {
-    simularConfigDeRuntime('');
-    expect(obtenerConfiguracion().apiUrl).toBe('');
+  it('falla con un mensaje claro si la URL tiene formato invalido', () => {
+    expect(() =>
+      leerConfiguracion({
+        VITE_API_BASE_URL: 'no-es-una-url',
+      }),
+    ).toThrow(/VITE_API_BASE_URL no es una URL valida/);
+  });
+});
+
+describe('config', () => {
+  it('queda validada y congelada al cargar el modulo', () => {
+    expect(config.apiBaseUrl).toBe('https://api.ejemplo.test');
+    expect(Object.isFrozen(config)).toBe(true);
   });
 });

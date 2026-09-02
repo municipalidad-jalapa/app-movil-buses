@@ -25,12 +25,24 @@ export interface Parada {
   orden: number;
 }
 
-/** `catalogo/dto/RutaDTO.java` */
+/** `catalogo/web/dto/PuntoResponse.java` */
+export interface Punto {
+  latitud: number;
+  longitud: number;
+}
+
+/** `catalogo/web/dto/RutaResponse.java` */
 export interface Ruta {
   id: number;
   nombre: string;
   activa: boolean;
   paradas: Parada[];
+  /**
+   * El recorrido siguiendo las calles. Llega vacio si la ruta aun no lo tiene
+   * cargado, y entonces el mapa une las paradas con rectas: se ve peor, pero se
+   * ve. Nunca se asume que viene lleno.
+   */
+  trazado: Punto[];
 }
 
 /**
@@ -45,13 +57,15 @@ export interface EstadoDemanda {
   porParada: Record<string, number>;
 }
 
-/** `telemetria/dto/PosicionDTO.java` */
+/** `telemetria/web/dto/PosicionActualResponse.java` */
 export interface Posicion {
   latitud: number;
   longitud: number;
   velocidadKmh: number | null;
   /** ISO-8601. Lo pone el dispositivo a bordo, no el servidor. */
   timestamp: string;
+  /** Identificador del bus, ej. "BUS-01". Lo agrego SCRUM-143. */
+  vehiculo: string | null;
 }
 
 /** `demanda/dto/CrearRegistroRequest.java` */
@@ -60,4 +74,15 @@ export interface CrearRegistroRequest {
   paradaId: number;
   latitud: number;
   longitud: number;
+}
+
+/**
+ * Respuesta esperada al crear correctamente el registro.
+ * Este contrato se usará en la pantalla de la HU-53.
+ */
+export interface RegistroCreadoResponse {
+  id: number;
+  paradaId: number;
+  estado: string;
+  expiraEn: string;
 }
