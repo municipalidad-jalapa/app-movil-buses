@@ -4,6 +4,9 @@ import gt.muni.jalapa.ecoruta.catalogo.servicio.CatalogoService;
 import gt.muni.jalapa.ecoruta.catalogo.web.dto.ParadaResponse;
 import gt.muni.jalapa.ecoruta.catalogo.web.dto.RutaResponse;
 import gt.muni.jalapa.ecoruta.common.RecursoNoEncontradoException;
+import gt.muni.jalapa.ecoruta.demanda.web.dto.ParadaDto;
+import gt.muni.jalapa.ecoruta.demanda.web.dto.ReservasPorParadaDto;
+import gt.muni.jalapa.ecoruta.demanda.web.dto.ResumenRutaResponse;
 import gt.muni.jalapa.ecoruta.telemetria.servicio.TelemetriaService;
 import gt.muni.jalapa.ecoruta.telemetria.web.dto.PosicionActualResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -148,6 +151,79 @@ class ResumenRutaServiceTest {
         servicio.componer(1L);
 
         verify(telemetria).posicionVigente(eq(null));
+    }
+
+    // --- resumir(): el mismo dato ya mapeado al DTO del contrato REST (SCRUM-284) ---
+
+    @Test
+    void resumir_mapea_la_ruta_con_sus_paradas_en_orden() {
+        when(catalogo.buscar(1L)).thenReturn(rutaEjemplo);
+        when(demanda.contarReservasActivasPorParada(any())).thenReturn(Map.of());
+        when(telemetria.posicionVigente(null)).thenReturn(Optional.empty());
+
+        ResumenRutaResponse dto = servicio.resumir(1L);
+
+        assertThat(dto.ruta().id()).isEqualTo(1L);
+        assertThat(dto.ruta().nombre()).isEqualTo("Ruta de ejemplo");
+        assertThat(dto.ruta().paradas()).extracting(ParadaDto::id).containsExactly(1L, 2L, 3L, 4L);
+        assertThat(dto.ruta().paradas()).extracting(ParadaDto::orden).containsExactly(1, 2, 3, 4);
+        assertThat(dto.ruta().trazado()).isEmpty();
+    }
+
+    @Test
+    void resumir_incluye_la_posicion_cuando_el_bus_ya_reporto() {
+        when(catalogo.buscar(1L)).thenReturn(rutaEjemplo);
+        when(demanda.contarReservasActivasPorParada(any())).thenReturn(Map.of());
+        when(telemetria.posicionVigente(null)).thenReturn(Optional.of(posicionEjemplo));
+
+        ResumenRutaResponse dto = servicio.resumir(1L);
+
+        assertThat(dto.posicionActual()).isNotNull();
+        assertThat(dto.posicionActual().latitud()).isEqualTo(14.63);
+        assertThat(dto.posicionActual().longitud()).isEqualTo(-89.98);
+        assertThat(dto.posicionActual().velocidadKmh()).isEqualTo(20.0);
+        assertThat(dto.posicionActual().capturadoEn()).isEqualTo(Instant.parse("2026-08-17T10:00:00Z"));
+    }
+
+    @Test
+    void resumir_entrega_la_respuesta_aunque_el_bus_no_haya_reportado_posicion() {
+        when(catalogo.buscar(1L)).thenReturn(rutaEjemplo);
+        when(demanda.contarReservasActivasPorParada(any())).thenReturn(Map.of());
+        when(telemetria.posicionVigente(null)).thenReturn(Optional.empty());
+
+        ResumenRutaResponse dto = servicio.resumir(1L);
+
+        assertThat(dto.ruta()).isNotNull();
+        assertThat(dto.posicionActual()).isNull();
+        assertThat(dto.reservasActivas()).isNotNull();
+    }
+
+    @Test
+    void resumir_lista_todas_las_paradas_con_su_conteo_incluidos_los_ceros() {
+        when(catalogo.buscar(1L)).thenReturn(rutaEjemplo);
+        when(demanda.contarReservasActivasPorParada(List.of(1L, 2L, 3L, 4L)))
+                .thenReturn(Map.of(1L, 2L, 3L, 1L));
+        when(telemetria.posicionVigente(null)).thenReturn(Optional.empty());
+
+        ResumenRutaResponse dto = servicio.resumir(1L);
+
+        assertThat(dto.reservasActivas().porParada()).containsExactly(
+                new ReservasPorParadaDto(1L, 2L),
+                new ReservasPorParadaDto(2L, 0L),
+                new ReservasPorParadaDto(3L, 1L),
+                new ReservasPorParadaDto(4L, 0L));
+        assertThat(dto.reservasActivas().calculadoEn()).isNotNull();
+    }
+
+    @Test
+    void resumir_propaga_recurso_no_encontrado_si_la_ruta_no_existe() {
+        when(catalogo.buscar(999L)).thenThrow(new RecursoNoEncontradoException("Ruta", 999L));
+
+        assertThatThrownBy(() -> servicio.resumir(999L))
+                .isInstanceOf(RecursoNoEncontradoException.class);
+
+        verifyNoInteractions(demanda);
+        verifyNoInteractions(telemetria);
     }
 
     private static ParadaResponse parada(long id, int orden) {
