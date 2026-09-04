@@ -38,7 +38,10 @@ docker-build-push-qa:
   environment:
     name: qa
   variables:
-    REQUIRED_BUILD_ARGS: "VITE_GOOGLE_MAPS_API_KEY VITE_API_BASE_URL"
+    # SCRUM-310 (HU-138): config publica de Firebase (HU-129/HU-63). Vite
+    # las hornea en el bundle al compilar; src/core/config.ts falla al
+    # arrancar si faltan.
+    REQUIRED_BUILD_ARGS: "VITE_GOOGLE_MAPS_API_KEY VITE_API_BASE_URL VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_APP_ID"
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
@@ -47,7 +50,7 @@ docker-build-push-production:
   environment:
     name: production
   variables:
-    REQUIRED_BUILD_ARGS: "VITE_GOOGLE_MAPS_API_KEY VITE_API_BASE_URL"
+    REQUIRED_BUILD_ARGS: "VITE_GOOGLE_MAPS_API_KEY VITE_API_BASE_URL VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_APP_ID"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
