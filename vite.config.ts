@@ -27,6 +27,11 @@ export default defineConfig({
     environment: 'node',
     env: {
       VITE_API_BASE_URL: 'https://api.ejemplo.test',
+      VITE_FIREBASE_API_KEY: 'clave-firebase-prueba',
+      VITE_FIREBASE_AUTH_DOMAIN: 'ecoruta-prueba.firebaseapp.com',
+      VITE_FIREBASE_PROJECT_ID: 'ecoruta-prueba',
+      VITE_FIREBASE_APP_ID: '1:1:web:prueba',
+      VITE_AUTH_CONDUCTOR_SIMULADO: 'false',
     },
   },
 });

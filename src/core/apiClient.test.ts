@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   CLAVE_JWT_CONDUCTOR,
   apiClient,
+  configurarManejador401,
   configurarProveedorDeToken,
   peticion,
   proveedorDeTokenLocalStorage,
@@ -48,6 +49,7 @@ describe('peticion', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     configurarProveedorDeToken(proveedorDeTokenLocalStorage);
+    configurarManejador401(null);
   });
 
   it('devuelve el cuerpo ya parseado en una respuesta correcta', async () => {
@@ -118,6 +120,7 @@ describe('reintentos', () => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
     configurarProveedorDeToken(proveedorDeTokenLocalStorage);
+    configurarManejador401(null);
   });
 
   it('reintenta un 5xx y devuelve el cuerpo cuando un intento posterior funciona', async () => {
@@ -195,6 +198,7 @@ describe('timeout', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     configurarProveedorDeToken(proveedorDeTokenLocalStorage);
+    configurarManejador401(null);
   });
 
   it('aborta la peticion al agotar el tiempo de espera', async () => {
@@ -230,6 +234,7 @@ describe('Authorization', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     configurarProveedorDeToken(proveedorDeTokenLocalStorage);
+    configurarManejador401(null);
   });
 
   it('adjunta Bearer cuando el proveedor tiene un token', async () => {
@@ -266,10 +271,41 @@ describe('Authorization', () => {
   });
 });
 
+describe('manejador 401', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    configurarProveedorDeToken(proveedorDeTokenLocalStorage);
+    configurarManejador401(null);
+  });
+
+  it('invoca el manejador configurado y sigue lanzando ErrorApi', async () => {
+    const manejador = vi.fn();
+    configurarManejador401(manejador);
+    vi.stubGlobal('fetch', vi.fn(async () => respuestaFalsa(401)));
+
+    const fallo = (await peticion('/api/v1/conductor/estado', { intentos: 1 }).catch((e) => e)) as ErrorApi;
+
+    expect(manejador).toHaveBeenCalledTimes(1);
+    expect(fallo).toBeInstanceOf(ErrorApi);
+    expect(fallo.status).toBe(401);
+  });
+
+  it('no invoca el manejador en otros 4xx', async () => {
+    const manejador = vi.fn();
+    configurarManejador401(manejador);
+    vi.stubGlobal('fetch', vi.fn(async () => respuestaFalsa(404)));
+
+    await peticion('/api/v1/rutas', { intentos: 1 }).catch(() => undefined);
+
+    expect(manejador).not.toHaveBeenCalled();
+  });
+});
+
 describe('apiClient', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     configurarProveedorDeToken(proveedorDeTokenLocalStorage);
+    configurarManejador401(null);
   });
 
   it('expone put y envia el verbo PUT', async () => {
