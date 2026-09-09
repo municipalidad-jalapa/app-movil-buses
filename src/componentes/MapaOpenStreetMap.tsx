@@ -6,11 +6,14 @@ import {
   Marker,
   NavigationControl,
   Popup,
+  setWorkerUrl,
   type LayerSpecification,
   type LngLatLike,
 } from 'maplibre-gl';
 import type { Feature, FeatureCollection, GeoJSON as GeoJsonDato } from 'geojson';
 import 'maplibre-gl/dist/maplibre-gl.css';
+// `?url` obliga a Vite a emitir el worker como archivo y nos da su URL final.
+import urlDelWorker from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { recorridoDeRuta } from '../core/recorridoDeRuta';
 import { estiloOpenStreetMap, estiloOpenStreetMapOscuro } from '../core/estiloMapa';
 import { soportaMapa } from '../core/soporteDeMapa';
@@ -32,6 +35,20 @@ const CONTORNO = '#FBF7F0';
 
 const FUENTE_RUTA = 'ruta';
 const FUENTE_PARADAS = 'paradas';
+
+// MapLibre calcula la URL de su worker en tiempo de ejecucion, con
+// `new URL('./maplibre-gl-worker.mjs', import.meta.url)`. Rollup no puede
+// analizar eso, asi que en el build de produccion nunca emite ese archivo: la
+// peticion cae en el index.html de respaldo de nginx y el worker no arranca.
+//
+// Y falla en silencio: MapLibre solo reporta "module worker not supported".
+// Como el raster se decodifica en el hilo principal, el mapa base se ve
+// perfecto y TODO lo que depende del worker --las fuentes GeoJSON de la ruta
+// y las paradas-- no se dibuja nunca, sin un solo error en consola.
+//
+// `optimizeDeps.exclude` en vite.config.ts arregla esto en `vite dev`, pero no
+// toca el build de produccion; por eso el sintoma solo aparecia desplegado.
+setWorkerUrl(urlDelWorker);
 
 interface Props {
   ruta: Ruta | null;
