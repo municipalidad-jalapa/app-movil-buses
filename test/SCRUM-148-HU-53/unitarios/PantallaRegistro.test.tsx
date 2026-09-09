@@ -150,7 +150,7 @@ describe('SCRUM-148 HU-53 - Reserva de parada', () => {
           status: 422,
           error: 'Unprocessable Entity',
           message: mensaje,
-          path: '/api/v1/demanda/registros',
+          path: '/api/v1/reservas',
         },
       ),
     );

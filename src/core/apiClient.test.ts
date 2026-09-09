@@ -72,11 +72,11 @@ describe('peticion', () => {
       status: 422,
       error: 'Unprocessable Entity',
       message: 'Debes estar a menos de 150 m de la parada para registrarte',
-      path: '/api/v1/demanda/registros',
+      path: '/api/v1/reservas',
     };
     vi.stubGlobal('fetch', vi.fn(async () => respuestaFalsa(422, apiError)));
 
-    const fallo = await peticion('/api/v1/demanda/registros', { metodo: 'POST' }).catch((e) => e);
+    const fallo = await peticion('/api/v1/reservas', { metodo: 'POST' }).catch((e) => e);
 
     expect(fallo).toBeInstanceOf(ErrorApi);
     expect((fallo as ErrorApi).status).toBe(422);
@@ -167,7 +167,7 @@ describe('reintentos', () => {
 
     const fetch422 = vi.fn(async () => respuestaFalsa(422, { status: 422, message: 'fuera de geocerca' }));
     vi.stubGlobal('fetch', fetch422);
-    await peticion('/api/v1/demanda/registros', { metodo: 'POST', backoffBaseMs: 0 }).catch(() => undefined);
+    await peticion('/api/v1/reservas', { metodo: 'POST', backoffBaseMs: 0 }).catch(() => undefined);
     expect(fetch422).toHaveBeenCalledTimes(1);
   });
 

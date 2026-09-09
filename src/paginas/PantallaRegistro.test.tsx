@@ -122,7 +122,7 @@ describe('PantallaRegistro', () => {
         status: 422,
         error: 'Unprocessable Entity',
         message: mensaje,
-        path: '/api/v1/demanda/registros',
+        path: '/api/v1/reservas',
       },
     ),
   );

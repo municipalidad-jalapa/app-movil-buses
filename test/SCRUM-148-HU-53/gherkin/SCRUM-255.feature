@@ -11,7 +11,7 @@ Característica: Registrar la demanda del pasajero
     Y el sistema obtuvo su identificador de dispositivo
     Y el sistema obtuvo su ubicación
     Cuando el pasajero confirma el registro
-    Entonces debe enviarse una petición POST a "/api/v1/demanda/registros"
+    Entonces debe enviarse una petición POST a "/api/v1/reservas"
     Y debe enviarse el dispositivoId
     Y debe enviarse el paradaId
     Y debe enviarse la latitud
