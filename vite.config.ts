@@ -1,8 +1,55 @@
+import { copyFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
 import { defineConfig } from 'vitest/config';
+import type { Plugin, ResolvedConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+const require = createRequire(import.meta.url);
+
+/**
+ * Copia el worker de MapLibre --y su fragmento compartido-- junto al bundle.
+ *
+ * MapLibre calcula la URL de su worker en tiempo de ejecucion, con
+ * `new URL('./maplibre-gl-worker.mjs', import.meta.url)`. Rollup no puede
+ * analizar eso, asi que el build nunca emite ese fichero: la peticion cae en el
+ * index.html de respaldo de nginx y el worker no arranca.
+ *
+ * Y falla en silencio: MapLibre solo reporta "module worker not supported". El
+ * raster se decodifica en el hilo principal, asi que el mapa base se ve
+ * perfecto y todo lo que depende del worker --las fuentes GeoJSON de la ruta y
+ * las paradas-- no se dibuja nunca, sin un solo error en consola.
+ *
+ * Se copian los dos con su nombre original a proposito: el worker importa
+ * `./maplibre-gl-shared.mjs` como hermano, y la URL que MapLibre calcula sale
+ * relativa al bundle. Renombrarlos (por ejemplo con un import `?url`) rompe las
+ * dos cosas.
+ *
+ * `optimizeDeps.exclude` de abajo arregla lo mismo en `vite dev`, pero no toca
+ * el build de produccion.
+ */
+function copiarWorkerDeMapLibre(): Plugin {
+  const FICHEROS = ['maplibre-gl-worker.mjs', 'maplibre-gl-shared.mjs'];
+  let config: ResolvedConfig;
+
+  return {
+    name: 'copiar-worker-maplibre',
+    apply: 'build',
+    configResolved(resuelta) {
+      config = resuelta;
+    },
+    closeBundle() {
+      const origen = path.dirname(require.resolve('maplibre-gl/dist/maplibre-gl.mjs'));
+      const destino = path.resolve(config.root, config.build.outDir, config.build.assetsDir);
+      for (const fichero of FICHEROS) {
+        copyFileSync(path.join(origen, fichero), path.join(destino, fichero));
+      }
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), copiarWorkerDeMapLibre()],
   // MapLibre 6 parsea el GeoJSON en un web worker que carga como fichero
   // hermano (dist/maplibre-gl-worker.mjs). Si Vite lo pre-empaqueta, el bundle
   // queda en .vite/deps/ sin ese hermano al lado, la URL del worker da 404 y el
