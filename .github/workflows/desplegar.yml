@@ -1,0 +1,63 @@
+name: Build y despliegue
+
+# Reemplaza a docker-build-push-qa / -production y deploy-qa de GitLab CI.
+#
+# La lista de variables obligatorias sale de UNA sola fuente
+# (vars.VITE_REQUIRED_BUILD_ARGS, variable del repo) en vez de estar
+# duplicada en cada job como en GitLab. Esa duplicacion fue justamente la
+# causa de que QA se desplegara dos veces con la pantalla en negro: se
+# agregaba la variable a un job y se olvidaba en el otro.
+
+on:
+  push:
+    branches: [develop, main]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  imagen-qa:
+    if: github.ref == 'refs/heads/develop'
+    uses: municipalidad-jalapa/pipeline-templates/.github/workflows/docker-build-push.yml@main
+    with:
+      image-name: frontend-app-buses
+      environment: qa
+      required-build-args: ${{ vars.VITE_REQUIRED_BUILD_ARGS }}
+    secrets: inherit
+
+  desplegar-qa:
+    needs: imagen-qa
+    runs-on: ubuntu-22.04
+    environment: qa
+    concurrency:
+      group: frontend-desplegar-qa
+      cancel-in-progress: false
+    steps:
+      - name: Login en Azure (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - uses: azure/aks-set-context@v4
+        with:
+          resource-group: rg-buses-jalapa
+          cluster-name: aks-buses-dev
+      - name: Actualizar imagen del Deployment
+        run: |
+          kubectl set image deployment/frontend-app-buses \
+            frontend-app-buses=${{ vars.ACR_LOGIN_SERVER }}/frontend-app-buses:${GITHUB_SHA::8} -n qa
+          kubectl rollout status deployment/frontend-app-buses -n qa --timeout=120s
+
+  # Produccion solo construye y publica la imagen: el despliegue del frontend
+  # a produccion nunca estuvo automatizado en GitLab tampoco (queda pendiente,
+  # no se cambia el alcance en esta migracion).
+  imagen-produccion:
+    if: github.ref == 'refs/heads/main'
+    uses: municipalidad-jalapa/pipeline-templates/.github/workflows/docker-build-push.yml@main
+    with:
+      image-name: frontend-app-buses
+      environment: production
+      required-build-args: ${{ vars.VITE_REQUIRED_BUILD_ARGS }}
+    secrets: inherit
