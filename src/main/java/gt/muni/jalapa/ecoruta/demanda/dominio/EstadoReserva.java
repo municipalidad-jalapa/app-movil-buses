@@ -12,5 +12,19 @@ public enum EstadoReserva {
     RENOVADA,
     ABORDO,
     CANCELADA,
-    EXPIRADA
+    EXPIRADA;
+
+    /** Vigente para recibir avisos de aproximacion (HU-57). */
+    public boolean vigenteParaAviso() {
+        return this == ACTIVA || this == RENOVADA;
+    }
+
+    public boolean permiteAbordajePasajero() {
+        return vigenteParaAviso();
+    }
+
+    /** El conductor puede corregir incluso despues de la respuesta del pasajero. */
+    public boolean permiteAbordajeConductor() {
+        return this == ACTIVA || this == RENOVADA || this == ABORDO || this == CANCELADA;
+    }
 }

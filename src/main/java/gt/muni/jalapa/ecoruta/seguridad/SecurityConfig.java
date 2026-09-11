@@ -77,6 +77,10 @@ public class SecurityConfig {
                         // SCRUM-306: el pasajero anonimo indica que espera en la parada.
                         .requestMatchers(HttpMethod.POST, "/api/v1/reservas").permitAll()
                         .requestMatchers("/api/v1/demanda/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/dispositivos/notificaciones")
+                                .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/reservas/*/abordaje")
+                                .permitAll()
 
                         // HU-Desarrollo-63: el conductor entrega el idToken de
                         // Firebase aqui; todavia no hay sesion propia.

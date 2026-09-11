@@ -22,8 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Reserva de un lugar en la parada (SCRUM-306 / HU Desarrollo-134).
  *
- * <p>Contrato vigente de Jira: {@code POST /api/v1/reservas}. No confundir con
- * el path legado del frontend {@code /api/v1/demanda/registros}.
+ * <p>Contrato vigente de Jira: {@code POST /api/v1/reservas}. El
+ * {@code POST /api/v1/demanda/registros} que traia HU-57 se elimino al integrar el
+ * sprint 5: era la misma reserva con otro nombre y sin geocerca.
  */
 @Tag(name = "Demanda", description = "Reservas de espera en parada")
 @RestController
