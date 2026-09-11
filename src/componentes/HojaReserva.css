@@ -1,0 +1,338 @@
+/*
+ * La hoja inferior de reserva. Medidas y colores de design/MapaOSM.dc.html;
+ * los colores van por token para que el modo oscuro (M3) funcione igual.
+ */
+
+.hoja-reserva {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 18px calc(22px + var(--seguro-abajo));
+  background: var(--superficie-base);
+  border-top: 2px solid var(--borde-sutil);
+  border-radius: var(--radio-hoja);
+  font-family: var(--fuente);
+}
+
+.hoja-reserva__manija {
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hoja-reserva__manija span {
+  width: 56px;
+  height: 5px;
+  background: var(--borde-manija);
+  border-radius: var(--radio-pastilla);
+}
+
+.hoja-reserva__bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hoja-reserva__textos {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hoja-reserva__textos--juntos {
+  gap: 0;
+}
+
+.hoja-reserva__textos--parada {
+  flex: 1;
+}
+
+.hoja-reserva__titulo {
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--tinta);
+}
+
+.hoja-reserva__titulo--18 {
+  font-size: 18px;
+}
+
+.hoja-reserva__apoyo {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--tinta-secundaria);
+}
+
+/* --- Botones ------------------------------------------------------------ */
+
+.hoja-reserva__primario {
+  width: 100%;
+  min-height: 60px;
+  padding: 0 var(--esp-4);
+  border: none;
+  border-radius: var(--radio-pastilla);
+  background: var(--verde-jumay);
+  color: var(--superficie-base);
+  font-size: 19px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hoja-reserva__primario--grande {
+  min-height: 64px;
+  font-size: 21px;
+}
+
+.hoja-reserva__primario--grande:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.hoja-reserva__primario--apagado {
+  background: var(--borde-sutil);
+  color: var(--tinta-apagada);
+}
+
+.hoja-reserva__enlace {
+  width: 100%;
+  min-height: 48px;
+  padding: 0;
+  background: transparent;
+  color: var(--tinta-secundaria);
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.hoja-reserva__enlace:disabled {
+  background: transparent;
+}
+
+.hoja-reserva__soltar {
+  width: 100%;
+  min-height: 52px;
+  background: transparent;
+  color: var(--rojo-santa-marta);
+  border: 2px solid var(--borde-sutil);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.hoja-reserva__soltar:disabled {
+  background: transparent;
+}
+
+/* --- Buscando ----------------------------------------------------------- */
+
+.hoja-reserva__buscando {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--verde-jumay);
+}
+
+.hoja-reserva__giro {
+  flex: 0 0 26px;
+  animation: hoja-girar 1.1s linear infinite;
+}
+
+@keyframes hoja-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Parada elegida ----------------------------------------------------- */
+
+.hoja-reserva__cabeza {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.hoja-reserva__etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  background: var(--verde-jumay);
+  color: #fbf7f0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: var(--radio-pastilla);
+}
+
+.hoja-reserva__rombo {
+  width: 8px;
+  height: 8px;
+  background: var(--amarillo-volcan);
+  transform: rotate(45deg);
+  display: inline-block;
+}
+
+.hoja-reserva__distancia {
+  font-size: 14px;
+  color: var(--tinta-tenue);
+  font-variant-numeric: tabular-nums;
+}
+
+.hoja-reserva__cuenta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 74px;
+}
+
+.hoja-reserva__numero-40,
+.hoja-reserva__numero-44,
+.hoja-reserva__numero-26 {
+  line-height: 1;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.hoja-reserva__numero-40 {
+  font-size: 40px;
+  color: var(--verde-jumay);
+}
+
+.hoja-reserva__rotulo {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tinta-secundaria);
+}
+
+.hoja-reserva__ultimo-dato .hora-ultimo-dato {
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--tinta-tenue);
+}
+
+/* --- Confirmada --------------------------------------------------------- */
+
+.hoja-reserva__confirmacion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hoja-reserva__visto {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+  border-radius: var(--radio-pastilla);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hoja-reserva__confirmacion .hoja-reserva__apoyo {
+  line-height: 1.3;
+}
+
+.hoja-reserva__datos {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+  border-top: 2px solid var(--superficie-suave);
+  padding-top: 10px;
+}
+
+.hoja-reserva__dato {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hoja-reserva__dato-rotulo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tinta-secundaria);
+}
+
+.hoja-reserva__numero-44 {
+  font-size: 44px;
+  color: var(--verde-jumay);
+}
+
+.hoja-reserva__aviso-min {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+}
+
+.hoja-reserva__numero-26 {
+  font-size: 26px;
+  color: var(--tinta);
+}
+
+.hoja-reserva__rotulo-min {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--tinta-secundaria);
+}
+
+/* --- Aviso (algo no salio) ---------------------------------------------- */
+
+.hoja-reserva__aviso {
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--rojo-santa-marta-superficie);
+  color: var(--tinta-cuerpo);
+  border-left: 4px solid var(--rojo-santa-marta);
+  border-radius: var(--radio-tarjeta-chica);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+/* Modo oscuro: artboard M3. Hoja #241F19, borde #3B352B, manija #6B6357 y el
+   amarillo toma el papel del verde en los numeros y en la accion principal. */
+@media (prefers-color-scheme: dark) {
+  .hoja-reserva {
+    background: var(--superficie-tarjeta);
+    border-top-color: #3b352b;
+  }
+
+  .hoja-reserva__manija span {
+    background: #6b6357;
+  }
+
+  .hoja-reserva__numero-40,
+  .hoja-reserva__numero-44 {
+    color: var(--amarillo-volcan);
+  }
+
+  .hoja-reserva__primario:not(.hoja-reserva__primario--apagado) {
+    background: var(--amarillo-volcan);
+    color: var(--amarillo-volcan-tinta);
+  }
+
+  .hoja-reserva__datos {
+    border-top-color: #3b352b;
+  }
+
+  /* M3 no dibuja este boton. El rojo de marca sobre la hoja oscura queda en
+     2:1 y no se lee; se aclara hasta pasar 4.5:1. Pendiente de revision de
+     diseno. */
+  .hoja-reserva__soltar {
+    color: #e39a90;
+    border-color: #3b352b;
+  }
+}

@@ -16,7 +16,7 @@ const formatoHora = new Intl.DateTimeFormat('es-GT', {
 export function HoraUltimoDato({ recibidoEn }: Props) {
   return (
     <p className="hora-ultimo-dato">
-      Último dato{' '}
+      Último dato recibido{' '}
       <time dateTime={recibidoEn.toISOString()}>{formatoHora.format(recibidoEn)}</time>
     </p>
   );

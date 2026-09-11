@@ -68,6 +68,8 @@ export interface OpcionesPeticion {
   intentos?: number;
   /** Base del backoff exponencial, en milisegundos. */
   backoffBaseMs?: number;
+  /** Cabeceras extra. Ej. `X-Dispositivo-Id` en las acciones sobre una reserva. */
+  cabeceras?: Record<string, string>;
 }
 
 /** Intenta leer el ApiError del backend. Si el cuerpo no tiene ese formato, devuelve null. */
@@ -113,7 +115,7 @@ function esperar(ms: number, signal?: AbortSignal): Promise<void> {
 }
 
 async function ejecutarPeticion<T>(ruta: string, opciones: OpcionesPeticion): Promise<T | null> {
-  const { metodo = 'GET', cuerpo, token, timeoutMs = TIMEOUT_MS, signal } = opciones;
+  const { metodo = 'GET', cuerpo, token, timeoutMs = TIMEOUT_MS, signal, cabeceras: extra } = opciones;
   const tokenEfectivo = token ?? proveedorDeToken.obtenerToken();
 
   const control = new AbortController();
@@ -122,7 +124,7 @@ async function ejecutarPeticion<T>(ruta: string, opciones: OpcionesPeticion): Pr
   // lo encadenamos con el del timeout.
   signal?.addEventListener('abort', () => control.abort(), { once: true });
 
-  const cabeceras: Record<string, string> = { Accept: 'application/json' };
+  const cabeceras: Record<string, string> = { Accept: 'application/json', ...extra };
   if (cuerpo !== undefined) cabeceras['Content-Type'] = 'application/json';
   if (tokenEfectivo) cabeceras['Authorization'] = `Bearer ${tokenEfectivo}`;
 

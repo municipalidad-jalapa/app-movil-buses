@@ -4,6 +4,12 @@
 
 Pantalla para reservar un lugar en la parada.
 
+> **Rediseño del sprint 5.** La pantalla aparte `/registro/:paradaId` se
+> reemplazó por la hoja inferior del mapa (`HojaReserva`, artboards R1–R3 de
+> `design/EcoRuta.dc.html`). La ruta del QR se conserva y abre el mapa con la
+> parada elegida. Las pruebas de la pantalla ahora viven en
+> `src/paginas/Mapa.test.tsx` y `src/componentes/HojaReserva.test.tsx`.
+
 ## Subhistorias cubiertas
 
 - SCRUM-252: Pantalla y botón principal.
@@ -59,7 +65,6 @@ Archivos:
 
 - identidadDispositivo.test.ts
 - registroDemanda.test.ts
-- PantallaRegistro.test.tsx
 
 ### Escenarios Gherkin
 

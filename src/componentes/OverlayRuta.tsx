@@ -39,6 +39,8 @@ interface Props {
   desvio?: boolean;
   /** Camino real cuando va en desvio. */
   trazoReal?: readonly PuntoLienzo[];
+  /** Tocar una parada la elige, igual que en el mapa real. */
+  onElegirParada?: (id: number) => void;
 }
 
 /** Icono del bus. Se usa igual en el marcador normal y en el de desvio. */
@@ -64,7 +66,15 @@ function MarcadorDelBus({ punto }: { punto: PuntoLienzo }) {
   );
 }
 
-export function OverlayRuta({ paradas, trazoRuta, bus, estela = [], desvio = false, trazoReal = [] }: Props) {
+export function OverlayRuta({
+  paradas,
+  trazoRuta,
+  bus,
+  estela = [],
+  desvio = false,
+  trazoReal = [],
+  onElegirParada,
+}: Props) {
   const d = trazoDe(trazoRuta);
   const dReal = trazoDe(trazoReal);
   const tuya = paradas.find((p) => p.tuya);
@@ -100,9 +110,27 @@ export function OverlayRuta({ paradas, trazoRuta, bus, estela = [], desvio = fal
         {paradas
           .filter((p) => !p.tuya)
           .map((p) => (
-            <circle key={p.id} cx={p.punto.x} cy={p.punto.y} r="9" fill={CONTORNO} stroke={VERDE_RUTA} strokeWidth="5">
-              <title>{p.nombre}</title>
-            </circle>
+            <g
+              key={p.id}
+              role={onElegirParada ? 'button' : undefined}
+              tabIndex={onElegirParada ? 0 : undefined}
+              aria-label={onElegirParada ? p.nombre : undefined}
+              style={onElegirParada ? { cursor: 'pointer' } : undefined}
+              onClick={onElegirParada ? () => onElegirParada(p.id) : undefined}
+              onKeyDown={
+                onElegirParada
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') onElegirParada(p.id);
+                    }
+                  : undefined
+              }
+            >
+              {/* Area de toque de 48 px: el circulo visible es mas chico. */}
+              {onElegirParada && <circle cx={p.punto.x} cy={p.punto.y} r="24" fill="transparent" />}
+              <circle cx={p.punto.x} cy={p.punto.y} r="9" fill={CONTORNO} stroke={VERDE_RUTA} strokeWidth="5">
+                <title>{p.nombre}</title>
+              </circle>
+            </g>
           ))}
       </g>
 

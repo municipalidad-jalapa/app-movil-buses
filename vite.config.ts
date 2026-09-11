@@ -72,6 +72,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    setupFiles: ['./src/pruebas/almacenamientoEnMemoria.ts'],
     env: {
       VITE_API_BASE_URL: 'https://api.ejemplo.test',
       VITE_FIREBASE_API_KEY: 'clave-firebase-prueba',

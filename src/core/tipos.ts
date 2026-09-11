@@ -86,3 +86,14 @@ export interface RegistroCreadoResponse {
   estado: string;
   expiraEn: string;
 }
+
+/**
+ * `demanda/web/dto/ResumenRutaResponse.java` (SCRUM-284). Solo lo que usa el
+ * mapa: el conteo de reservas vigentes por parada.
+ */
+export interface ResumenRuta {
+  reservasActivas: {
+    porParada: { paradaId: number; reservasActivas: number }[];
+    calculadoEn: string;
+  };
+}

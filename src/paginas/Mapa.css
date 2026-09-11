@@ -1,30 +1,32 @@
 /*
  * La pantalla del pasajero: el mapa manda y todo lo demas flota encima.
- * Composicion tomada de design/EcoRuta.dc.html.
+ * Composicion de design/MapaOSM.dc.html.
  */
 
 .pantalla-mapa {
   position: relative;
   /* Lo que queda de ventana bajo el encabezado. dvh y no vh: en moviles la
      barra del navegador se come la diferencia. */
-  height: calc(100dvh - var(--alto-encabezado, 56px));
-  min-height: 320px;
+  height: calc(100dvh - var(--alto-encabezado));
+  min-height: 480px;
   width: 100%;
   overflow: hidden;
 }
+
+/* --- Arriba: avisos y la pista de R1 ------------------------------------ */
 
 .pantalla-mapa__encima {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
-  /* Al contenido, no estirados: en el mock son pastillas, no barras de
-     lado a lado. */
+  /* Al contenido, no estirados: en el mock son pastillas, no barras. */
   align-items: flex-start;
   gap: var(--esp-2);
-  padding: var(--esp-3);
+  padding: 14px;
   /* Deja pasar el toque al mapa; solo las tarjetas lo capturan. */
   pointer-events: none;
 }
@@ -34,33 +36,98 @@
 }
 
 .pantalla-mapa__aviso {
-  background: var(--mapa-pastilla, #fbf7f0);
-  border: 1px solid var(--mapa-pastilla-borde, #ddd3c2);
-  /* La esquina superior izquierda mas cerrada (DESIGN.md seccion 5). */
-  border-radius: 4px 12px 12px 12px;
+  background: var(--superficie-tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta-chica);
   padding: var(--esp-3);
 }
 
-.pantalla-mapa__pie {
-  position: absolute;
-  right: var(--esp-3);
-  bottom: var(--esp-3);
-  /* La atribucion vive abajo a la izquierda: no se pisan. */
-  max-width: calc(100% - 160px);
+/* "Tocá en el mapa la parada donde vas a esperar" (R1). */
+.pantalla-mapa__pista {
+  align-self: stretch;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--superficie-tarjeta);
+  border: 2px solid var(--borde-sutil);
+  border-radius: var(--radio-tarjeta);
+  color: var(--verde-jumay);
 }
 
-/* La pastilla de la hora del ultimo dato, sobre el mapa. */
-.pantalla-mapa__pie :is(p, span, time) {
-  display: inline-flex;
-  align-items: center;
-  background: var(--mapa-pastilla, #fbf7f0);
-  border: 1px solid var(--mapa-pastilla-borde, #ddd3c2);
-  border-radius: 6px 2px 6px 2px;
-  padding: 5px 9px;
-  margin: 0;
-  font-size: 11.5px;
+.pantalla-mapa__pista svg {
+  flex: 0 0 22px;
+}
+
+.pantalla-mapa__pista span {
+  font-size: 15px;
   font-weight: 700;
-  color: var(--mapa-pastilla-tinta, #2e2a24);
-  /* Las horas no deben bailar al actualizarse (DESIGN.md 4 [DURA]). */
-  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  color: var(--tinta-cuerpo);
+}
+
+/* --- Abajo: botones redondos y la hoja ---------------------------------- */
+
+.pantalla-mapa__abajo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.pantalla-mapa__abajo > * {
+  pointer-events: auto;
+}
+
+/* Los botones van pegados sobre la hoja y suben con ella en cada fase. */
+.pantalla-mapa__flotantes {
+  align-self: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 16px 16px 0;
+}
+
+.pantalla-mapa__redondo {
+  width: 56px;
+  height: 56px;
+  min-height: 56px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--superficie-tarjeta);
+  border: 2px solid var(--borde);
+  border-radius: var(--radio-pastilla);
+  color: var(--verde-jumay);
+}
+
+.pantalla-mapa__redondo:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.pantalla-mapa__redondo:disabled {
+  background: var(--superficie-tarjeta);
+  color: var(--tinta-apagada);
+}
+
+/* La atribucion (requisito de licencia) queda justo encima de la hoja. La
+   altura de la hoja la mide Mapa.tsx, porque cambia con cada fase. */
+.pantalla-mapa .maplibregl-ctrl-bottom-left {
+  bottom: var(--alto-hoja, 0px);
+}
+
+.pantalla-mapa .mapa-jalapa__atribucion {
+  bottom: calc(var(--alto-hoja, 0px) + 10px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .pantalla-mapa__pista,
+  .pantalla-mapa__redondo {
+    color: var(--amarillo-volcan);
+  }
 }

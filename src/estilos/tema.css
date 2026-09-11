@@ -86,6 +86,9 @@
   /* Area segura de iOS (notch y barra inferior). */
   --seguro-arriba: env(safe-area-inset-top, 0px);
   --seguro-abajo: env(safe-area-inset-bottom, 0px);
+
+  /* Cabecera verde: 12 + 30 (logo) + 14. La pantalla del mapa ocupa el resto. */
+  --alto-encabezado: calc(56px + var(--seguro-arriba));
 }
 
 /*

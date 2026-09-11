@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type RefObject } from 'react';
 import {
   comoPuntoGeografico,
   crearProyeccion,
@@ -6,7 +6,7 @@ import {
 } from '../core/proyeccionMapa';
 import type { Posicion, Ruta } from '../core/tipos';
 import { FondoCargando, FondoCroquis } from './FondosDeMapa';
-import { MapaOpenStreetMap } from './MapaOpenStreetMap';
+import { MapaOpenStreetMap, type ControlMapa } from './MapaOpenStreetMap';
 import { OverlayRuta, type ParadaEnMapa } from './OverlayRuta';
 import './MapaJalapa.css';
 
@@ -35,6 +35,12 @@ interface Props {
   desvio?: boolean;
   /** Parada que el pasajero eligio esperar. */
   paradaTuyaId?: number | null;
+  /** paradaId -> personas esperando, para el contador bajo cada parada. */
+  esperandoPorParada?: ReadonlyMap<number, number>;
+  /** El punto "yo", si el pasajero compartio su ubicacion. */
+  ubicacionPasajero?: { latitud: number; longitud: number } | null;
+  onElegirParada?: (id: number) => void;
+  control?: RefObject<ControlMapa | null>;
 }
 
 export function MapaJalapa({
@@ -45,6 +51,10 @@ export function MapaJalapa({
   modo = 'claro',
   desvio = false,
   paradaTuyaId = null,
+  esperandoPorParada,
+  ubicacionPasajero = null,
+  onElegirParada,
+  control,
 }: Props) {
   const oscuro = modo === 'oscuro';
 
@@ -91,7 +101,11 @@ export function MapaJalapa({
           ruta={ruta}
           posicionBus={posicionBus}
           oscuro={oscuro}
-          paradaTuyaId={paradaTuyaId}
+          paradaElegidaId={paradaTuyaId}
+          esperandoPorParada={esperandoPorParada}
+          ubicacionPasajero={ubicacionPasajero}
+          onElegirParada={onElegirParada}
+          control={control}
           onNoDisponible={() => setMapaNoDisponible(true)}
         />
       )}
@@ -109,6 +123,7 @@ export function MapaJalapa({
             estela={estela}
             desvio={desvio}
             trazoReal={desvio && bus ? [...trazoRuta.slice(0, 2), bus] : []}
+            onElegirParada={onElegirParada}
           />
         </>
       )}

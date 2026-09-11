@@ -1,18 +1,15 @@
 # language: es
 
-Característica: Pantalla para registrar que el pasajero espera el bus
+Característica: Elegir la parada y el botón principal (SCRUM-252)
 
-  Como pasajero
-  Quiero indicar que estoy esperando el bus
-  Para informar al sistema que debe considerarme en la parada
-
-  Escenario: Mostrar la pantalla de registro
-    Dado que el pasajero ingresa a la ruta "/registro/3"
+  Escenario: Mostrar la hoja sin parada elegida
+    Dado que el pasajero abre el mapa
     Cuando la pantalla termina de cargar
-    Entonces debe mostrarse el mensaje "¿Estás esperando el bus?"
-    Y debe mostrarse el botón "Estoy esperando el bus"
+    Entonces debe mostrarse "¿En qué parada vas a esperar?"
+    Y debe mostrarse el botón "Usar la parada más cercana"
 
-  Escenario: Iniciar el proceso de registro
-    Dado que el pasajero se encuentra en la pantalla de registro
-    Cuando presiona el botón "Estoy esperando el bus"
-    Entonces debe mostrarse la explicación del uso de la ubicación
+  Escenario: Elegir una parada
+    Dado que el pasajero está en el mapa sin parada elegida
+    Cuando toca una parada
+    Entonces debe mostrarse el botón "Estoy esperando aquí"
+    Y debe mostrarse "Elegir otra parada"

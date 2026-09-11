@@ -1,23 +1,20 @@
 # language: es
 
-Característica: Registrar la demanda del pasajero
+Característica: Registro de la reserva (SCRUM-255)
 
-  Como pasajero
-  Quiero registrar que estoy esperando en una parada
-  Para que el sistema conozca mi solicitud
-
-  Escenario: Enviar correctamente el registro
-    Dado que el pasajero se encuentra en la parada 3
+  Escenario: Enviar correctamente la reserva
+    Dado que el pasajero eligió la parada 3
     Y el sistema obtuvo su identificador de dispositivo
     Y el sistema obtuvo su ubicación
-    Cuando el pasajero confirma el registro
+    Cuando presiona "Estoy esperando aquí"
     Entonces debe enviarse una petición POST a "/api/v1/reservas"
     Y debe enviarse el dispositivoId
     Y debe enviarse el paradaId
     Y debe enviarse la latitud
     Y debe enviarse la longitud
 
-  Escenario: Registro creado correctamente
+  Escenario: Reserva creada correctamente
     Dado que los datos enviados son válidos
     Cuando el backend acepta la solicitud
-    Entonces la pantalla debe mostrar "Ya estás anotado"
+    Entonces la hoja debe mostrar "Ya avisamos que estás esperando"
+    Y los minutos de aviso que le quedan a la reserva
