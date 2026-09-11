@@ -1,82 +1,118 @@
 /*
- * Tema visual de EcoRuta.
+ * Tema visual de EcoRuta — sistema «Cívico Jalapaneco».
  *
- * Movil primero: la pantalla de referencia es un telefono de 360 px, no un escritorio.
- * Los colores se definen como custom properties para que las historias siguientes
- * (mapa, contador, registro) no inventen valores sueltos.
+ * Fuente de verdad: el proyecto de Claude Design "EcoRuta y componentes de ruta"
+ * (design/EcoRuta.dc.html, design/MapaOSM.dc.html y hermanos). Cada valor de este
+ * archivo sale de un artboard; si un valor no esta aqui, no se inventa en el
+ * componente. Donde el canvas y DESIGN.md difieren, manda el canvas.
+ *
+ * Movil primero: la pantalla de referencia es un telefono de 390 x 844.
  */
 
 :root {
-  /* Marca: verde por el bus electrico */
-  --color-marca: #0f7a4d;
-  --color-marca-oscuro: #0a5c39;
-  --color-marca-claro: #d8f0e4;
+  /* ---- Marca: la bandera de Jalapa -------------------------------------- */
+  --verde-jumay: #10402a;            /* primario, accion, trazo de la ruta */
+  --verde-jumay-fuerte: #0b2e1e;     /* presionado; tarjetas sobre fondo verde */
+  --verde-jumay-suave: #cbded1;      /* texto sobre verde; linea de la tira */
+  --verde-jumay-apagado: #4e6b5a;    /* bordes y lineas sobre fondo verde */
+  --verde-jumay-superficie: #e7efe4; /* relleno suave sobre fondo claro */
 
-  /* Superficies y texto */
-  --color-fondo: #ffffff;
-  --color-superficie: #f5f7f6;
-  --color-borde: #dfe4e2;
-  --color-texto: #14201b;
-  --color-texto-suave: #5b6b64;
+  --amarillo-volcan: #f2b705;        /* "tu parada", confirmacion, acento */
+  --amarillo-volcan-tinta: #241c00;  /* texto sobre amarillo */
+  --amarillo-volcan-superficie: #fbf0d6;
 
-  /* Estados */
-  --color-error: #b3261e;
-  --color-error-fondo: #fcebea;
-  --color-aviso: #8a5a00;
+  --rojo-santa-marta: #8c2b22;       /* identidad; "yo" en el mapa; soltar la reserva */
+  --rojo-santa-marta-superficie: #f6e4e0;
 
-  /* Tipografia del sistema: sin descargar fuentes, que la red movil es cara */
-  --fuente: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  /* La del mock de design/. Public Sans si esta instalada; si no, la del sistema. */
-  --fuente-mapa: 'Public Sans', system-ui, -apple-system, sans-serif;
+  /* ---- Neutros calidos (nunca #000 ni #fff, DESIGN.md §3.3 [DURA]) -------- */
+  --superficie-base: #fbf7f0;        /* fondo de pantalla, hoja inferior, tarjetas */
+  --superficie-tarjeta: #fbf7f0;     /* tarjetas y pastillas sobre el mapa */
+  --superficie-suave: #f4eee2;       /* tarjetas internas, divisores */
+  --superficie-hundida: #ede6da;     /* esqueleto, chips apagados */
+  --superficie-mapa: #e6dcc8;        /* fondo del mapa mientras cargan los tiles */
 
-  /* Escala de espaciado */
+  --tinta: #1c1a17;                  /* texto primario y datos */
+  --tinta-cuerpo: #2e2a24;           /* texto corrido sobre superficie clara */
+  --tinta-secundaria: #4a443a;       /* apoyo, subtitulos */
+  --tinta-tenue: #6b6357;            /* metadatos, marcas de tiempo */
+  --tinta-apagada: #938a7c;          /* deshabilitado */
+
+  --borde: #ddd3c2;
+  --borde-sutil: #e3dacb;
+  --borde-manija: #c2b8a8;           /* manija de la hoja, lineas apagadas */
+
+  /* ---- Conductor: superficie propia, siempre oscura (artboard Conductor) -- */
+  --conductor-fondo: #0b1f16;
+  --conductor-tarjeta: #12362a;
+  --conductor-tinta: #f7f3ea;
+  --conductor-tinta-suave: #c9d6cd;
+
+  /* ---- Tipografia (autoalojada, DESIGN.md §13) ---------------------------- */
+  --fuente: 'Public Sans Variable', 'Public Sans', system-ui, -apple-system,
+    'Segoe UI', Roboto, sans-serif;
+  --fuente-titulos: 'Archivo Variable', 'Archivo', system-ui, -apple-system,
+    'Segoe UI', Roboto, sans-serif;
+  /* Alias historico: los componentes del mapa lo usan desde HU-50. */
+  --fuente-mapa: var(--fuente);
+
+  /* ---- Forma: la voluta de la ceramica jalapaneca -------------------------
+     Esquinas alternas, cerrada arriba a la derecha y abajo a la izquierda. */
+  --radio-tarjeta: 20px 6px 20px 6px;
+  --radio-tarjeta-chica: 12px 3px 12px 3px;
+  --radio-etiqueta: 6px 2px 6px 2px; /* atribucion, contadores sobre el mapa */
+  --radio-hoja: 28px 8px 0 0;        /* hoja inferior */
+  --radio-control: 8px;
+  --radio-pastilla: 999px;           /* botones e insignias */
+  /* Alias historico. */
+  --radio: 12px;
+
+  --sombra: 0 1px 4px rgb(34 32 28 / 18%);
+
+  /* ---- Espaciado, base 4 -------------------------------------------------- */
   --esp-1: 0.25rem;
   --esp-2: 0.5rem;
   --esp-3: 0.75rem;
   --esp-4: 1rem;
   --esp-6: 1.5rem;
   --esp-8: 2rem;
+  --esp-12: 3rem;
 
-  --radio: 0.75rem;
-  --sombra: 0 1px 3px rgb(0 0 0 / 12%);
+  /* Area tactil minima, DESIGN.md §12 [DURA]. */
+  --tactil-minimo: 48px;
 
-  /* Ancho maximo de lectura: en tablet o escritorio la app no se estira entera */
+  /* Ancho maximo de lectura: en tablet o escritorio la app no se estira entera. */
   --ancho-maximo: 32rem;
 
-  /* Area segura de iOS (notch y barra inferior) */
+  /* Area segura de iOS (notch y barra inferior). */
   --seguro-arriba: env(safe-area-inset-top, 0px);
   --seguro-abajo: env(safe-area-inset-bottom, 0px);
-
-  /* Tokens de DESIGN.md §3.2 y §3.3 para HU-51. Sin variantes oscuras:
-     DESIGN.md §3.5 [DURA] prohíbe inventar modo oscuro a medias. */
-  --verde-jumay: #2f5d3a;
-  --verde-jumay-superficie: #e7efe4;
-  --amarillo-volcan: #e8b33c;
-  --amarillo-volcan-tinta: #4a3406;
-  --amarillo-volcan-superficie: #fbf0d6;
-  /* Fondo de pagina, blanco calido (DESIGN.md 3.3). */
-  --superficie-base: #F7F3E9;
-  --superficie-tarjeta: #fffdf7;
-  --tinta: #22201c;
-  --tinta-secundaria: #7a7669;
-  --tinta-tenue: #9a958a;
-  --borde: #ded6c2;
 }
 
+/*
+ * Modo oscuro diseñado aparte (artboard M3), no invertido: DESIGN.md §3.5 [DURA].
+ * Solo se redefinen las superficies y las tintas. La marca no cambia: el verde
+ * de la ruta y el amarillo de "tu parada" son los mismos de dia y de noche.
+ */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-marca: #4cc78d;
-    --color-marca-oscuro: #35a973;
-    --color-marca-claro: #14332a;
+    --superficie-base: #1a1712;
+    --superficie-tarjeta: #241f19;
+    --superficie-suave: #2e2a22;
+    --superficie-hundida: #302b23;
+    --superficie-mapa: #1a1712;
 
-    --color-fondo: #101614;
-    --color-superficie: #182220;
-    --color-borde: #2a3a35;
-    --color-texto: #e8f0ec;
-    --color-texto-suave: #9fb3ab;
+    --tinta: #e3dacb;
+    --tinta-cuerpo: #e3dacb;
+    --tinta-secundaria: #c2b8a8;
+    --tinta-tenue: #9a9082;
+    --tinta-apagada: #6b6357;
 
-    --color-error: #f2b8b5;
-    --color-error-fondo: #3b1512;
-    --color-aviso: #e7c46b;
+    --borde: #3b352b;
+    --borde-sutil: #302b23;
+    --borde-manija: #4a443a;
+
+    --verde-jumay-superficie: #20291f;
+    --amarillo-volcan-superficie: #3a2e0c;
+    --rojo-santa-marta-superficie: #3a1a15;
   }
 }

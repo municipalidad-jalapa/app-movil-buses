@@ -8,20 +8,21 @@
   display: flex;
   align-items: baseline;
   gap: var(--esp-2);
-  padding: calc(var(--esp-3) + var(--seguro-arriba)) var(--esp-4) var(--esp-3);
-  background: var(--color-marca);
-  color: #fff;
+  /* Cabecera del canvas (MapaOSM): verde de marca, 12/18/14 px. */
+  padding: calc(12px + var(--seguro-arriba)) 18px 14px;
+  background: var(--verde-jumay);
+  color: var(--superficie-base);
 }
 
 .apl__marca {
-  font-weight: 700;
-  font-size: 1.125rem;
-  letter-spacing: 0.01em;
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+  font-size: 1.25rem;
 }
 
 .apl__lugar {
   font-size: 0.875rem;
-  opacity: 0.85;
+  color: var(--verde-jumay-suave);
 }
 
 /* El estado del servicio se empuja a la derecha del encabezado. */

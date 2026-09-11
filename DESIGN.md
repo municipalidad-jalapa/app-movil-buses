@@ -78,27 +78,35 @@ Consecuencias, todas **[DURA]**:
 
 | Token | Hex | Rol |
 |---|---|---|
-| `--verde-jumay` | `#2F5D3A` | Primario, acción, trazo de ruta |
-| `--verde-jumay-fuerte` | `#23472C` | Presionado |
+| `--verde-jumay` | `#10402A` | Primario, acción, trazo de ruta |
+| `--verde-jumay-fuerte` | `#0B2E1E` | Presionado; tarjetas sobre fondo verde |
+| `--verde-jumay-suave` | `#CBDED1` | Texto sobre verde; línea de la tira |
+| `--verde-jumay-apagado` | `#4E6B5A` | Bordes y líneas sobre fondo verde |
 | `--verde-jumay-superficie` | `#E7EFE4` | Relleno suave, chips |
-| `--amarillo-volcan` | `#E8B33C` | Acento, "tu parada", espera activa |
-| `--amarillo-volcan-tinta` | `#4A3406` | Texto sobre amarillo |
+| `--amarillo-volcan` | `#F2B705` | Acento, "tu parada", espera confirmada |
+| `--amarillo-volcan-tinta` | `#241C00` | Texto sobre amarillo |
 | `--amarillo-volcan-superficie` | `#FBF0D6` | Relleno suave |
-| `--rojo-santa-marta` | `#A8321F` | Franja de identidad, crítico real |
-| `--rojo-santa-marta-tinta` | `#6E1F12` | Texto sobre rojo suave |
-| `--rojo-santa-marta-superficie` | `#F7E4E0` | Relleno suave |
+| `--rojo-santa-marta` | `#8C2B22` | Franja de identidad, "yo" en el mapa, soltar la reserva |
+| `--rojo-santa-marta-superficie` | `#F6E4E0` | Relleno suave, avisos críticos |
+
+> **Sep. 2026:** estos valores se alinearon al proyecto de Claude Design, que es la
+> fuente de verdad. Los anteriores (`#2F5D3A`, `#E8B33C`, `#A8321F`) no coincidían con
+> ningún artboard. Los tokens exactos viven en `src/estilos/tema.css`.
 
 ### 3.3 Tokens neutros
 
 | Token | Hex | Rol |
 |---|---|---|
-| `--superficie-base` | `#F7F3E9` | Fondo de página (blanco cálido) |
-| `--superficie-tarjeta` | `#FFFDF7` | Tarjetas, hojas, elevación |
-| `--tinta` | `#22201C` | Texto primario |
-| `--tinta-secundaria` | `#7A7669` | Texto de apoyo |
-| `--tinta-tenue` | `#9A958A` | Metadatos, marcas de tiempo |
-| `--borde` | `#DED6C2` | Borde por defecto |
-| `--borde-sutil` | `#E6DFCD` | Divisores |
+| `--superficie-base` | `#FBF7F0` | Fondo de pantalla, hoja inferior (blanco cálido) |
+| `--superficie-tarjeta` | `#FBF7F0` | Tarjetas y pastillas sobre el mapa |
+| `--superficie-suave` | `#F4EEE2` | Tarjetas internas, divisores |
+| `--superficie-mapa` | `#E6DCC8` | Fondo del mapa mientras cargan los tiles |
+| `--tinta` | `#1C1A17` | Texto primario y datos |
+| `--tinta-cuerpo` | `#2E2A24` | Texto corrido |
+| `--tinta-secundaria` | `#4A443A` | Texto de apoyo |
+| `--tinta-tenue` | `#6B6357` | Metadatos, marcas de tiempo |
+| `--borde` | `#DDD3C2` | Borde por defecto |
+| `--borde-sutil` | `#E3DACB` | Divisores |
 
 **[DURA]** Nunca negro puro (`#000`) ni blanco puro (`#FFF`) como superficie o texto.
 
@@ -113,7 +121,7 @@ Usa solo estas combinaciones para texto. Cualquier otra requiere verificar contr
 | `--verde-jumay` | `--superficie-tarjeta` / `--verde-jumay-superficie` | Enlaces, cifras destacadas |
 | `--superficie-base` | `--verde-jumay` | Texto sobre botón primario |
 | `--amarillo-volcan-tinta` | `--amarillo-volcan` / `--amarillo-volcan-superficie` | Insignias |
-| `--rojo-santa-marta-tinta` | `--rojo-santa-marta-superficie` | Avisos críticos |
+| `--rojo-santa-marta` | `--rojo-santa-marta-superficie` | Avisos críticos |
 
 **[DURA]** Prohibido: texto amarillo sobre fondo claro. El amarillo es siempre relleno,
 nunca tinta sobre claro.
@@ -159,14 +167,17 @@ Escala de espaciado, base 4: `4, 8, 12, 16, 24, 32, 48`.
 
 | Token | Valor | Uso |
 |---|---|---|
-| `--radio-control` | 8px | Botones, campos, chips |
-| `--radio-tarjeta` | 12px | Tarjetas |
-| `--radio-hoja` | 16px | Hojas inferiores, modales |
-| `--radio-pastilla` | 999px | Insignias, contadores |
+| `--radio-control` | 8px | Campos, chips |
+| `--radio-etiqueta` | `6px 2px 6px 2px` | Atribución y contadores sobre el mapa |
+| `--radio-tarjeta-chica` | `12px 3px 12px 3px` | Íconos en tarjeta, marcador del bus en la tira |
+| `--radio-tarjeta` | `20px 6px 20px 6px` | Tarjetas |
+| `--radio-hoja` | `28px 8px 0 0` | Hoja inferior |
+| `--radio-pastilla` | 999px | Botones, insignias, contadores |
 
-**Gesto característico:** las tarjetas principales llevan la esquina superior izquierda
-notablemente más cerrada que las otras tres (4px contra 12px). Es la destilación de la
-voluta de la cerámica jalapaneca. Se aplica con consistencia o no se aplica.
+**Gesto característico:** las tarjetas llevan esquinas alternas, abiertas arriba a la
+izquierda y abajo a la derecha, cerradas en las otras dos (`20px 6px 20px 6px`). Es la
+destilación de la voluta de la cerámica jalapaneca. Se aplica con consistencia o no se
+aplica. Los botones son pastilla completa.
 
 **[DURA]** Área táctil mínima 48×48px, incluso si el elemento visible es menor.
 
@@ -227,7 +238,7 @@ Nombres en español, convención del repositorio.
 | `ContadorDemanda` | Personas esperando en una parada | Dato de primera clase. `dato-l`, tabular |
 | `TarjetaParada` | Parada en lista | Referencia reconocible, no nombre oficial |
 | `ChipEstadoServicio` | Estado del servicio | Color + ícono + texto, siempre los tres |
-| `TemporizadorEspera` | Cuenta de 20 min hasta expirar el aviso | Debe sentirse tranquilizador, no ansioso |
+| `TemporizadorEspera` | Cuenta de 5 min hasta expirar el aviso, renovable (SCRUM-307) | Debe sentirse tranquilizador, no ansioso |
 | `BotonPrimario` | Acción principal | Uno por pantalla |
 | `BannerConexion` | Aviso de degradación | Informa, no alarma |
 
