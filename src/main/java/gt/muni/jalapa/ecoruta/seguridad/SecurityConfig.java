@@ -7,7 +7,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -79,6 +78,9 @@ public class SecurityConfig {
                         // HU-135: renueva su propia reserva antes de que venza.
                         .requestMatchers(HttpMethod.POST, "/api/v1/reservas/*/renovacion")
                                 .permitAll()
+                        // HU-124: cancela su propia reserva. El servicio exige que la
+                        // cabecera X-Dispositivo-Id coincida con quien la creo.
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/reservas/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/dispositivos/notificaciones")
                                 .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/reservas/*/abordaje")
@@ -135,7 +137,8 @@ configuracion.setAllowedHeaders(
                 "Authorization",
                 "Content-Type",
                 "Accept",
-                "Last-Event-ID"
+                "Last-Event-ID",
+                "X-Dispositivo-Id"
         )
 );
 

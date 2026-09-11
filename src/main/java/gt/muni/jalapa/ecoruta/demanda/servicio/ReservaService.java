@@ -11,6 +11,7 @@ import gt.muni.jalapa.ecoruta.demanda.web.dto.CrearReservaRequest;
 import gt.muni.jalapa.ecoruta.demanda.web.dto.ReservaResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,6 +92,38 @@ public class ReservaService {
 
         reserva.renovar(ahora.plus(demanda.ttl()));
         return ReservaResponse.de(reserva);
+    }
+
+    /**
+     * El pasajero suelta su reserva a mano (HU-124). No se borra: pasa a
+     * CANCELADA y guarda cuando se cancelo.
+     *
+     * <p>Solo el dispositivo que la creo puede cancelarla. Sin ese control,
+     * cualquiera podria soltar la reserva de otro probando ids, que son
+     * secuenciales.
+     *
+     * @throws RecursoNoEncontradoException si no existe
+     * @throws AccessDeniedException        si es de otro dispositivo (403)
+     * @throws ReglaDeNegocioException      si ya estaba cancelada o no esta vigente
+     */
+    @Transactional
+    public void cancelar(Long reservaId, String dispositivoId) {
+        Reserva reserva = reservas.findById(reservaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Reserva", reservaId));
+
+        if (!reserva.perteneceA(dispositivoId)) {
+            throw new AccessDeniedException("Esta reserva no pertenece a este dispositivo.");
+        }
+        if (reserva.getEstado() == EstadoReserva.CANCELADA) {
+            throw new ReglaDeNegocioException("Esta reserva ya estaba cancelada.");
+        }
+
+        Instant ahora = Instant.now(reloj);
+        if (!reserva.estaVigente(ahora)) {
+            throw new ReglaDeNegocioException("Esta reserva ya venció o no está activa.");
+        }
+
+        reserva.cancelar(ahora);
     }
 
     /**

@@ -74,6 +74,10 @@ public class Reserva {
     @Column(name = "abordaje_en")
     private Instant abordajeEn;
 
+    /** Cuando el pasajero la solto a mano (HU-124). {@code null} si no se cancelo. */
+    @Column(name = "cancelado_en")
+    private Instant canceladoEn;
+
     public Reserva(String dispositivoId, Parada parada, EstadoReserva estado,
                    Instant creadoEn, Instant expiraEn) {
         this.dispositivoId = dispositivoId;
@@ -101,5 +105,15 @@ public class Reserva {
 
     public void expirar() {
         this.estado = EstadoReserva.EXPIRADA;
+    }
+
+    /** La suelta a mano: no se borra, queda la traza de cuando se cancelo (HU-124). */
+    public void cancelar(Instant ahora) {
+        this.estado = EstadoReserva.CANCELADA;
+        this.canceladoEn = ahora;
+    }
+
+    public boolean perteneceA(String dispositivoId) {
+        return this.dispositivoId.equals(dispositivoId);
     }
 }
