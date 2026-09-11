@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -57,7 +58,7 @@ class ReservaRenovacionTest {
         Reserva reserva = reserva(EstadoReserva.ACTIVA, AHORA.plus(1, ChronoUnit.MINUTES));
         when(reservas.findById(7L)).thenReturn(Optional.of(reserva));
 
-        ReservaResponse renovada = servicio.renovar(7L);
+        ReservaResponse renovada = servicio.renovar(7L, "disp");
 
         assertThat(renovada.estado()).isEqualTo(EstadoReserva.RENOVADA);
         assertThat(renovada.expiraEn()).isEqualTo(AHORA.plus(TTL_MINUTOS, ChronoUnit.MINUTES));
@@ -70,14 +71,14 @@ class ReservaRenovacionTest {
         Reserva reserva = reserva(EstadoReserva.RENOVADA, AHORA.plus(1, ChronoUnit.MINUTES));
         when(reservas.findById(7L)).thenReturn(Optional.of(reserva));
 
-        assertThat(servicio.renovar(7L).estado()).isEqualTo(EstadoReserva.RENOVADA);
+        assertThat(servicio.renovar(7L, "disp").estado()).isEqualTo(EstadoReserva.RENOVADA);
     }
 
     @Test
     void renovar_una_reserva_inexistente_falla_con_404() {
         when(reservas.findById(7L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> servicio.renovar(7L))
+        assertThatThrownBy(() -> servicio.renovar(7L, "disp"))
                 .isInstanceOf(RecursoNoEncontradoException.class);
     }
 
@@ -86,7 +87,7 @@ class ReservaRenovacionTest {
         Reserva reserva = reserva(EstadoReserva.ACTIVA, AHORA.minusSeconds(1));
         when(reservas.findById(7L)).thenReturn(Optional.of(reserva));
 
-        assertThatThrownBy(() -> servicio.renovar(7L))
+        assertThatThrownBy(() -> servicio.renovar(7L, "disp"))
                 .isInstanceOf(ReglaDeNegocioException.class)
                 .hasMessage("Esta reserva ya venció o no está activa.");
     }
@@ -96,8 +97,19 @@ class ReservaRenovacionTest {
         Reserva reserva = reserva(EstadoReserva.CANCELADA, AHORA.plus(1, ChronoUnit.MINUTES));
         when(reservas.findById(7L)).thenReturn(Optional.of(reserva));
 
-        assertThatThrownBy(() -> servicio.renovar(7L))
+        assertThatThrownBy(() -> servicio.renovar(7L, "disp"))
                 .isInstanceOf(ReglaDeNegocioException.class);
+    }
+
+    @Test
+    void no_permite_renovar_la_reserva_de_otro_dispositivo() {
+        Reserva reserva = reserva(EstadoReserva.ACTIVA, AHORA.plus(1, ChronoUnit.MINUTES));
+        when(reservas.findById(7L)).thenReturn(Optional.of(reserva));
+
+        assertThatThrownBy(() -> servicio.renovar(7L, "intruso"))
+                .isInstanceOf(AccessDeniedException.class);
+        // No se extendio la vigencia de la reserva ajena.
+        assertThat(reserva.getEstado()).isEqualTo(EstadoReserva.ACTIVA);
     }
 
     @Test

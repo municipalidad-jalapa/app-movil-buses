@@ -135,8 +135,22 @@ class ReservaVigenciaIT extends IntegracionPostgisTest {
     }
 
     @Test
+    void un_dispositivo_no_puede_renovar_la_reserva_de_otro() throws Exception {
+        long id = idDe(crear("disp-dueno", PARADA).andExpect(status().isCreated()));
+
+        mockMvc.perform(post("/api/v1/reservas/" + id + "/renovacion")
+                        .header("X-Dispositivo-Id", "disp-intruso"))
+                .andExpect(status().isForbidden());
+
+        assertThat(jdbc.queryForObject(
+                "SELECT estado FROM registros_espera WHERE id = ?", String.class, id))
+                .isEqualTo("ACTIVA");
+    }
+
+    @Test
     void renovar_una_reserva_inexistente_responde_404() throws Exception {
-        mockMvc.perform(post("/api/v1/reservas/999999/renovacion"))
+        mockMvc.perform(post("/api/v1/reservas/999999/renovacion")
+                        .header("X-Dispositivo-Id", "cualquiera"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
     }
@@ -166,8 +180,12 @@ class ReservaVigenciaIT extends IntegracionPostgisTest {
                         .formatted(dispositivo, parada, lat, lon)));
     }
 
+    /** Renueva como el dispositivo que la creo: el unico autorizado a hacerlo. */
     private ResultActions renovar(long id) throws Exception {
-        return mockMvc.perform(post("/api/v1/reservas/" + id + "/renovacion"));
+        String dueno = jdbc.queryForObject(
+                "SELECT dispositivo_id FROM registros_espera WHERE id = ?", String.class, id);
+        return mockMvc.perform(post("/api/v1/reservas/" + id + "/renovacion")
+                .header("X-Dispositivo-Id", dueno));
     }
 
     private long idDe(ResultActions respuesta) throws Exception {

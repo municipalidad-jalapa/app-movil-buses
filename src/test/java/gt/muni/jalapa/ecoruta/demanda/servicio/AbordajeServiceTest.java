@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -33,7 +34,7 @@ class AbordajeServiceTest {
         Reserva reserva = activa(7L);
         when(reservas.findById(7L)).thenReturn(Optional.of(reserva));
 
-        var respuesta = abordaje.registrarPasajero(7L, true);
+        var respuesta = abordaje.registrarPasajero(7L, "dev", true);
 
         assertThat(respuesta.estado()).isEqualTo("ABORDO");
         assertThat(reserva.getSubio()).isTrue();
@@ -44,7 +45,7 @@ class AbordajeServiceTest {
     void el_conductor_sobrescribe_la_respuesta_del_pasajero() {
         Reserva reserva = activa(8L);
         when(reservas.findById(8L)).thenReturn(Optional.of(reserva));
-        abordaje.registrarPasajero(8L, true);
+        abordaje.registrarPasajero(8L, "dev", true);
 
         var respuesta = abordaje.registrarConductor(8L, false);
 
@@ -59,9 +60,20 @@ class AbordajeServiceTest {
         reserva.setEstado(EstadoReserva.ABORDO);
         when(reservas.findById(9L)).thenReturn(Optional.of(reserva));
 
-        assertThatThrownBy(() -> abordaje.registrarPasajero(9L, false))
+        assertThatThrownBy(() -> abordaje.registrarPasajero(9L, "dev", false))
                 .isInstanceOf(ReglaDeNegocioException.class)
                 .hasMessage("La reserva ya no esta activa");
+    }
+
+    @Test
+    void el_pasajero_no_puede_responder_por_la_reserva_de_otro_dispositivo() {
+        Reserva reserva = activa(10L);
+        when(reservas.findById(10L)).thenReturn(Optional.of(reserva));
+
+        assertThatThrownBy(() -> abordaje.registrarPasajero(10L, "intruso", true))
+                .isInstanceOf(AccessDeniedException.class);
+        // La reserva ajena queda intacta.
+        assertThat(reserva.getEstado()).isEqualTo(EstadoReserva.ACTIVA);
     }
 
     private static Reserva activa(Long id) {

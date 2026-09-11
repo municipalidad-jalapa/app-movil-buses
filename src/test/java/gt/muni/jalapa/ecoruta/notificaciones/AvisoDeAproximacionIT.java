@@ -155,6 +155,7 @@ class AvisoDeAproximacionIT extends IntegracionPostgisTest {
         Long idNo = crearReserva(dispositivo(), paradaParque);
 
         mockMvc.perform(post("/api/v1/reservas/" + idSi + "/abordaje")
+                        .header("X-Dispositivo-Id", dispositivoDe(idSi))
                         .contentType(APPLICATION_JSON)
                         .content("{\"subio\":true}"))
                 .andExpect(status().isOk())
@@ -162,6 +163,7 @@ class AvisoDeAproximacionIT extends IntegracionPostgisTest {
                 .andExpect(jsonPath("$.estado").value("ABORDO"));
 
         mockMvc.perform(post("/api/v1/reservas/" + idNo + "/abordaje")
+                        .header("X-Dispositivo-Id", dispositivoDe(idNo))
                         .contentType(APPLICATION_JSON)
                         .content("{\"subio\":false}"))
                 .andExpect(status().isOk())
@@ -182,6 +184,7 @@ class AvisoDeAproximacionIT extends IntegracionPostgisTest {
     void ac5_el_dato_del_conductor_sobrescribe_al_del_pasajero() throws Exception {
         Long id = crearReserva(dispositivo(), paradaParque);
         mockMvc.perform(post("/api/v1/reservas/" + id + "/abordaje")
+                        .header("X-Dispositivo-Id", dispositivoDe(id))
                         .contentType(APPLICATION_JSON)
                         .content("{\"subio\":true}"))
                 .andExpect(jsonPath("$.estado").value("ABORDO"));
@@ -206,11 +209,13 @@ class AvisoDeAproximacionIT extends IntegracionPostgisTest {
     void ac4_abordaje_sobre_reserva_inactiva_responde_422() throws Exception {
         Long id = crearReserva(dispositivo(), paradaParque);
         mockMvc.perform(post("/api/v1/reservas/" + id + "/abordaje")
+                        .header("X-Dispositivo-Id", dispositivoDe(id))
                         .contentType(APPLICATION_JSON)
                         .content("{\"subio\":true}"))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/api/v1/reservas/" + id + "/abordaje")
+                        .header("X-Dispositivo-Id", dispositivoDe(id))
                         .contentType(APPLICATION_JSON)
                         .content("{\"subio\":false}"))
                 .andExpect(status().isUnprocessableEntity())
@@ -281,6 +286,27 @@ class AvisoDeAproximacionIT extends IntegracionPostgisTest {
                                 {"dispositivoId":"%s","tokenNotificacion":"%s"}"""
                                 .formatted(dispositivoId, token)))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void ac4_el_pasajero_no_puede_responder_por_la_reserva_de_otro() throws Exception {
+        Long id = crearReserva(dispositivo(), paradaParque);
+
+        mockMvc.perform(post("/api/v1/reservas/" + id + "/abordaje")
+                        .header("X-Dispositivo-Id", "otro-dispositivo")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"subio\":true}"))
+                .andExpect(status().isForbidden());
+
+        assertThat(jdbc.queryForObject(
+                "SELECT estado FROM registros_espera WHERE id = ?", String.class, id))
+                .isEqualTo("ACTIVA");
+    }
+
+    /** El dispositivo que creo la reserva: el unico que puede responder por ella. */
+    private String dispositivoDe(Long reservaId) {
+        return jdbc.queryForObject(
+                "SELECT dispositivo_id FROM registros_espera WHERE id = ?", String.class, reservaId);
     }
 
     /**

@@ -63,7 +63,8 @@ public class ReservaController {
 
     @Operation(summary = "Renueva una reserva vigente",
             description = """
-                    Publico, igual que la creacion (HU-135).
+                    Publico, pero solo el dispositivo que la creo puede renovarla
+                    (HU-135): se identifica con la cabecera X-Dispositivo-Id.
 
                     Extiende la expiracion otro periodo completo
                     (ecoruta.demanda.ttl-minutos) y responde 200 con el nuevo
@@ -71,14 +72,17 @@ public class ReservaController {
                     RENOVADA. Si ya vencio o no esta vigente responde 422.""")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reserva renovada"),
+            @ApiResponse(responseCode = "403", description = "La reserva es de otro dispositivo",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "404", description = "No existe una reserva con ese id",
                     content = @Content(schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "422", description = "La reserva ya vencio o no esta vigente",
                     content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     @PostMapping("/{id}/renovacion")
-    public ReservaResponse renovar(@PathVariable Long id) {
-        return reservaService.renovar(id);
+    public ReservaResponse renovar(@PathVariable Long id,
+                                   @RequestHeader("X-Dispositivo-Id") String dispositivoId) {
+        return reservaService.renovar(id, dispositivoId);
     }
 
     @Operation(summary = "Cancela una reserva vigente",

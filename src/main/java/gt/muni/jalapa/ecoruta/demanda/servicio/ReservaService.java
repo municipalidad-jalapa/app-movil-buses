@@ -77,13 +77,22 @@ public class ReservaService {
      * Extiende la vigencia de una reserva vigente otro periodo completo (HU-135).
      * Conserva su identificador y pasa a RENOVADA.
      *
+     * <p>Solo el dispositivo que la creo puede renovarla, con el mismo criterio
+     * que la cancelacion: sin ese control cualquiera podria mantener vivas
+     * reservas ajenas e inflar la demanda que ve el conductor.
+     *
      * @throws RecursoNoEncontradoException si no existe
+     * @throws AccessDeniedException        si es de otro dispositivo (403)
      * @throws ReglaDeNegocioException      si ya vencio o no esta vigente
      */
     @Transactional
-    public ReservaResponse renovar(Long reservaId) {
+    public ReservaResponse renovar(Long reservaId, String dispositivoId) {
         Reserva reserva = reservas.findById(reservaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Reserva", reservaId));
+
+        if (!reserva.perteneceA(dispositivoId)) {
+            throw new AccessDeniedException("Esta reserva no pertenece a este dispositivo.");
+        }
 
         Instant ahora = Instant.now(reloj);
         if (!reserva.estaVigente(ahora)) {

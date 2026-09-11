@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,15 +28,21 @@ public class AbordajePasajeroController {
     private final AbordajeService abordaje;
 
     @Operation(summary = "Registra si el pasajero subio",
-            description = "Responde al segundo aviso. 422 si la reserva ya no esta activa.")
+            description = """
+                    Responde al segundo aviso. Solo el dispositivo que creo la
+                    reserva puede responder: se identifica con X-Dispositivo-Id.
+                    422 si la reserva ya no esta activa.""")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "ABORDO o CANCELADA"),
+            @ApiResponse(responseCode = "403", description = "La reserva es de otro dispositivo",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
             @ApiResponse(responseCode = "422", description = "La reserva ya no esta activa",
                     content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     @PostMapping("/{id}/abordaje")
     public AbordajeResponse abordar(@PathVariable Long id,
+                                    @RequestHeader("X-Dispositivo-Id") String dispositivoId,
                                     @Valid @RequestBody AbordajeRequest peticion) {
-        return abordaje.registrarPasajero(id, peticion.subio());
+        return abordaje.registrarPasajero(id, dispositivoId, peticion.subio());
     }
 }
