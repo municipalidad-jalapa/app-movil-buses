@@ -26,7 +26,10 @@ ecoruta:
     project-id: ${FIREBASE_PROJECT_ID:}
   demanda:
     umbral-salida: 10
-    ttl-minutos: 20
+    # Vigencia de una reserva desde que se crea o se renueva (SCRUM-307, HU-135).
+    ttl-minutos: 5
+    # Cada cuanto la tarea programada barre las reservas vencidas.
+    barrido-segundos: 60
     geocerca-metros: 150
   notificaciones:
     # Primer aviso: el bus se acerca. Segundo: ya llego a la parada.

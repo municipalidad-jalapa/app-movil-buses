@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,5 +56,25 @@ public class ReservaController {
     @PostMapping
     public ResponseEntity<ReservaResponse> crear(@Valid @RequestBody CrearReservaRequest peticion) {
         return ResponseEntity.status(HttpStatus.CREATED).body(reservaService.crear(peticion));
+    }
+
+    @Operation(summary = "Renueva una reserva vigente",
+            description = """
+                    Publico, igual que la creacion (HU-135).
+
+                    Extiende la expiracion otro periodo completo
+                    (ecoruta.demanda.ttl-minutos) y responde 200 con el nuevo
+                    expiraEn. La reserva conserva su identificador y pasa a
+                    RENOVADA. Si ya vencio o no esta vigente responde 422.""")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reserva renovada"),
+            @ApiResponse(responseCode = "404", description = "No existe una reserva con ese id",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "422", description = "La reserva ya vencio o no esta vigente",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    @PostMapping("/{id}/renovacion")
+    public ReservaResponse renovar(@PathVariable Long id) {
+        return reservaService.renovar(id);
     }
 }

@@ -16,17 +16,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.Set;
 
-/** Crea reservas de espera en parada (SCRUM-306). */
+/**
+ * Ciclo de vida de la reserva de espera en parada: la crea (SCRUM-306), la
+ * renueva y la expira cuando vence (HU-135).
+ */
 @Service
 @RequiredArgsConstructor
 public class ReservaService {
 
     /** Solo estos estados bloquean una reserva nueva. ABORDO no es vigente. */
-    static final Set<EstadoReserva> ESTADOS_VIGENTES =
-            EnumSet.of(EstadoReserva.ACTIVA, EstadoReserva.RENOVADA);
+    static final Set<EstadoReserva> ESTADOS_VIGENTES = EstadoReserva.RENOVABLES;
 
     private static final String INDICE_VIGENTE = "uq_registro_activo_por_dispositivo";
 
@@ -69,6 +70,38 @@ public class ReservaService {
             }
             throw ex;
         }
+    }
+
+    /**
+     * Extiende la vigencia de una reserva vigente otro periodo completo (HU-135).
+     * Conserva su identificador y pasa a RENOVADA.
+     *
+     * @throws RecursoNoEncontradoException si no existe
+     * @throws ReglaDeNegocioException      si ya vencio o no esta vigente
+     */
+    @Transactional
+    public ReservaResponse renovar(Long reservaId) {
+        Reserva reserva = reservas.findById(reservaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Reserva", reservaId));
+
+        Instant ahora = Instant.now(reloj);
+        if (!reserva.estaVigente(ahora)) {
+            throw new ReglaDeNegocioException("Esta reserva ya venció o no está activa.");
+        }
+
+        reserva.renovar(ahora.plus(demanda.ttl()));
+        return ReservaResponse.de(reserva);
+    }
+
+    /**
+     * Marca EXPIRADA toda reserva vigente cuya vigencia ya vencio. Idempotente:
+     * si no hay vencidas no toca nada. Lo llama {@link ExpiradorDeReservas}.
+     *
+     * @return cuantas reservas se expiraron en esta pasada
+     */
+    @Transactional
+    public int expirarVencidas() {
+        return reservas.marcarExpiradas(EstadoReserva.RENOVABLES, Instant.now(reloj));
     }
 
     private static boolean esViolacionDeReservaVigente(DataIntegrityViolationException ex) {

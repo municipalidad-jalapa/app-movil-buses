@@ -87,4 +87,19 @@ public class Reserva {
     public Long getParadaId() {
         return parada == null ? null : parada.getId();
     }
+
+    /** Vigente = estado renovable y fecha de expiracion aun en el futuro (HU-135). */
+    public boolean estaVigente(Instant ahora) {
+        return EstadoReserva.RENOVABLES.contains(estado) && expiraEn.isAfter(ahora);
+    }
+
+    /** Extiende la vigencia y deja constancia de que se renovo. Mismo identificador. */
+    public void renovar(Instant nuevoExpiraEn) {
+        this.expiraEn = nuevoExpiraEn;
+        this.estado = EstadoReserva.RENOVADA;
+    }
+
+    public void expirar() {
+        this.estado = EstadoReserva.EXPIRADA;
+    }
 }

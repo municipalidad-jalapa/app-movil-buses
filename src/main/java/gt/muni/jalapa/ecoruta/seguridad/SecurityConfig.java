@@ -76,7 +76,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/rutas", "/api/v1/rutas/**").permitAll()
                         // SCRUM-306: el pasajero anonimo indica que espera en la parada.
                         .requestMatchers(HttpMethod.POST, "/api/v1/reservas").permitAll()
-                        .requestMatchers("/api/v1/demanda/**").permitAll()
+                        // HU-135: renueva su propia reserva antes de que venza.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/reservas/*/renovacion")
+                                .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/dispositivos/notificaciones")
                                 .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/reservas/*/abordaje")

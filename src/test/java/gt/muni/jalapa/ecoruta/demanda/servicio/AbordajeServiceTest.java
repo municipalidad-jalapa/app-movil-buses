@@ -1,5 +1,6 @@
 package gt.muni.jalapa.ecoruta.demanda.servicio;
 
+import gt.muni.jalapa.ecoruta.catalogo.dominio.Parada;
 import gt.muni.jalapa.ecoruta.common.ReglaDeNegocioException;
 import gt.muni.jalapa.ecoruta.demanda.dominio.EstadoReserva;
 import gt.muni.jalapa.ecoruta.demanda.dominio.FuenteAbordaje;
@@ -67,7 +68,9 @@ class AbordajeServiceTest {
         Reserva reserva = new Reserva();
         reserva.setId(id);
         reserva.setDispositivoId("dev");
-        reserva.setParadaId(1L);
+        Parada parada = new Parada();
+        parada.setId(1L);
+        reserva.setParada(parada);
         reserva.setEstado(EstadoReserva.ACTIVA);
         reserva.setExpiraEn(Instant.now().plusSeconds(3600));
         return reserva;
