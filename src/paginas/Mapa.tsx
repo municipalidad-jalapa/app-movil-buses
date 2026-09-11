@@ -18,7 +18,7 @@ import { HoraUltimoDato, formatearMomento } from '../componentes/HoraUltimoDato'
 import { MensajeError } from '../componentes/MensajeError';
 import { PreferenciaNotificaciones } from '../componentes/PreferenciaNotificaciones';
 import { TarjetaAbordaje } from '../componentes/TarjetaAbordaje';
-import { minutosRestantes, paradaMasCercana, textoDistancia } from '../core/distanciaAParada';
+import { metrosEntre, minutosRestantes, paradaMasCercana, textoDistancia } from '../core/distanciaAParada';
 import { ErrorApi } from '../core/errores';
 import { esRancio } from '../core/frescuraDato';
 import { obtenerIdDispositivo } from '../core/identidadDispositivo';
@@ -32,6 +32,16 @@ const SIN_UBICACION =
 const SIN_UBICACION_CERCANA = 'No pudimos saber dónde estás. Elegí la parada tocándola en el mapa.';
 const AVISO_VENCIDO = 'Tu aviso venció. Si seguís esperando, avisá de nuevo.';
 const YA_AVISASTE = 'Ya avisamos desde este teléfono que estás esperando. No hace falta avisar de nuevo.';
+
+/**
+ * Radios del aviso de proximidad, los mismos del backend
+ * (`ecoruta.notificaciones.radio-*-metros`, HU-57): a 250 m el bus "ya viene",
+ * a 40 m "llego". La app los evalua tambien por su cuenta con la posicion en
+ * vivo, para no depender de que el push llegue: sin Firebase configurado, o con
+ * el permiso negado, el pasajero igual se entera y puede responder si subio.
+ */
+const RADIO_APROXIMACION_M = 250;
+const RADIO_LLEGADA_M = 40;
 
 /** HU-52: con este tiempo o menos, la hoja pregunta si sigue esperando. */
 const PREGUNTAR_SI_SIGUE_MS = 60_000;
@@ -59,7 +69,7 @@ export function Mapa() {
   const { esperandoPorParada, refrescar } = useResumenRuta(rutaActiva?.id);
   const { ubicacion, solicitarUbicacion } = useUbicacion();
   const { reserva, guardarReserva, limpiarReserva } = useReserva();
-  const { preguntandoAbordaje } = useAvisosDelBus();
+  const { preguntandoAbordaje: avisoDeAbordaje } = useAvisosDelBus();
   const enLinea = useEnLinea();
   const oscuro = usePrefiereOscuro();
   const control = useRef<ControlMapa | null>(null);
@@ -235,6 +245,19 @@ export function Mapa() {
     refrescar();
   }
 
+  // HU-57/HU-58 sin depender del push: distancia del bus a tu parada. Con un
+  // dato rancio no se avisa nada: el bus puede estar en otro lado.
+  const metrosDelBus =
+    reservaVigente && parada && posicion && !esRancio(posicion, ahora) ? metrosEntre(parada, posicion) : null;
+  const busCerca = metrosDelBus !== null && metrosDelBus <= RADIO_APROXIMACION_M;
+  // Una vez que el bus llego se pregunta hasta que el pasajero responda, aunque
+  // el bus ya se haya ido: justo entonces es cuando hay que saber si subio.
+  const [llegoParaReserva, setLlegoParaReserva] = useState<number | null>(null);
+  useEffect(() => {
+    if (reserva && metrosDelBus !== null && metrosDelBus <= RADIO_LLEGADA_M) setLlegoParaReserva(reserva.id);
+  }, [reserva, metrosDelBus]);
+  const preguntandoAbordaje = avisoDeAbordaje || (reserva !== null && llegoParaReserva === reserva.id);
+
   // Sin red, o con el flujo en vivo cortado, se cae al croquis: es una
   // pantalla de primera clase, no un error (DESIGN.md seccion 7).
   const capa = cargando ? 'cargando' : !enLinea || estadoConexion === 'reconectando' ? 'croquis' : 'mapa';
@@ -290,6 +313,18 @@ export function Mapa() {
         {cargaInicialLista && posicion === null && !error && (
           <div className="pantalla-mapa__aviso">
             <EstadoSinPosicion />
+          </div>
+        )}
+
+        {/* HU-57: el mismo aviso de aproximacion, dentro de la app. */}
+        {enLinea && busCerca && !preguntandoAbordaje && (
+          <div className="pantalla-mapa__viene" role="status" aria-live="polite">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="11" rx="2" />
+              <path d="M3 11h18M7 20v-2M17 20v-2" />
+            </svg>
+            <span>El bus ya viene para tu parada</span>
           </div>
         )}
 

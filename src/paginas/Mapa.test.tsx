@@ -281,3 +281,35 @@ describe('Pantalla del pasajero: datos del bus (HU-60) y sin conexion (09)', () 
     expect(screen.getByRole('button', { name: 'Intentar de nuevo' })).toBeTruthy();
   });
 });
+
+describe('Pantalla del pasajero: el bus llega a tu parada (HU-57/HU-58 sin push)', () => {
+  function busEn(latitud: number, longitud: number) {
+    bus.posicion = { latitud, longitud, velocidadKmh: 0, timestamp: new Date().toISOString(), vehiculo: 'BUS-01' };
+    bus.recibidoEn = new Date();
+  }
+
+  it('a menos de 250 m avisa que el bus ya viene', () => {
+    guardarReservaVigente();
+    busEn(14.6339, -89.9873); // unos 160 m al norte del Mercado
+    abrir();
+    expect(screen.getByText('El bus ya viene para tu parada')).toBeTruthy();
+    expect(screen.queryByText('¿Lograste subir?')).toBeNull();
+  });
+
+  it('en la parada pregunta si logro subir, aunque no haya llegado ningun push', () => {
+    guardarReservaVigente();
+    busEn(14.63245, -89.987308); // en el Mercado
+    abrir();
+    expect(screen.getByText('¿Lograste subir?')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Sí subí/ })).toBeTruthy();
+  });
+
+  it('lejos no avisa nada', () => {
+    guardarReservaVigente();
+    busEn(14.634878, -89.981202); // Parque Central, a unos 700 m
+    abrir();
+    expect(screen.queryByText('El bus ya viene para tu parada')).toBeNull();
+    expect(screen.queryByText('¿Lograste subir?')).toBeNull();
+  });
+});
+
