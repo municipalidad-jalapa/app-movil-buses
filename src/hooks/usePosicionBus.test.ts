@@ -137,4 +137,44 @@ describe('usePosicionBus', () => {
 
     expect(fuente.cerrada).toBe(true);
   });
+
+  it('mientras el flujo reconecta, sigue pidiendo la posicion por la ruta de respaldo (HU-61)', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      let llamadas = 0;
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => {
+          llamadas += 1;
+          return respuestaFalsa(200, unaPosicion({ timestamp: `2026-08-19T10:00:0${llamadas}Z`, latitud: 14.6 + llamadas / 1000 }));
+        }),
+      );
+      const fuente = new FuenteFalsa();
+      const { result } = renderHook(() => usePosicionBus(() => fuente));
+      await waitFor(() => expect(result.current.cargaInicialLista).toBe(true));
+      expect(llamadas).toBe(1);
+
+      // Sin corte, no se consulta de mas.
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(25_000);
+      });
+      expect(llamadas).toBe(1);
+
+      act(() => fuente.onerror?.(null));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10_000);
+      });
+      expect(llamadas).toBe(2);
+      expect(result.current.posicion?.latitud).toBeCloseTo(14.602);
+
+      // Vuelve el flujo: se deja de consultar.
+      act(() => fuente.onopen?.(null));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(30_000);
+      });
+      expect(llamadas).toBe(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

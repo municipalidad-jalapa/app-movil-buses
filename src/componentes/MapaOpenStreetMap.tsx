@@ -50,6 +50,8 @@ export interface ControlMapa {
 interface Props {
   ruta: Ruta | null;
   posicionBus: Posicion | null;
+  /** Dato de mas de 5 min: el bus se atenua (DESIGN.md §7). */
+  busRancio?: boolean;
   oscuro: boolean;
   /** La parada elegida o reservada: amarilla, con rombo. */
   paradaElegidaId?: number | null;
@@ -70,6 +72,7 @@ interface Props {
 export function MapaOpenStreetMap({
   ruta,
   posicionBus,
+  busRancio = false,
   oscuro,
   paradaElegidaId = null,
   esperandoPorParada,
@@ -144,6 +147,13 @@ export function MapaOpenStreetMap({
       if (/webgl|gpu/i.test(mensaje)) onNoDisponible?.();
     });
 
+    // Listo apenas carga el ESTILO, no con 'load': 'load' espera a que bajen
+    // todas las teselas iniciales, y con una sola que se cuelgue en el
+    // servidor de OSM la ruta y las paradas no se dibujaban nunca.
+    const marcarListo = () => {
+      if (instancia.isStyleLoaded()) setListo(true);
+    };
+    instancia.on('styledata', marcarListo);
     instancia.on('load', () => setListo(true));
 
     // Asa para depurar desde la consola del navegador. Solo en desarrollo.
@@ -240,6 +250,11 @@ export function MapaOpenStreetMap({
     // aparecer en otro lado (DESIGN.md seccion 8).
     marcadorBus.current.setLngLat(donde);
   }, [posicionBus, listo]);
+
+  useEffect(() => {
+    const nodo = marcadorBus.current?.getElement();
+    if (nodo) nodo.style.opacity = busRancio ? '0.5' : '1';
+  }, [busRancio, posicionBus]);
 
   // --- El pasajero ---------------------------------------------------------
   useEffect(() => {

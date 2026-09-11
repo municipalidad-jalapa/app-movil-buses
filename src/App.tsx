@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-
 import { Layout } from './componentes/Layout';
 import { RutaProtegida } from './componentes/RutaProtegida';
 import { AuthProvider } from './core/autenticacion/AuthProvider';
+import { ReservaProvider } from './estado/ReservaProvider';
 import { Mapa } from './paginas/Mapa';
 import { NoEncontrada } from './paginas/NoEncontrada';
 import { LoginConductor } from './paginas/conductor/LoginConductor';
@@ -16,9 +17,13 @@ export function App() {
             path="/"
             element={
               // El mapa a sangre: es la vista principal (DESIGN.md seccion 11).
-              <Layout aSangre>
-                <Mapa />
-              </Layout>
+              // La reserva vive fuera del mapa: la comparten la hoja y los
+              // avisos del bus (HU-58).
+              <ReservaProvider>
+                <Layout aSangre>
+                  <Mapa />
+                </Layout>
+              </ReservaProvider>
             }
           />
 

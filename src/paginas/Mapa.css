@@ -66,6 +66,35 @@
   color: var(--tinta-cuerpo);
 }
 
+/* HU-60: el dato del bus es viejo. La hora va al frente, sobre el mapa. */
+.pantalla-mapa__rancio {
+  align-self: stretch;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--superficie-hundida);
+  border: 2px solid var(--borde-manija);
+  border-radius: var(--radio-tarjeta);
+  color: var(--tinta-cuerpo);
+}
+
+.pantalla-mapa__rancio svg {
+  flex: 0 0 22px;
+}
+
+.pantalla-mapa__rancio span {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Sin red (artboard 09): lo ultimo que sabemos queda atenuado debajo. */
+.pantalla-mapa--sin-conexion .mapa-jalapa,
+.pantalla-mapa--sin-conexion .pantalla-mapa__abajo {
+  opacity: 0.55;
+}
+
 /* --- Abajo: botones redondos y la hoja ---------------------------------- */
 
 .pantalla-mapa__abajo {

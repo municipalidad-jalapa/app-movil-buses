@@ -97,3 +97,37 @@ export interface ResumenRuta {
     calculadoEn: string;
   };
 }
+
+/**
+ * Estado de la reserva (`demanda/dominio/EstadoReserva.java`).
+ *
+ * ACTIVA al reservar, RENOVADA si el pasajero extendio la vigencia (HU-52),
+ * ABORDO o CANCELADA segun la respuesta de abordaje (HU-58) o la cancelacion
+ * (HU-124), y EXPIRADA si vencio sin respuesta.
+ */
+export type EstadoReserva = 'ACTIVA' | 'RENOVADA' | 'ABORDO' | 'CANCELADA' | 'EXPIRADA';
+
+/** La reserva tal como la guarda la app. */
+export interface Reserva {
+  id: number;
+  paradaId: number;
+  estado: EstadoReserva;
+  expiraEn: string;
+}
+
+/** Cuerpo de `POST /api/v1/dispositivos/notificaciones`. Responde 204. */
+export interface RegistroTokenRequest {
+  dispositivoId: string;
+  tokenNotificacion: string;
+}
+
+/** Cuerpo de `POST /api/v1/reservas/{id}/abordaje`. */
+export interface AbordajeRequest {
+  subio: boolean;
+}
+
+/** Respuesta 200 de `POST /api/v1/reservas/{id}/abordaje`. */
+export interface RespuestaAbordaje {
+  id: number;
+  estado: EstadoReserva;
+}

@@ -28,6 +28,8 @@ export type ModoMapa = 'claro' | 'oscuro';
 interface Props {
   ruta: Ruta | null;
   posicionBus: Posicion | null;
+  /** El dato del bus tiene mas de 5 min: el marcador se atenua (HU-60). */
+  busRancio?: boolean;
   /** Posiciones anteriores, de mas vieja a mas nueva. Dibujan la estela. */
   historial?: readonly Posicion[];
   capa?: CapaMapa;
@@ -46,6 +48,7 @@ interface Props {
 export function MapaJalapa({
   ruta,
   posicionBus,
+  busRancio = false,
   historial = [],
   capa = 'mapa',
   modo = 'claro',
@@ -100,6 +103,7 @@ export function MapaJalapa({
         <MapaOpenStreetMap
           ruta={ruta}
           posicionBus={posicionBus}
+          busRancio={busRancio}
           oscuro={oscuro}
           paradaElegidaId={paradaTuyaId}
           esperandoPorParada={esperandoPorParada}
@@ -120,6 +124,7 @@ export function MapaJalapa({
             paradas={paradas}
             trazoRuta={trazoRuta}
             bus={bus}
+            busRancio={busRancio}
             estela={estela}
             desvio={desvio}
             trazoReal={desvio && bus ? [...trazoRuta.slice(0, 2), bus] : []}

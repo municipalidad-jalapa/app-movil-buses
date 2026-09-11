@@ -35,10 +35,21 @@ interface Props {
   /** Mensaje para el pasajero cuando algo no salio. Ya viene traducido. */
   aviso?: string | null;
   enviando?: boolean;
+  /**
+   * HU-52: queda menos de un minuto. En vez de dejar vencer el aviso en
+   * silencio, la hoja pregunta si sigue esperando. Sin artboard: se arma con
+   * las piezas de R3 y queda para revision de diseno.
+   */
+  preguntarSiSigue?: boolean;
+  /** Algo que va debajo de los datos de R3, como la invitacion a los avisos. */
+  extraConfirmada?: ReactNode;
+  /** Reemplaza el contenido de la fase, como la pregunta de abordaje (HU-58). */
+  contenido?: ReactNode;
   onUsarCercana: () => void;
   onConfirmar: () => void;
   onElegirOtra: () => void;
   onCancelar: () => void;
+  onRenovar?: () => void;
 }
 
 export function HojaReserva({
@@ -50,10 +61,14 @@ export function HojaReserva({
   ultimoDato,
   aviso = null,
   enviando = false,
+  preguntarSiSigue = false,
+  extraConfirmada,
+  contenido,
   onUsarCercana,
   onConfirmar,
   onElegirOtra,
   onCancelar,
+  onRenovar,
 }: Props) {
   return (
     <section className="hoja-reserva" aria-label="Tu parada">
@@ -61,7 +76,9 @@ export function HojaReserva({
         <span />
       </div>
 
-      {fase === 'vacia' && (
+      {contenido && <div className="hoja-reserva__bloque">{contenido}</div>}
+
+      {!contenido && fase === 'vacia' && (
         <div className="hoja-reserva__bloque">
           <div className="hoja-reserva__textos">
             <h2 className="hoja-reserva__titulo">¿En qué parada vas a esperar?</h2>
@@ -76,7 +93,7 @@ export function HojaReserva({
         </div>
       )}
 
-      {fase === 'buscando' && (
+      {!contenido && fase === 'buscando' && (
         <div className="hoja-reserva__bloque">
           <div className="hoja-reserva__buscando" role="status">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -96,7 +113,7 @@ export function HojaReserva({
         </div>
       )}
 
-      {fase === 'elegida' && (
+      {!contenido && fase === 'elegida' && (
         <div className="hoja-reserva__bloque">
           <div className="hoja-reserva__cabeza">
             <div className="hoja-reserva__textos hoja-reserva__textos--parada">
@@ -128,7 +145,7 @@ export function HojaReserva({
         </div>
       )}
 
-      {fase === 'confirmada' && (
+      {!contenido && fase === 'confirmada' && (
         <div className="hoja-reserva__bloque">
           <div className="hoja-reserva__confirmacion" role="status">
             <span className="hoja-reserva__visto" aria-hidden="true">
@@ -153,9 +170,23 @@ export function HojaReserva({
             </div>
           </div>
           {ultimoDato && <div className="hoja-reserva__ultimo-dato">{ultimoDato}</div>}
+          {preguntarSiSigue && (
+            <div className="hoja-reserva__sigue" role="alert">
+              <span className="hoja-reserva__titulo hoja-reserva__titulo--18">¿Seguís esperando?</span>
+              <span className="hoja-reserva__apoyo">
+                Tu aviso vence en menos de un minuto. Si seguís en la parada, avisá que seguís.
+              </span>
+            </div>
+          )}
           <Aviso texto={aviso} />
+          {preguntarSiSigue && (
+            <button type="button" className="hoja-reserva__primario" onClick={onRenovar} disabled={enviando}>
+              {enviando ? 'Avisando…' : 'Sigo esperando'}
+            </button>
+          )}
+          {!preguntarSiSigue && extraConfirmada}
           <button type="button" className="hoja-reserva__soltar" onClick={onCancelar} disabled={enviando}>
-            {enviando ? 'Avisando…' : 'Ya no voy a esperar'}
+            {enviando && !preguntarSiSigue ? 'Avisando…' : 'Ya no voy a esperar'}
           </button>
         </div>
       )}

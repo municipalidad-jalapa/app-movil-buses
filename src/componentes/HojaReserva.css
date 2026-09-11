@@ -289,6 +289,17 @@
   color: var(--tinta-secundaria);
 }
 
+/* HU-52: la pregunta de renovacion. Tarjeta interna con voluta, tono calmo:
+   amarillo de "tu parada", no rojo de alarma. */
+.hoja-reserva__sigue {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  background: var(--amarillo-volcan-superficie);
+  border-radius: var(--radio-tarjeta);
+}
+
 /* --- Aviso (algo no salio) ---------------------------------------------- */
 
 .hoja-reserva__aviso {

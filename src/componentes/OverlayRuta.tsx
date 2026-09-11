@@ -33,6 +33,8 @@ interface Props {
   trazoRuta: readonly PuntoLienzo[];
   /** Donde esta el bus. `null` mientras no haya posicion. */
   bus: PuntoLienzo | null;
+  /** Dato de mas de 5 min: el bus se atenua (DESIGN.md §7). */
+  busRancio?: boolean;
   /** Ultimas posiciones, de mas vieja a mas nueva, para la estela. */
   estela?: readonly PuntoLienzo[];
   /** El bus se separo del trazo conocido (DESIGN.md seccion 7). */
@@ -70,6 +72,7 @@ export function OverlayRuta({
   paradas,
   trazoRuta,
   bus,
+  busRancio = false,
   estela = [],
   desvio = false,
   trazoReal = [],
@@ -157,7 +160,11 @@ export function OverlayRuta({
         ))}
       </g>
 
-      {bus && <MarcadorDelBus punto={bus} />}
+      {bus && (
+        <g opacity={busRancio ? 0.5 : 1}>
+          <MarcadorDelBus punto={bus} />
+        </g>
+      )}
 
       {desvio && (
         <g>

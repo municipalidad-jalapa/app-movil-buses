@@ -65,35 +65,3 @@ export async function renovarReserva(
   }
   return respuesta;
 }
-
-/*
- * La reserva vigente se recuerda en el telefono: si el pasajero recarga la
- * pagina o vuelve a abrir la app, sigue viendo que ya aviso, y no crea otra
- * que el backend le rechazaria por duplicada.
- */
-const CLAVE_RESERVA = 'ecoruta_reserva_vigente';
-
-export function leerReservaGuardada(ahora = Date.now()): RegistroCreadoResponse | null {
-  try {
-    const texto = localStorage.getItem(CLAVE_RESERVA);
-    if (!texto) return null;
-    const reserva = JSON.parse(texto) as RegistroCreadoResponse;
-    if (!reserva?.id || Date.parse(reserva.expiraEn) <= ahora) {
-      localStorage.removeItem(CLAVE_RESERVA);
-      return null;
-    }
-    return reserva;
-  } catch {
-    return null;
-  }
-}
-
-export function guardarReserva(reserva: RegistroCreadoResponse | null): void {
-  try {
-    if (reserva) localStorage.setItem(CLAVE_RESERVA, JSON.stringify(reserva));
-    else localStorage.removeItem(CLAVE_RESERVA);
-  } catch {
-    // Sin almacenamiento la reserva sigue valiendo en el servidor; solo se
-    // pierde el recuerdo al recargar.
-  }
-}

@@ -4,7 +4,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MemoryRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import type { Ruta } from '../core/tipos';
 import { ErrorApi } from '../core/errores';
-import { cancelarReserva, registrarDemanda } from '../core/registroDemanda';
+import { cancelarReserva, registrarDemanda, renovarReserva } from '../core/registroDemanda';
+import { ReservaProvider } from '../estado/ReservaProvider';
 import { Mapa } from './Mapa';
 
 /*
@@ -26,9 +27,10 @@ const RUTA: Ruta = {
 };
 
 const ubicacion = { latitud: 14.6323, longitud: -89.9871 };
-const { solicitarUbicacion, refrescar } = vi.hoisted(() => ({
+const { solicitarUbicacion, refrescar, bus } = vi.hoisted(() => ({
   solicitarUbicacion: vi.fn(),
   refrescar: vi.fn(),
+  bus: { posicion: null as null | Record<string, unknown>, recibidoEn: null as Date | null },
 }));
 
 vi.mock('../hooks/useRutas', () => ({
@@ -36,9 +38,9 @@ vi.mock('../hooks/useRutas', () => ({
 }));
 vi.mock('../hooks/usePosicionBus', () => ({
   usePosicionBus: () => ({
-    posicion: null,
+    posicion: bus.posicion,
     estadoConexion: 'en-vivo',
-    recibidoEn: null,
+    recibidoEn: bus.recibidoEn,
     cargaInicialLista: false,
   }),
 }));
@@ -52,6 +54,7 @@ vi.mock('../core/registroDemanda', async (original) => ({
   ...(await original<typeof import('../core/registroDemanda')>()),
   registrarDemanda: vi.fn(),
   cancelarReserva: vi.fn(),
+  renovarReserva: vi.fn(),
 }));
 
 function DelQr() {
@@ -61,12 +64,14 @@ function DelQr() {
 
 function abrir(ruta = '/') {
   render(
-    <MemoryRouter initialEntries={[ruta]}>
-      <Routes>
-        <Route path="/" element={<Mapa />} />
-        <Route path="/registro/:paradaId" element={<DelQr />} />
-      </Routes>
-    </MemoryRouter>,
+    <ReservaProvider>
+      <MemoryRouter initialEntries={[ruta]}>
+        <Routes>
+          <Route path="/" element={<Mapa />} />
+          <Route path="/registro/:paradaId" element={<DelQr />} />
+        </Routes>
+      </MemoryRouter>
+    </ReservaProvider>,
   );
 }
 
@@ -74,7 +79,7 @@ const enMs = (ms: number) => new Date(Date.now() + ms).toISOString();
 
 function guardarReservaVigente(expiraEn = enMs(5 * 60_000)) {
   localStorage.setItem(
-    'ecoruta_reserva_vigente',
+    'ecoruta_reserva',
     JSON.stringify({ id: 9, paradaId: 2, estado: 'ACTIVA', expiraEn }),
   );
 }
@@ -83,6 +88,10 @@ beforeEach(() => {
   localStorage.clear();
   vi.mocked(registrarDemanda).mockReset();
   vi.mocked(cancelarReserva).mockReset();
+  vi.mocked(renovarReserva).mockReset();
+  bus.posicion = null;
+  bus.recibidoEn = null;
+  Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
   solicitarUbicacion.mockReset().mockResolvedValue(ubicacion);
   refrescar.mockReset();
 });
@@ -182,7 +191,7 @@ describe('Pantalla del pasajero: reservar desde el mapa (HU-53)', () => {
 
     await screen.findByText('¿En qué parada vas a esperar?');
     expect(cancelarReserva).toHaveBeenCalledWith(9, expect.any(String));
-    expect(localStorage.getItem('ecoruta_reserva_vigente')).toBeNull();
+    expect(localStorage.getItem('ecoruta_reserva')).toBeNull();
   });
 
   it('con la reserva hecha, tocar otra parada no la cambia', () => {
@@ -197,5 +206,78 @@ describe('Pantalla del pasajero: reservar desde el mapa (HU-53)', () => {
     abrir();
     await waitFor(() => expect(screen.getByText(/Tu aviso venció/)).toBeTruthy(), { timeout: 3000 });
     expect(screen.getByRole('heading', { name: '1a Calle - Mercado' })).toBeTruthy();
+  });
+});
+
+describe('Pantalla del pasajero: vigencia de la reserva (HU-52)', () => {
+  it('con menos de un minuto pregunta si sigue esperando y renueva', async () => {
+    guardarReservaVigente(enMs(45_000));
+    vi.mocked(renovarReserva).mockResolvedValue({
+      id: 9,
+      paradaId: 2,
+      estado: 'RENOVADA',
+      expiraEn: enMs(5 * 60_000),
+    });
+    abrir();
+
+    expect(screen.getByText('¿Seguís esperando?')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Sigo esperando' }));
+
+    await waitFor(() => expect(screen.queryByText('¿Seguís esperando?')).toBeNull());
+    expect(renovarReserva).toHaveBeenCalledWith(9, expect.any(String));
+    expect(screen.getByText('5')).toBeTruthy();
+    expect(JSON.parse(localStorage.getItem('ecoruta_reserva') ?? '{}').estado).toBe('RENOVADA');
+  });
+
+  it('con tiempo de sobra no pregunta nada', () => {
+    guardarReservaVigente();
+    abrir();
+    expect(screen.queryByText('¿Seguís esperando?')).toBeNull();
+  });
+
+  it('si al renovar ya habia vencido, vuelve a R2 con la misma parada', async () => {
+    guardarReservaVigente(enMs(45_000));
+    vi.mocked(renovarReserva).mockRejectedValue(new ErrorApi(422, 'Esta reserva ya venció o no está activa.'));
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: 'Sigo esperando' }));
+    await screen.findByText(/Tu aviso venció/);
+    expect(screen.getByRole('button', { name: 'Estoy esperando aquí' })).toBeTruthy();
+  });
+});
+
+describe('Pantalla del pasajero: datos del bus (HU-60) y sin conexion (09)', () => {
+  it('con un dato de mas de 5 minutos, la hora pasa al frente', () => {
+    const hace = new Date(Date.now() - 8 * 60_000);
+    bus.posicion = {
+      latitud: 14.63,
+      longitud: -89.98,
+      velocidadKmh: 0,
+      timestamp: hace.toISOString(),
+      vehiculo: 'BUS-01',
+    };
+    bus.recibidoEn = hace;
+    abrir();
+    expect(screen.getByText(/Sin datos nuevos: puede que el bus/)).toBeTruthy();
+  });
+
+  it('con un dato fresco no se avisa nada', () => {
+    bus.posicion = {
+      latitud: 14.63,
+      longitud: -89.98,
+      velocidadKmh: 0,
+      timestamp: new Date().toISOString(),
+      vehiculo: 'BUS-01',
+    };
+    bus.recibidoEn = new Date();
+    abrir();
+    expect(screen.queryByText(/Sin datos nuevos: puede/)).toBeNull();
+  });
+
+  it('sin red muestra el estado del artboard 09, sin tono de error', () => {
+    Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
+    abrir();
+    expect(screen.getByRole('heading', { name: 'Sin internet' })).toBeTruthy();
+    expect(screen.getByText(/Los números pueden haber cambiado/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Intentar de nuevo' })).toBeTruthy();
   });
 });

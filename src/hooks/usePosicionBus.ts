@@ -12,6 +12,13 @@ import type { Posicion } from '../core/tipos';
 /** Ruta de respaldo cuando el flujo en vivo no conecta (SCRUM-139, HU-44). */
 export const RUTA_POSICION = '/api/v1/telemetria/posicion';
 
+/**
+ * Cada cuanto se pregunta la posicion mientras el flujo en vivo esta caido
+ * (HU-61). El bus reporta cada pocos segundos; mas seguido no aporta y gasta
+ * datos del pasajero.
+ */
+export const CONSULTA_DE_RESPALDO_MS = 10_000;
+
 export interface EstadoPosicionBus {
   /** `null` mientras no haya ninguna posicion todavia. No es un error. */
   posicion: Posicion | null;
@@ -95,6 +102,28 @@ export function usePosicionBus(crearFuente?: FabricaDeFuente): EstadoPosicionBus
     // crearFuente solo se inyecta en pruebas y no cambia en vida del componente.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // HU-61: mientras el flujo en vivo reconecta, la posicion se sigue pidiendo
+  // por la ruta de respaldo. Asi el bus no se congela en el mapa si el SSE
+  // tarda en volver (o si un proxy lo corta y nunca vuelve).
+  useEffect(() => {
+    if (estadoConexion !== 'reconectando') return;
+    const control = new AbortController();
+    const consultar = () =>
+      apiClient
+        .get<Posicion>(RUTA_POSICION, { signal: control.signal, intentos: 1 })
+        .then((datos) => {
+          if (datos && !control.signal.aborted) aceptarSiEsMasReciente(datos);
+        })
+        .catch(() => {});
+    const temporizador = setInterval(consultar, CONSULTA_DE_RESPALDO_MS);
+    return () => {
+      clearInterval(temporizador);
+      control.abort();
+    };
+    // aceptarSiEsMasReciente solo usa refs y setters estables.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [estadoConexion]);
 
   return { posicion, estadoConexion, recibidoEn, error, cargaInicialLista };
 }

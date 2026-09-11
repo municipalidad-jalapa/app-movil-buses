@@ -9,6 +9,7 @@ const opciones = {
   appId: config.firebaseAppId,
 };
 
-const appFirebase = getApps()[0] ?? initializeApp(opciones);
+/** Una sola app de Firebase: la usan la sesion del conductor y los avisos (HU-58). */
+export const appFirebase = getApps()[0] ?? initializeApp(opciones);
 
 export const authFirebase = getAuth(appFirebase);

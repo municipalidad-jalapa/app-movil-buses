@@ -85,3 +85,37 @@ describe('config', () => {
     expect(Object.isFrozen(config)).toBe(true);
   });
 });
+
+describe('configuracion de avisos (HU-58)', () => {
+  const mensajeria = {
+    VITE_FIREBASE_MESSAGING_SENDER_ID: '123456',
+    VITE_FIREBASE_VAPID_KEY: 'vapid',
+  };
+
+  it('deja los avisos apagados si no hay variables de mensajeria', () => {
+    expect(leerConfiguracion(entornoValido).mensajeria).toBeNull();
+  });
+
+  it('reutiliza el proyecto de Firebase de la sesion del conductor', () => {
+    const resultado = leerConfiguracion({ ...entornoValido, ...mensajeria });
+    expect(resultado.mensajeria).toMatchObject({
+      apiKey: entornoValido.VITE_FIREBASE_API_KEY,
+      projectId: entornoValido.VITE_FIREBASE_PROJECT_ID,
+      appId: entornoValido.VITE_FIREBASE_APP_ID,
+      messagingSenderId: '123456',
+      vapidKey: 'vapid',
+    });
+  });
+
+  it('falla nombrando lo que falta si el .env quedo a medias', () => {
+    expect(() =>
+      leerConfiguracion({ ...entornoValido, VITE_FIREBASE_MESSAGING_SENDER_ID: '123456' }),
+    ).toThrow(/VITE_FIREBASE_VAPID_KEY/);
+  });
+
+  it('trata una variable vacia como ausente', () => {
+    expect(() =>
+      leerConfiguracion({ ...entornoValido, ...mensajeria, VITE_FIREBASE_VAPID_KEY: '   ' }),
+    ).toThrow(/VITE_FIREBASE_VAPID_KEY/);
+  });
+});
