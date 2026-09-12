@@ -43,9 +43,12 @@ export type FabricaDeFuente = (url: string) => FuenteDeEventos;
 export function suscribirseAPosiciones(
   manejadores: ManejadoresDelFlujo,
   crearFuente: FabricaDeFuente = (url) => new EventSource(url) as unknown as FuenteDeEventos,
+  rutaId?: number,
 ): () => void {
   const { apiBaseUrl } = config;
-  const fuente = crearFuente(`${apiBaseUrl}${RUTA_STREAM}`);
+  // Con rutaId el backend solo manda el bus de esa ruta (un bus por ruta, V12).
+  const filtro = rutaId !== undefined ? `?rutaId=${rutaId}` : '';
+  const fuente = crearFuente(`${apiBaseUrl}${RUTA_STREAM}${filtro}`);
 
   manejadores.onEstado('conectando');
 

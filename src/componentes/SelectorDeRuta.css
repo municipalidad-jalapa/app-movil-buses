@@ -1,0 +1,63 @@
+/*
+ * Selector de ruta, con la forma de la pastilla de estado del canvas (MapaOSM):
+ * amarillo #F2B705, tinta #241C00, 13/800, pastilla completa.
+ */
+
+.selector-ruta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 58vw;
+}
+
+/* Visible para el lector de pantalla, no en la pantalla. */
+.selector-ruta__rotulo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.selector-ruta__lista {
+  appearance: none;
+  -webkit-appearance: none;
+  max-width: 100%;
+  min-height: 40px;
+  padding: 8px 34px 8px 14px;
+  border: none;
+  border-radius: var(--radio-pastilla);
+  background-color: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+  font-family: var(--fuente);
+  font-size: 13px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  /* Flecha dibujada: el select nativo sin apariencia no trae ninguna. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23241C00' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.selector-ruta__lista:focus-visible {
+  outline: 3px solid var(--superficie-base);
+  outline-offset: 2px;
+}
+
+/* Fijo por una reserva vigente: se ve, pero no invita a tocarlo. */
+.selector-ruta__lista:disabled {
+  opacity: 0.75;
+  cursor: default;
+  background-image: none;
+  padding-right: 14px;
+}
+
+.selector-ruta__lista option {
+  color: #1c1a17;
+  background: #fbf7f0;
+}

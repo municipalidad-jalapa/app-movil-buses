@@ -42,6 +42,22 @@ function unaPosicion(sobrescribir: Partial<Posicion> = {}): Posicion {
 }
 
 describe('suscribirseAPosiciones', () => {
+  it('con rutaId pide solo el bus de esa ruta', () => {
+    let creada: FuenteFalsa | undefined;
+    suscribirseAPosiciones(
+      { onPosicion: vi.fn(), onEstado: vi.fn() },
+      (url) => (creada = new FuenteFalsa(url)),
+      2,
+    );
+    expect(creada!.url).toMatch(/\/api\/v1\/telemetria\/stream\?rutaId=2$/);
+  });
+
+  it('sin rutaId sigue a toda la flota', () => {
+    let creada: FuenteFalsa | undefined;
+    suscribirseAPosiciones({ onPosicion: vi.fn(), onEstado: vi.fn() }, (url) => (creada = new FuenteFalsa(url)));
+    expect(creada!.url).not.toContain('rutaId');
+  });
+
   it('se conecta a la ruta del stream del backend', () => {
     let creada: FuenteFalsa | null = null;
 
