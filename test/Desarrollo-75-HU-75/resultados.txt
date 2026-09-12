@@ -1,0 +1,161 @@
+RESULTADOS DE PRUEBAS — Desarrollo-75 / HU-75
+Ver el ETA por parada como conductor
+
+Fecha de ejecucion: 2026-09-08
+Entorno: Windows, Node.js (via npm.cmd), vitest 3.2.7, sin backend real disponible en este entorno.
+Ejecutado por: Claude Code (asistente), a pedido de josecarloscabrera88@gmail.com.
+
+
+1) PRUEBAS AUTOMATICAS CON DATOS SIMULADOS (Vitest)
+-----------------------------------------------------
+Comando: npm test  (equivale a: vitest run)
+
+Resultado: TODAS PASARON.
+
+  Test Files: 30 passed (30)
+  Tests:      179 passed (179)
+
+Desglose de lo NUEVO agregado para esta historia (ya incluido en el total de arriba):
+
+  ARCHIVO                                                          PRUEBAS   RESULTADO
+  src/core/panelConductor.test.ts                                  17        PASO
+  src/hooks/usePanelConductor.test.ts                                5        PASO
+  src/paginas/conductor/PanelConductor.test.tsx                      6        PASO
+  test/Desarrollo-75-HU-75/unitarios/panelConductor.test.ts         11        PASO
+  test/Desarrollo-75-HU-75/unitarios/usePanelConductor.test.ts       4        PASO
+  test/Desarrollo-75-HU-75/unitarios/PanelConductor.test.tsx         5        PASO
+  ------------------------------------------------------------------------------
+  TOTAL NUEVO                                                       48        PASO
+
+Ninguna prueba preexistente del proyecto se rompio (las 131 pruebas que ya
+existian antes de esta historia siguen pasando).
+
+Cobertura por criterio de aceptacion (automatica, datos simulados):
+
+  AC1 (ETA + reservas activas por parada) ................ PASO
+  AC2 (acotado a la ruta del conductor, sin elegir a mano)  PASO
+  AC3 (misma frecuencia que el pasajero) .................. PASO
+  AC4 (legible de un vistazo: carga/error en una pantalla)  PASO
+  AC5 (atendida vs. pendiente) ............................ PASO
+  AC6 (ETA no confiable se indica, nunca un numero enganoso) PASO
+  Contrato: 403 si la ruta no es la del conductor ......... PASO (via ErrorApi + mensaje de permiso)
+
+
+2) VERIFICACION DE TIPOS Y BUILD
+-----------------------------------------------------
+Comando: npx tsc --noEmit
+Resultado: PASO (sin errores).
+
+Comando: npm run build
+Resultado: PASO. 187 modulos transformados, build generado en dist/.
+(El aviso de "chunk mayor a 300 kB" es preexistente del proyecto, por
+maplibre-gl, y no esta relacionado con esta historia.)
+
+
+3) PRUEBAS MANUALES CON DATOS REALES
+-----------------------------------------------------
+Estado: PARCIAL. Se consiguio el backend real (api-buses-jalapa) y se probo
+por API directa (curl/node), sin navegador. El checklist M1-M12 completo
+(que requiere navegador/dispositivo) sigue pendiente para QA.
+
+Lo que SI se ejecuto contra el backend real, actualizado 2026-09-09:
+
+  - Se levanto el backend con docker compose (PostGIS + Spring Boot),
+    Flyway aplico sus 7 migraciones sin errores.
+  - mvn test del backend: 179/179 PASO, BUILD SUCCESS (incluye sus propios
+    escenarios de aceptacion en Cucumber).
+  - GET /api/v1/rutas -> 200 OK. Devuelve "Ruta de ejemplo - Centro de
+    Jalapa" con 8 paradas reales (Parque Central, Mercado, El Calvario,
+    Terminal, Llano Grande, Hospital, Instituto, Chipilapa).
+  - GET /api/v1/rutas/1/resumen -> 200 OK.
+  - POST /api/v1/reservas (parada 1) -> 201 Created. El conteo en
+    reservasActivas subio de 0 a 1 para esa parada en el siguiente
+    /resumen. Confirma que el flujo de reservas real funciona de punta a
+    punta.
+  - GET /api/v1/rutas/1/eta (endpoint de esta historia) -> 404 Not Found.
+    NO esta implementado en este backend todavia.
+  - GET /api/v1/rutas/1/reservas/activas (endpoint de esta historia) ->
+    404 Not Found. NO esta implementado en este backend todavia.
+  - POST /api/v1/auth/conductor -> 401, pero es el denyAll() generico de
+    Spring Security (SecurityConfig.java), no un controlador real: no
+    existe ningun AuthController de conductor en el codigo. El login de
+    conductor con Firebase (SCRUM-134) sigue sin construirse.
+
+Conclusion importante: el panel de HU-75 no se puede probar de punta a
+punta (login real -> panel con datos reales) contra ESTE backend, porque le
+faltan dos piezas del lado del backend:
+  1) El login del conductor (`POST /api/v1/auth/conductor`, SCRUM-134).
+  2) Los dos endpoints del contrato de esta historia
+     (`GET /rutas/{id}/eta` y `GET /rutas/{id}/reservas/activas`).
+Esto NO es un defecto del frontend: el frontend ya esta listo para
+consumirlos en cuanto existan (ver `src/hooks/usePanelConductor.ts`).
+
+Hallazgo de forma de datos (para quien implemente el backend):
+El endpoint ya construido que mas se parece (`/rutas/{id}/resumen`,
+SCRUM-284) modela "reservas activas por parada" como una LISTA de objetos
+`{paradaId, reservasActivas}` mas un `calculadoEn` en la raiz, NO como un
+mapa/diccionario. El tipo `ReservasActivasPorParada` de este frontend
+(`src/core/tipos.ts`) usa un mapa (`porParada: Record<string, number>`)
+porque, al momento de escribirlo, no existia un contrato real que copiar.
+Si el backend reutiliza ese mismo patron para
+`/rutas/{rutaId}/reservas/activas` (lo mas probable, por consistencia con
+el resto del modulo `demanda`), el tipo del frontend habria que ajustarlo
+a una lista antes de integrar. Se deja como hallazgo, no se cambia el
+contrato sin que el equipo lo confirme.
+
+Que se entrega para lo que falta: el checklist completo (M1 a M12) en
+README.md, listo para que el equipo de QA lo ejecute con navegador contra
+un backend real cuando esas dos piezas existan.
+
+
+4) PRUEBAS MANUALES CON DATOS SIMULADOS (sin backend, DevTools)
+-----------------------------------------------------
+Estado: NO EJECUTADAS en este entorno.
+
+Motivo: requieren un navegador interactivo (DevTools) para sobreescribir las
+respuestas HTTP; el asistente no tiene acceso a un navegador en esta sesion.
+
+Que se entrega en su lugar: el checklist completo (S1 a S8) en README.md, con
+los cuerpos JSON exactos para pegar en "Override content" / "Local
+overrides", listo para ejecutarse en minutos.
+
+Nota: el contenido de estos casos (S1-S8) SI esta validado, pero de forma
+automatica -- son los mismos escenarios que cubren
+src/core/panelConductor.test.ts y src/hooks/usePanelConductor.test.ts (ver
+seccion 1). La ejecucion manual en un navegador real queda pendiente para
+detectar problemas que solo aparecen fuera del entorno de pruebas (CSS real,
+tipografia, contraste, dispositivo tactil).
+
+
+5) PRUEBAS AUTOMATICAS CON DATOS REALES (E2E contra backend real)
+-----------------------------------------------------
+Estado: NO EXISTE esta capa en el proyecto todavia.
+
+El repositorio no tiene instalado ningun framework E2E (Playwright, Cypress,
+etc.) al momento de esta historia. No se fabrico una prueba de este tipo para
+no reportar un resultado falso. Recomendacion para una historia futura: si se
+agrega, debe vivir en test/Desarrollo-75-HU-75/e2e/ o carpeta equivalente y
+correr contra un backend de pruebas (nunca produccion).
+
+
+RESUMEN
+-----------------------------------------------------
+Automatico + simulado (frontend) ... EJECUTADO -- 179/179 pruebas OK (48 nuevas)
+Tipos y build (frontend) ............ EJECUTADO -- OK
+Backend real (api-buses-jalapa) ..... LEVANTADO Y PROBADO -- mvn test 179/179
+                                       OK. Endpoints existentes verificados
+                                       por API (rutas, resumen, reservas).
+Manual + real (checklist con navegador) PENDIENTE -- ademas bloqueado hasta
+                                       que el backend tenga login de
+                                       conductor y los 2 endpoints de ETA.
+Manual + simulado (DevTools) ........ PENDIENTE (checklist listo, sin
+                                       navegador disponible en esta sesion)
+Automatico + real (E2E) ............. NO IMPLEMENTADO (sin tooling en el
+                                       repo; queda como recomendacion)
+
+GAP DE BACKEND PARA CERRAR ESTA HISTORIA (ver seccion 3):
+  1. POST /api/v1/auth/conductor (login del conductor, SCRUM-134/Firebase).
+  2. GET  /api/v1/rutas/{rutaId}/eta
+  3. GET  /api/v1/rutas/{rutaId}/reservas/activas
+  Ninguno de los tres existe todavia en api-buses-jalapa (verificado el
+  2026-09-09 contra el codigo y contra el backend corriendo).
