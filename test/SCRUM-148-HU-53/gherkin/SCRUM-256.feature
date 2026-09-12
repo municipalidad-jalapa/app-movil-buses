@@ -1,20 +1,15 @@
 # language: es
 
-Característica: Evitar registros duplicados en una parada
+Característica: Manejo de una reserva ya activa (SCRUM-256)
 
-  Como pasajero
-  Quiero conocer si ya tengo un registro activo
-  Para evitar registrar dos veces la misma solicitud
+  Escenario: Ya existe una reserva activa en este teléfono
+    Dado que el pasajero ya avisó desde este teléfono
+    Cuando intenta avisar nuevamente
+    Y el backend responde con código 422 indicando reserva activa
+    Entonces la hoja debe informar que no hace falta avisar de nuevo
 
-  Escenario: Ya existe un registro activo
-    Dado que el pasajero ya posee un registro activo en la parada
-    Cuando intenta registrarse nuevamente
-    Y el backend responde con código 422 indicando registro activo
-    Entonces la pantalla debe mostrar "Ya estás anotado"
-    Y debe informar que no es necesario registrarse nuevamente
-
-  Escenario: Error 422 diferente a registro duplicado
-    Dado que el pasajero intenta registrarse
+  Escenario: Error 422 diferente a reserva duplicada
+    Dado que el pasajero intenta avisar
     Cuando el backend responde con código 422 por otra regla de negocio
-    Entonces el sistema debe mostrar el mensaje de error correspondiente
-    Y no debe tratarlo como un registro activo
+    Entonces la hoja debe mostrar el mensaje de esa regla
+    Y no debe tratarlo como una reserva activa

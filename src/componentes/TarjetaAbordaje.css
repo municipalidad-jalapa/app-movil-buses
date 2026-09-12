@@ -1,0 +1,107 @@
+/*
+ * Pregunta de abordaje (HU-58), dentro de la hoja inferior.
+ *
+ * Sin artboard: se arma con el lenguaje de la hoja de R2/R3 (titulo 19/800,
+ * botones pastilla de 60 px). Los dos botones pesan igual a proposito: "no
+ * subi" no es la opcion secundaria. Pendiente de revision de diseno.
+ */
+.abordaje {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--tinta);
+}
+
+.abordaje h2 {
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: 19px;
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: normal;
+}
+
+.abordaje__acciones {
+  display: flex;
+  gap: 10px;
+}
+
+/* Cada boton lleva icono ademas de color (DESIGN.md §3.1 [DURA]). */
+.abordaje__boton {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 60px;
+  padding: 0 12px;
+  border-radius: var(--radio-pastilla);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.abordaje__boton--si {
+  border: 2px solid var(--verde-jumay);
+  background: var(--verde-jumay);
+  color: #fbf7f0;
+}
+
+.abordaje__boton--no {
+  border: 2px solid var(--verde-jumay);
+  background: transparent;
+  color: var(--verde-jumay);
+}
+
+.abordaje__boton--no:disabled {
+  background: transparent;
+}
+
+.abordaje__icono {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.abordaje__enviando {
+  margin: 0;
+  font-size: 15px;
+  color: var(--tinta-secundaria);
+}
+
+/* Resuelto: informa, no felicita ni se disculpa (DESIGN.md §10). */
+.abordaje--resuelto {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.abordaje--resuelto p {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.abordaje--resuelto .abordaje__icono {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  padding: 8px;
+  border-radius: var(--radio-pastilla);
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+}
+
+@media (prefers-color-scheme: dark) {
+  .abordaje__boton--si {
+    border-color: var(--amarillo-volcan);
+    background: var(--amarillo-volcan);
+    color: var(--amarillo-volcan-tinta);
+  }
+
+  .abordaje__boton--no {
+    border-color: var(--amarillo-volcan);
+    color: var(--amarillo-volcan);
+  }
+}

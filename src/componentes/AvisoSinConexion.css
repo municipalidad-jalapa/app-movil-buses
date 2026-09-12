@@ -1,0 +1,89 @@
+/* Artboard "09 Sin conexion": franja #2E2A24, tarjeta #F4EEE2 y boton pastilla. */
+
+.sin-conexion {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--fuente);
+}
+
+.sin-conexion__franja {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 20px 16px;
+  background: #2e2a24;
+  color: #fbf7f0;
+}
+
+.sin-conexion__titulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sin-conexion__titulo h2 {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: 24px;
+  font-weight: 800;
+  color: #fbf7f0;
+}
+
+.sin-conexion__franja p {
+  margin: 0;
+  font-size: 16px;
+  color: #c2b8a8;
+}
+
+.sin-conexion__cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+}
+
+.sin-conexion__tarjeta {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 14px;
+  background: var(--superficie-suave);
+  border-radius: var(--radio-tarjeta);
+  color: var(--verde-jumay);
+}
+
+.sin-conexion__tarjeta svg {
+  flex: 0 0 22px;
+}
+
+.sin-conexion__tarjeta p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--tinta-cuerpo);
+}
+
+.sin-conexion__boton {
+  width: 100%;
+  min-height: 60px;
+  border-radius: var(--radio-pastilla);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sin-conexion__tarjeta {
+    color: var(--amarillo-volcan);
+  }
+
+  .sin-conexion__boton {
+    background: var(--amarillo-volcan);
+    color: var(--amarillo-volcan-tinta);
+  }
+}

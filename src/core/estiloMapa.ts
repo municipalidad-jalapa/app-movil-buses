@@ -38,12 +38,8 @@ export function estiloOpenStreetMap(): StyleSpecification {
         id: 'osm',
         type: 'raster',
         source: 'osm',
-        paint: {
-          // DESIGN.md seccion 8: solo la ruta, el bus y tu parada llevan color
-          // saturado. El fondo se apaga para que el dato principal gane.
-          'raster-saturation': -0.35,
-          'raster-contrast': -0.05,
-        },
+        // Sin ajuste aqui: el tono calido del diseno (MapaOSM) es un filtro CSS
+        // sobre el contenedor, `.mapa-jalapa__capa--calida`.
       },
     ],
   };

@@ -132,7 +132,7 @@ Cuando el endpoint real exista, apagalo cambiando la variable (o no definiéndol
 código de HU-129 no se toca.
 
 Los tipos de `src/core/tipos.ts` reflejan los records del backend. Ojo con las coordenadas: la API
-expone `latitud`/`longitud` con nombre, pero PostGIS y Google Maps usan orden `(lon, lat)`.
+expone `latitud`/`longitud` con nombre, pero PostGIS, GeoJSON y MapLibre usan orden `(lon, lat)`.
 
 ## Convenciones
 

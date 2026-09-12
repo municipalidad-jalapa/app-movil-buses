@@ -30,6 +30,57 @@ const esquemaEntorno = z.object({
   VITE_AUTH_CONDUCTOR_SIMULADO: z.string().optional(),
 });
 
+/**
+ * Firebase Cloud Messaging para los avisos del bus (HU-58).
+ *
+ * Reutiliza el proyecto de Firebase de la sesion del conductor (HU-129) y le
+ * suma lo que solo pide la mensajeria. Nada de esto es secreto: viaja en el
+ * bundle. El secreto real es la cuenta de servicio, que vive en el backend.
+ */
+export interface ConfiguracionMensajeria {
+  readonly apiKey: string;
+  readonly authDomain: string;
+  readonly projectId: string;
+  readonly storageBucket: string;
+  readonly messagingSenderId: string;
+  readonly appId: string;
+  readonly vapidKey: string;
+}
+
+/** Las que necesita la mensajeria ademas de las de Firebase base. */
+const VARIABLES_MENSAJERIA = ['VITE_FIREBASE_MESSAGING_SENDER_ID', 'VITE_FIREBASE_VAPID_KEY'] as const;
+
+function tieneValor(valor: unknown): boolean {
+  return valor !== undefined && valor !== null && String(valor).trim() !== '';
+}
+
+/**
+ * Tres resultados: sin ninguna de las dos variables, los avisos quedan
+ * apagados (`null`) y la app funciona igual. Con las dos, se arma la
+ * configuracion. Con una sola se lanza: un `.env` a medias casi siempre es un
+ * nombre mal escrito, y es mejor fallar que dejar los avisos mudos.
+ */
+function leerMensajeria(
+  origen: Record<string, unknown>,
+  base: { apiKey: string; authDomain: string; projectId: string; appId: string },
+): ConfiguracionMensajeria | null {
+  const faltantes = VARIABLES_MENSAJERIA.filter((v) => !tieneValor(origen[v]));
+  if (faltantes.length === VARIABLES_MENSAJERIA.length) return null;
+  if (faltantes.length > 0) {
+    throw new Error(
+      'Configuracion de avisos incompleta. La aplicacion no puede arrancar.\n' +
+        `Faltan estas variables: ${faltantes.join(', ')}.\n` +
+        'Ponelas todas o quitalas todas: con algunas puestas los avisos quedarian a medias.',
+    );
+  }
+  return Object.freeze({
+    ...base,
+    storageBucket: String(origen.VITE_FIREBASE_STORAGE_BUCKET ?? '').trim(),
+    messagingSenderId: String(origen.VITE_FIREBASE_MESSAGING_SENDER_ID).trim(),
+    vapidKey: String(origen.VITE_FIREBASE_VAPID_KEY).trim(),
+  });
+}
+
 export interface ConfiguracionEcoRuta {
   readonly apiBaseUrl: string;
   readonly firebaseApiKey: string;
@@ -38,6 +89,11 @@ export interface ConfiguracionEcoRuta {
   readonly firebaseAppId: string;
   /** Solo desarrollo local. Nunca true en produccion. */
   readonly authConductorSimulado: boolean;
+  /**
+   * `null` cuando el entorno no configura la mensajeria. La app arranca igual
+   * y los avisos quedan apagados: que falten no puede tumbar el mapa.
+   */
+  readonly mensajeria: ConfiguracionMensajeria | null;
 }
 
 /** Quita la barra final para que las rutas se concatenen sin duplicarla. */
@@ -89,13 +145,20 @@ export function leerConfiguracion(
     throw new Error(mensajeDeValidacion(resultado.error, origen));
   }
 
+  const datos = resultado.data;
   return Object.freeze({
-    apiBaseUrl: normalizarUrl(resultado.data.VITE_API_BASE_URL),
-    firebaseApiKey: resultado.data.VITE_FIREBASE_API_KEY,
-    firebaseAuthDomain: resultado.data.VITE_FIREBASE_AUTH_DOMAIN,
-    firebaseProjectId: resultado.data.VITE_FIREBASE_PROJECT_ID,
-    firebaseAppId: resultado.data.VITE_FIREBASE_APP_ID,
-    authConductorSimulado: resultado.data.VITE_AUTH_CONDUCTOR_SIMULADO === 'true',
+    apiBaseUrl: normalizarUrl(datos.VITE_API_BASE_URL),
+    firebaseApiKey: datos.VITE_FIREBASE_API_KEY,
+    firebaseAuthDomain: datos.VITE_FIREBASE_AUTH_DOMAIN,
+    firebaseProjectId: datos.VITE_FIREBASE_PROJECT_ID,
+    firebaseAppId: datos.VITE_FIREBASE_APP_ID,
+    authConductorSimulado: datos.VITE_AUTH_CONDUCTOR_SIMULADO === 'true',
+    mensajeria: leerMensajeria(origen, {
+      apiKey: datos.VITE_FIREBASE_API_KEY,
+      authDomain: datos.VITE_FIREBASE_AUTH_DOMAIN,
+      projectId: datos.VITE_FIREBASE_PROJECT_ID,
+      appId: datos.VITE_FIREBASE_APP_ID,
+    }),
   });
 }
 
