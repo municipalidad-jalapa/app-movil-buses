@@ -1,13 +1,17 @@
 import { useMemo, useState } from 'react';
+
 import {
   comoPuntoGeografico,
   crearProyeccion,
   type PuntoLienzo,
 } from '../core/proyeccionMapa';
+
 import type { Posicion, Ruta } from '../core/tipos';
+
 import { FondoCargando, FondoCroquis } from './FondosDeMapa';
 import { MapaOpenStreetMap } from './MapaOpenStreetMap';
 import { OverlayRuta, type ParadaEnMapa } from './OverlayRuta';
+
 import './MapaJalapa.css';
 
 /**
@@ -28,13 +32,19 @@ export type ModoMapa = 'claro' | 'oscuro';
 interface Props {
   ruta: Ruta | null;
   posicionBus: Posicion | null;
+
   /** Posiciones anteriores, de mas vieja a mas nueva. Dibujan la estela. */
   historial?: readonly Posicion[];
+
   capa?: CapaMapa;
   modo?: ModoMapa;
   desvio?: boolean;
+
   /** Parada que el pasajero eligio esperar. */
   paradaTuyaId?: number | null;
+
+  /** Informa al componente padre cual parada selecciono el pasajero. */
+  onSeleccionarParada?: (paradaId: number) => void;
 }
 
 export function MapaJalapa({
@@ -45,19 +55,29 @@ export function MapaJalapa({
   modo = 'claro',
   desvio = false,
   paradaTuyaId = null,
+  onSeleccionarParada,
 }: Props) {
   const oscuro = modo === 'oscuro';
 
-  // Si el telefono no puede con el mapa, se ensena el croquis. Mismo trazo,
-  // mismos marcadores; solo cambia el fondo (DESIGN.md seccion 8).
+  // Si el telefono no puede con el mapa, se ensena el croquis.
+  // Mismo trazo, mismos marcadores; solo cambia el fondo.
   const [mapaNoDisponible, setMapaNoDisponible] = useState(false);
-  const capaEfectiva = capa === 'mapa' && mapaNoDisponible ? 'croquis' : capa;
 
-  // El encuadre se calcula SOLO con las paradas, no con la posicion del bus: si
-  // dependiera del bus, el mapa entero saltaria con cada evento nuevo y seria
-  // imposible de seguir.
+  const capaEfectiva =
+    capa === 'mapa' && mapaNoDisponible
+      ? 'croquis'
+      : capa;
+
+  // El encuadre se calcula SOLO con las paradas, no con la posicion del bus:
+  // si dependiera del bus, el mapa entero saltaria con cada evento nuevo.
   const proyeccion = useMemo(
-    () => crearProyeccion((ruta?.paradas ?? []).map((p) => ({ latitud: p.latitud, longitud: p.longitud }))),
+    () =>
+      crearProyeccion(
+        (ruta?.paradas ?? []).map((p) => ({
+          latitud: p.latitud,
+          longitud: p.longitud,
+        })),
+      ),
     [ruta],
   );
 
@@ -66,55 +86,87 @@ export function MapaJalapa({
       (ruta?.paradas ?? []).map((p) => ({
         id: p.id,
         nombre: p.nombre,
-        punto: proyeccion.proyectar({ latitud: p.latitud, longitud: p.longitud }),
+
+        punto: proyeccion.proyectar({
+          latitud: p.latitud,
+          longitud: p.longitud,
+        }),
+
         tuya: p.id === paradaTuyaId,
       })),
     [ruta, proyeccion, paradaTuyaId],
   );
 
-  const trazoRuta: PuntoLienzo[] = useMemo(() => paradas.map((p) => p.punto), [paradas]);
+  const trazoRuta: PuntoLienzo[] = useMemo(
+    () => paradas.map((p) => p.punto),
+    [paradas],
+  );
 
-  const bus = posicionBus ? proyeccion.proyectar(comoPuntoGeografico(posicionBus)) : null;
+  const bus = posicionBus
+    ? proyeccion.proyectar(
+        comoPuntoGeografico(posicionBus),
+      )
+    : null;
 
   // Solo las dos ultimas: mas puntos ensucian el mapa sin decir nada nuevo.
   const estela = useMemo(
-    () => historial.slice(-2).map((p) => proyeccion.proyectar(comoPuntoGeografico(p))),
+    () =>
+      historial
+        .slice(-2)
+        .map((p) =>
+          proyeccion.proyectar(
+            comoPuntoGeografico(p),
+          ),
+        ),
     [historial, proyeccion],
   );
 
   return (
-    <div className="mapa-jalapa" data-modo={modo}>
+    <div
+      className="mapa-jalapa"
+      data-modo={modo}
+    >
       {capaEfectiva === 'mapa' && (
-        // La ruta, las paradas y el bus van como capas del propio mapa, para
-        // que sigan al terreno cuando el usuario hace zoom o arrastra.
         <MapaOpenStreetMap
           ruta={ruta}
           posicionBus={posicionBus}
           oscuro={oscuro}
           paradaTuyaId={paradaTuyaId}
-          onNoDisponible={() => setMapaNoDisponible(true)}
+          onSeleccionarParada={onSeleccionarParada}
+          onNoDisponible={() =>
+            setMapaNoDisponible(true)
+          }
         />
       )}
 
-      {capaEfectiva === 'cargando' && <FondoCargando />}
+      {capaEfectiva === 'cargando' && (
+        <FondoCargando />
+      )}
 
       {capaEfectiva === 'croquis' && (
         <>
           <FondoCroquis />
-          {/* Mismo trazo, mismos marcadores: solo cambia el fondo (DESIGN.md 8). */}
+
           <OverlayRuta
             paradas={paradas}
             trazoRuta={trazoRuta}
             bus={bus}
             estela={estela}
             desvio={desvio}
-            trazoReal={desvio && bus ? [...trazoRuta.slice(0, 2), bus] : []}
+            trazoReal={
+              desvio && bus
+                ? [...trazoRuta.slice(0, 2), bus]
+                : []
+            }
           />
         </>
       )}
 
-      {/* Con el mapa real la pone MapLibre; en croquis y carga, nosotros. */}
-      {capaEfectiva !== 'mapa' && <span className="mapa-jalapa__atribucion">© OpenStreetMap</span>}
+      {capaEfectiva !== 'mapa' && (
+        <span className="mapa-jalapa__atribucion">
+          © OpenStreetMap
+        </span>
+      )}
     </div>
   );
 }
