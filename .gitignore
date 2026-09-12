@@ -3,6 +3,8 @@ target/
 .mvn/
 .idea/
 *.iml
+node_modules/
+dist/
 google-services.json
 *serviceAccount*.json
 .env

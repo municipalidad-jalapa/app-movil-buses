@@ -1,0 +1,100 @@
+.fila-parada-conductor {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--esp-4);
+  padding: var(--esp-4);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--superficie-tarjeta);
+}
+
+.fila-parada-conductor--atendida {
+  background: var(--superficie-base);
+  border-style: dashed;
+  opacity: 0.72;
+}
+
+.fila-parada-conductor__identidad {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fila-parada-conductor__nombre {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 500;
+  color: var(--tinta);
+  overflow-wrap: break-word;
+}
+
+.fila-parada-conductor__estado-texto {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--verde-jumay);
+}
+
+.fila-parada-conductor--atendida .fila-parada-conductor__estado-texto {
+  color: var(--tinta-tenue);
+}
+
+.fila-parada-conductor__eta {
+  margin: 0;
+  min-width: 9ch;
+  text-align: right;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+}
+
+.fila-parada-conductor__eta[data-confiable='false'] {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--tinta-secundaria);
+}
+
+.fila-parada-conductor__reservas {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 7ch;
+}
+
+.fila-parada-conductor__reservas-numero {
+  font-size: 22px;
+  line-height: 26px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+}
+
+.fila-parada-conductor__reservas-etiqueta {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--tinta-secundaria);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .fila-parada-conductor {
+    grid-template-columns: 1fr;
+    justify-items: start;
+    gap: var(--esp-2);
+  }
+
+  .fila-parada-conductor__eta,
+  .fila-parada-conductor__reservas {
+    text-align: left;
+    align-items: flex-start;
+  }
+}
