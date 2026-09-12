@@ -11,22 +11,24 @@ import gt.muni.jalapa.ecoruta.demanda.web.dto.CrearReservaRequest;
 import gt.muni.jalapa.ecoruta.demanda.web.dto.ReservaResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.Set;
 
-/** Crea reservas de espera en parada (SCRUM-306). */
+/**
+ * Ciclo de vida de la reserva de espera en parada: la crea (SCRUM-306), la
+ * renueva y la expira cuando vence (HU-135).
+ */
 @Service
 @RequiredArgsConstructor
 public class ReservaService {
 
     /** Solo estos estados bloquean una reserva nueva. ABORDO no es vigente. */
-    static final Set<EstadoReserva> ESTADOS_VIGENTES =
-            EnumSet.of(EstadoReserva.ACTIVA, EstadoReserva.RENOVADA);
+    static final Set<EstadoReserva> ESTADOS_VIGENTES = EstadoReserva.RENOVABLES;
 
     private static final String INDICE_VIGENTE = "uq_registro_activo_por_dispositivo";
 
@@ -69,6 +71,79 @@ public class ReservaService {
             }
             throw ex;
         }
+    }
+
+    /**
+     * Extiende la vigencia de una reserva vigente otro periodo completo (HU-135).
+     * Conserva su identificador y pasa a RENOVADA.
+     *
+     * <p>Solo el dispositivo que la creo puede renovarla, con el mismo criterio
+     * que la cancelacion: sin ese control cualquiera podria mantener vivas
+     * reservas ajenas e inflar la demanda que ve el conductor.
+     *
+     * @throws RecursoNoEncontradoException si no existe
+     * @throws AccessDeniedException        si es de otro dispositivo (403)
+     * @throws ReglaDeNegocioException      si ya vencio o no esta vigente
+     */
+    @Transactional
+    public ReservaResponse renovar(Long reservaId, String dispositivoId) {
+        Reserva reserva = reservas.findById(reservaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Reserva", reservaId));
+
+        if (!reserva.perteneceA(dispositivoId)) {
+            throw new AccessDeniedException("Esta reserva no pertenece a este dispositivo.");
+        }
+
+        Instant ahora = Instant.now(reloj);
+        if (!reserva.estaVigente(ahora)) {
+            throw new ReglaDeNegocioException("Esta reserva ya venció o no está activa.");
+        }
+
+        reserva.renovar(ahora.plus(demanda.ttl()));
+        return ReservaResponse.de(reserva);
+    }
+
+    /**
+     * El pasajero suelta su reserva a mano (HU-124). No se borra: pasa a
+     * CANCELADA y guarda cuando se cancelo.
+     *
+     * <p>Solo el dispositivo que la creo puede cancelarla. Sin ese control,
+     * cualquiera podria soltar la reserva de otro probando ids, que son
+     * secuenciales.
+     *
+     * @throws RecursoNoEncontradoException si no existe
+     * @throws AccessDeniedException        si es de otro dispositivo (403)
+     * @throws ReglaDeNegocioException      si ya estaba cancelada o no esta vigente
+     */
+    @Transactional
+    public void cancelar(Long reservaId, String dispositivoId) {
+        Reserva reserva = reservas.findById(reservaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Reserva", reservaId));
+
+        if (!reserva.perteneceA(dispositivoId)) {
+            throw new AccessDeniedException("Esta reserva no pertenece a este dispositivo.");
+        }
+        if (reserva.getEstado() == EstadoReserva.CANCELADA) {
+            throw new ReglaDeNegocioException("Esta reserva ya estaba cancelada.");
+        }
+
+        Instant ahora = Instant.now(reloj);
+        if (!reserva.estaVigente(ahora)) {
+            throw new ReglaDeNegocioException("Esta reserva ya venció o no está activa.");
+        }
+
+        reserva.cancelar(ahora);
+    }
+
+    /**
+     * Marca EXPIRADA toda reserva vigente cuya vigencia ya vencio. Idempotente:
+     * si no hay vencidas no toca nada. Lo llama {@link ExpiradorDeReservas}.
+     *
+     * @return cuantas reservas se expiraron en esta pasada
+     */
+    @Transactional
+    public int expirarVencidas() {
+        return reservas.marcarExpiradas(EstadoReserva.RENOVABLES, Instant.now(reloj));
     }
 
     private static boolean esViolacionDeReservaVigente(DataIntegrityViolationException ex) {
