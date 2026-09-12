@@ -14,7 +14,7 @@ coverage/
 .env.local
 .env.*
 !.env.example
-# La llave de Google Maps (HU-27/HU-50) va por entorno, jamas en el repositorio
+# Las llaves de servicios externos van por entorno, jamas en el repositorio
 
 # IDE / SO
 .idea/
