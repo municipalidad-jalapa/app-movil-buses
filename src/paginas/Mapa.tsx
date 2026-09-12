@@ -6,7 +6,7 @@ import { usePosicionBus } from '../hooks/usePosicionBus';
 import { usePrefiereOscuro } from '../hooks/usePrefiereOscuro';
 import { useReserva } from '../hooks/useReserva';
 import { useResumenRuta } from '../hooks/useResumenRuta';
-import { useRutas } from '../hooks/useRutas';
+import { useRutaElegida } from '../hooks/useRutaElegida';
 import { useUbicacion } from '../hooks/useUbicacion';
 import { MapaJalapa } from '../componentes/MapaJalapa';
 import type { ControlMapa } from '../componentes/MapaOpenStreetMap';
@@ -64,8 +64,12 @@ type FaseLocal = Exclude<FaseHoja, 'confirmada'>;
  * del artboard 09.
  */
 export function Mapa() {
-  const { rutaActiva, cargando, error, reintentar } = useRutas();
-  const { posicion, estadoConexion, recibidoEn, cargaInicialLista } = usePosicionBus();
+  const { rutas, rutaActiva, elegirRuta, cargando, error, reintentar } = useRutaElegida();
+  // null mientras carga: no se pinta el bus de ninguna ruta hasta saber cual es.
+  const { posicion, estadoConexion, recibidoEn, cargaInicialLista } = usePosicionBus(
+    undefined,
+    rutaActiva ? rutaActiva.id : null,
+  );
   const { esperandoPorParada, refrescar } = useResumenRuta(rutaActiva?.id);
   const { ubicacion, solicitarUbicacion } = useUbicacion();
   const { reserva, guardarReserva, limpiarReserva } = useReserva();
@@ -87,6 +91,9 @@ export function Mapa() {
   );
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  // La parada del QR se aplica una sola vez: despues, el pasajero puede cambiar
+  // de ruta sin que el QR lo vuelva a arrastrar.
+  const paradaDelQr = useRef<number | null>(!reserva ? paradaId : null);
 
   const vigente = reserva !== null && reserva.estado !== 'EXPIRADA' && estaVigenteSinReloj(reserva);
   const ahora = useReloj(vigente ? 1000 : 15_000);
@@ -107,13 +114,41 @@ export function Mapa() {
   const parada = rutaActiva?.paradas.find((p) => p.id === paradaMostradaId) ?? null;
   const fase: FaseHoja = reservaVigente ? 'confirmada' : faseLocal;
 
-  // Un QR con una parada que no es de la ruta: se vuelve a elegir.
+  // La ruta sigue a la parada: la de la reserva (vigente o recien respondida)
+  // manda siempre; la del QR, solo al abrir. Asi un QR de la Metroplaza abre la
+  // ruta de la Metroplaza aunque la ultima vez se miro otra.
+  const paradaQueFijaLaRuta = reserva ? reserva.paradaId : paradaDelQr.current;
   useEffect(() => {
-    if (rutaActiva && paradaId !== null && !parada && faseLocal === 'elegida' && !reservaVigente) {
+    if (paradaQueFijaLaRuta === null || rutas.length === 0) return;
+    const suRuta = rutas.find((r) => r.paradas.some((p) => p.id === paradaQueFijaLaRuta));
+    if (suRuta && suRuta.id !== rutaActiva?.id) elegirRuta(suRuta.id);
+    if (!reserva) paradaDelQr.current = null;
+  }, [paradaQueFijaLaRuta, rutas, rutaActiva, elegirRuta, reserva]);
+
+  // Al cambiar de ruta a mano, lo elegido en la otra ya no aplica.
+  const rutaAnterior = useRef<number | null>(null);
+  useEffect(() => {
+    const actual = rutaActiva?.id ?? null;
+    const anterior = rutaAnterior.current;
+    rutaAnterior.current = actual;
+    if (anterior === null || actual === null || anterior === actual || reserva) return;
+    if (!rutaActiva?.paradas.some((p) => p.id === paradaId)) {
+      setParadaId(null);
+      setFaseLocal('vacia');
+      setAviso(null);
+    }
+    // Solo el cambio de ruta dispara esto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rutaActiva?.id]);
+
+  // Un QR con una parada que no es de ninguna ruta: se vuelve a elegir.
+  useEffect(() => {
+    const existe = rutas.some((r) => r.paradas.some((p) => p.id === paradaId));
+    if (rutas.length > 0 && paradaId !== null && !existe && faseLocal === 'elegida' && !reservaVigente) {
       setParadaId(null);
       setFaseLocal('vacia');
     }
-  }, [rutaActiva, paradaId, parada, faseLocal, reservaVigente]);
+  }, [rutas, paradaId, faseLocal, reservaVigente]);
 
   // HU-52: la reserva vence sola. Se vuelve a R2 con la misma parada, para que
   // avisar de nuevo sea un solo toque.
