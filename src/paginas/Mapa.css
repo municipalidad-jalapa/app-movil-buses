@@ -64,3 +64,53 @@
   /* Las horas no deben bailar al actualizarse (DESIGN.md 4 [DURA]). */
   font-variant-numeric: tabular-nums;
 }
+
+/* HU-74: tarjeta del tiempo estimado de llegada. */
+.pantalla-mapa__eta {
+  background: var(--mapa-pastilla, #fbf7f0);
+  border: 1px solid var(--mapa-pastilla-borde, #ddd3c2);
+  border-radius: 6px 14px 14px 14px;
+  padding: 12px 16px;
+  min-width: 220px;
+  max-width: 320px;
+  color: var(--mapa-pastilla-tinta, #2e2a24);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 14%);
+}
+
+.pantalla-mapa__eta-etiqueta {
+  margin: 0 0 3px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pantalla-mapa__eta h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.pantalla-mapa__eta-texto {
+  margin: 0;
+  font-size: 13px;
+}
+
+.pantalla-mapa__eta-minutos {
+  display: block;
+  margin-top: 2px;
+  font-size: 30px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pantalla-mapa__eta-salida {
+  display: block;
+  margin-top: 4px;
+  font-size: 18px;
+}
+
+.pantalla-mapa__eta-sin-datos {
+  margin: 6px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+}
