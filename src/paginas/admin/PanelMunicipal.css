@@ -1,0 +1,598 @@
+/*
+ * Panel web municipal (SCRUM-173). Canvas «EcoRuta · Panel municipal».
+ * Escritorio. Sobrio: la identidad vive solo en la franja del login y en la
+ * cabecera (DESIGN.md §11); detras de los datos, superficie plana (§6).
+ */
+
+/* ---------- Tipografia comun ---------- */
+.panel-rotulo {
+  margin: 0;
+  color: var(--verde-jumay);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+.panel-h1 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.panel-h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.panel-apoyo {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--tinta-secundaria);
+}
+
+.panel-ayuda {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--tinta-tenue);
+}
+
+.panel-destacado {
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.panel-encabezado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+}
+
+/* ---------- Pantalla partida: franja de identidad + contenido ---------- */
+.panel-identidad {
+  display: flex;
+  min-height: 100dvh;
+  background: var(--superficie-base);
+}
+
+.panel-identidad__franja {
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 56px;
+  background: var(--verde-jumay);
+}
+
+.panel-identidad__voluta {
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+}
+
+.panel-identidad__marca,
+.panel-identidad__pie {
+  position: relative;
+}
+
+.panel-identidad__marca {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.panel-identidad__nombre {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panel-identidad__ecoruta {
+  font-family: var(--fuente-titulos);
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fbf7f0;
+}
+
+.panel-identidad__lema {
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--amarillo-volcan);
+}
+
+.panel-identidad__pie {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.panel-identidad__titulo {
+  margin: 0;
+  max-width: 420px;
+  font-family: var(--fuente-titulos);
+  font-size: 34px;
+  line-height: 40px;
+  font-weight: 800;
+  color: #fbf7f0;
+}
+
+.panel-identidad__municipio {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--verde-jumay-suave);
+}
+
+.panel-identidad__contenido {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--esp-8);
+}
+
+.panel-identidad__columna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-6);
+  width: 100%;
+  animation: panel-entrada 420ms ease both;
+}
+
+/* Pantallas angostas: la franja se vuelve cabecera. */
+@media (max-width: 1024px) {
+  .panel-identidad {
+    flex-direction: column;
+  }
+
+  .panel-identidad__franja {
+    flex: 0 0 auto;
+    gap: var(--esp-6);
+    padding: var(--esp-8);
+  }
+
+  .panel-identidad__pie svg {
+    display: none;
+  }
+}
+
+/* ---------- Formulario ---------- */
+.panel-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+}
+
+.panel-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--tinta-secundaria);
+}
+
+.panel-campo input {
+  min-height: 48px;
+  padding: 0 var(--esp-4);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-control);
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 15px;
+  transition: border-color 200ms ease, outline-color 200ms ease;
+}
+
+.panel-campo input:focus {
+  outline: 3px solid var(--verde-jumay-superficie);
+  border-color: var(--verde-jumay);
+}
+
+/* ---------- Botones: pastilla, area minima 48 px (DESIGN.md §5) ---------- */
+.panel-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-2);
+  min-height: var(--tactil-minimo);
+  padding: 0 var(--esp-6);
+  border-radius: var(--radio-pastilla);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.panel-boton:focus-visible {
+  outline: 3px solid var(--verde-jumay-superficie);
+  outline-offset: 2px;
+}
+
+.panel-boton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.panel-boton--ancho {
+  width: 100%;
+}
+
+.panel-boton--primario {
+  border: 0;
+  background: var(--verde-jumay);
+  color: var(--superficie-base);
+}
+
+.panel-boton--primario:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.panel-boton--secundario {
+  border: 1px solid var(--borde);
+  background: transparent;
+  color: var(--verde-jumay);
+}
+
+/* En la cabecera se ve de 40 px, pero el area de clic es de 48 px. */
+.panel-boton--cabecera {
+  position: relative;
+  min-height: 40px;
+  padding: 0 var(--esp-4);
+  border: 1px solid var(--verde-jumay-apagado);
+  background: transparent;
+  color: #fbf7f0;
+  font-size: 14px;
+}
+
+.panel-boton--cabecera::after {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+}
+
+/* ---------- Avisos: color + icono + texto ---------- */
+.panel-aviso,
+.panel-nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  padding: var(--esp-4);
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.panel-aviso svg,
+.panel-nota svg {
+  flex: 0 0 20px;
+  margin-top: 1px;
+}
+
+.panel-aviso--error {
+  background: var(--rojo-santa-marta-superficie);
+  color: var(--rojo-santa-marta);
+}
+
+.panel-aviso--informativo {
+  background: var(--amarillo-volcan-superficie);
+  color: var(--amarillo-volcan-tinta);
+}
+
+.panel-nota {
+  background: var(--superficie-suave);
+  color: var(--tinta-cuerpo);
+}
+
+.panel-icono-cuadro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radio-tarjeta-chica);
+}
+
+.panel-icono-cuadro--neutro {
+  width: 56px;
+  height: 56px;
+  background: var(--superficie-suave);
+  color: var(--tinta);
+}
+
+.panel-icono-cuadro--atencion {
+  width: 48px;
+  height: 48px;
+  background: var(--amarillo-volcan-superficie);
+  color: var(--amarillo-volcan-tinta);
+}
+
+/* ---------- Panel: cabecera sobria ---------- */
+.panel-escritorio {
+  min-height: 100dvh;
+  background: var(--superficie-base);
+}
+
+.panel-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-4);
+  min-height: 64px;
+  padding: 0 32px;
+  background: var(--verde-jumay);
+}
+
+.panel-cabecera__marca,
+.panel-cabecera__usuario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panel-cabecera__ecoruta {
+  font-family: var(--fuente-titulos);
+  font-size: 20px;
+  font-weight: 800;
+  color: #fbf7f0;
+}
+
+.panel-cabecera__separador {
+  width: 1px;
+  height: 24px;
+  background: var(--verde-jumay-apagado);
+}
+
+.panel-cabecera__seccion {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--verde-jumay-suave);
+}
+
+.panel-cabecera__correo {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fbf7f0;
+}
+
+/* ---------- Panel: contenido ---------- */
+.panel-principal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-6);
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.panel-principal__encabezado {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--esp-4);
+}
+
+.panel-resumen {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--esp-4);
+}
+
+.panel-cifra {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  padding: 20px;
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-suave);
+}
+
+.panel-cifra__etiqueta {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--tinta-secundaria);
+}
+
+.panel-cifra__valor {
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.panel-tabla-marco {
+  overflow: auto;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-base);
+}
+
+.panel-tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.panel-tabla th {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--borde);
+  background: var(--superficie-suave);
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tinta-tenue);
+}
+
+.panel-tabla td {
+  padding: 18px 16px;
+  border-bottom: 1px solid var(--borde-sutil);
+  vertical-align: middle;
+  font-size: 15px;
+  color: var(--tinta-cuerpo);
+}
+
+.panel-tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.panel-tabla .panel-tabla__num {
+  text-align: right;
+}
+
+.panel-tabla__ruta {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.panel-tabla__principal {
+  display: block;
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.panel-tabla__secundario {
+  display: block;
+  font-size: 13px;
+  color: var(--tinta-tenue);
+}
+
+.panel-tabla__atrasada {
+  color: var(--rojo-santa-marta);
+}
+
+.panel-tabla__vacia {
+  text-align: center;
+  color: var(--tinta-tenue);
+}
+
+/* ---------- Chips de estado ---------- */
+.panel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radio-pastilla);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.panel-chip--en-ruta {
+  background: var(--verde-jumay);
+  color: #fbf7f0;
+}
+
+.panel-chip--sin-datos {
+  border: 2px solid var(--borde-manija);
+  background: var(--superficie-hundida);
+  color: var(--tinta-cuerpo);
+}
+
+.panel-chip--sin-bus {
+  border: 2px dashed var(--borde-manija);
+  background: var(--amarillo-volcan-superficie);
+  color: var(--amarillo-volcan-tinta);
+}
+
+/* ---------- Aviso de inactividad ---------- */
+.panel-velo {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--esp-6);
+  background: rgba(28, 26, 23, 0.48);
+}
+
+.panel-dialogo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-6);
+  width: 100%;
+  max-width: 480px;
+  padding: 32px;
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-base);
+  box-shadow: 0 8px 32px rgba(28, 26, 23, 0.24);
+}
+
+.panel-dialogo__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/*
+ * Tema oscuro. tema.css oscurece superficies y tintas pero no los colores de
+ * marca, asi que el verde, el rojo y la tinta amarilla pierden contraste sobre
+ * fondo oscuro. Mismo criterio que Layout.css y HojaReserva.css.
+ */
+@media (prefers-color-scheme: dark) {
+  .panel-identidad__franja,
+  .panel-cabecera {
+    background: var(--verde-jumay-fuerte);
+  }
+
+  .panel-rotulo,
+  .panel-boton--secundario {
+    color: var(--verde-jumay-suave);
+  }
+
+  .panel-boton--primario,
+  .panel-chip--en-ruta {
+    background: var(--verde-jumay-apagado);
+    color: #fbf7f0;
+  }
+
+  .panel-aviso--error,
+  .panel-tabla__atrasada {
+    color: #f0b4ab;
+  }
+
+  .panel-aviso--informativo,
+  .panel-icono-cuadro--atencion,
+  .panel-chip--sin-bus {
+    color: #f2d27a;
+  }
+
+  .panel-campo input:focus {
+    border-color: var(--verde-jumay-suave);
+  }
+}
+
+@keyframes panel-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-identidad__columna {
+    animation: none;
+  }
+
+  .panel-boton,
+  .panel-campo input {
+    transition: none;
+  }
+}
