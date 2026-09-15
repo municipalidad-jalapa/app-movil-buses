@@ -36,7 +36,9 @@ describe('leerConfiguracion', () => {
   });
 
   it('falla con un mensaje claro si falta la variable obligatoria', () => {
-    expect(() => leerConfiguracion({})).toThrow(/Falta la variable VITE_API_BASE_URL/);
+    expect(() => leerConfiguracion({})).toThrow(
+      /Falta la variable VITE_API_BASE_URL/,
+    );
   });
 
   it('falla con un mensaje claro si falta una variable de Firebase', () => {
@@ -57,8 +59,11 @@ describe('leerConfiguracion', () => {
     ).toThrow(/VITE_API_BASE_URL no es una URL valida/);
   });
 
-  it('deja el simulador apagado si la variable no esta o no es true', () => {
-    expect(leerConfiguracion(entornoValido).authConductorSimulado).toBe(false);
+  it('deja el simulador de autenticacion apagado si la variable no esta o no es true', () => {
+    expect(
+      leerConfiguracion(entornoValido).authConductorSimulado,
+    ).toBe(false);
+
     expect(
       leerConfiguracion({
         ...entornoValido,
@@ -67,7 +72,7 @@ describe('leerConfiguracion', () => {
     ).toBe(false);
   });
 
-  it('activa el simulador solo cuando la variable vale true', () => {
+  it('activa el simulador de autenticacion solo cuando la variable vale true', () => {
     const resultado = leerConfiguracion({
       ...entornoValido,
       VITE_AUTH_CONDUCTOR_SIMULADO: 'true',
@@ -75,13 +80,41 @@ describe('leerConfiguracion', () => {
 
     expect(resultado.authConductorSimulado).toBe(true);
   });
+
+  it('deja el simulador de ETA apagado si la variable no esta', () => {
+    const resultado = leerConfiguracion(entornoValido);
+
+    expect(resultado.etaSimulado).toBe(false);
+  });
+
+  it('deja el simulador de ETA apagado si la variable vale false', () => {
+    const resultado = leerConfiguracion({
+      ...entornoValido,
+      VITE_ETA_SIMULADO: 'false',
+    });
+
+    expect(resultado.etaSimulado).toBe(false);
+  });
+
+  it('activa el simulador de ETA solo cuando la variable vale true', () => {
+    const resultado = leerConfiguracion({
+      ...entornoValido,
+      VITE_ETA_SIMULADO: 'true',
+    });
+
+    expect(resultado.etaSimulado).toBe(true);
+  });
 });
 
 describe('config', () => {
   it('queda validada y congelada al cargar el modulo', () => {
     expect(config.apiBaseUrl).toBe('https://api.ejemplo.test');
     expect(config.firebaseProjectId).toBe('ecoruta-prueba');
+
     expect(config.authConductorSimulado).toBe(false);
+
+    expect(typeof config.etaSimulado).toBe('boolean');
+
     expect(Object.isFrozen(config)).toBe(true);
   });
 });

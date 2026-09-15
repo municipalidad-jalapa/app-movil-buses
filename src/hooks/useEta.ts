@@ -1,10 +1,16 @@
-import { useEffect, useState } from 'react';
+import {
+  useEffect,
+  useState,
+} from 'react';
 
 import {
   obtenerEstadoEta,
-  obtenerEtaSimulado,
   type EstadoEta,
 } from '../core/eta';
+
+import {
+  obtenerEta,
+} from '../core/etaApi';
 
 import type {
   Posicion,
@@ -20,27 +26,33 @@ interface ResultadoUseEta {
  * HU-74.
  *
  * Recalcula automaticamente el ETA
- * cada vez que llega una nueva
- * posicion del bus.
+ * cada vez que cambia la ruta, parada
+ * o posicion del bus.
+ *
+ * La fuente de datos se selecciona
+ * mediante configuracion y no esta
+ * hardcodeada en el hook.
  */
 export function useEta(
   ruta: Ruta | null,
   paradaId: number | null,
   posicionBus: Posicion | null,
 ): ResultadoUseEta {
+
   const [
     estadoEta,
     setEstadoEta,
-  ] = useState<EstadoEta | null>(
-    null,
-  );
+  ] =
+    useState<EstadoEta | null>(null);
 
   const [
     cargando,
     setCargando,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   useEffect(() => {
+
     if (
       ruta === null ||
       paradaId === null
@@ -50,8 +62,7 @@ export function useEta(
       return;
     }
 
-    const rutaActual =
-      ruta;
+    const rutaActual = ruta;
 
     const paradaActualId =
       paradaId;
@@ -62,16 +73,26 @@ export function useEta(
     let vigente = true;
 
     async function actualizarEta() {
+
       setCargando(true);
 
       try {
+
         const eta =
-          await obtenerEtaSimulado(
+          await obtenerEta(
             rutaActual,
             posicionActual,
           );
 
         if (!vigente) {
+          return;
+        }
+
+        if (eta === null) {
+          setEstadoEta({
+            tipo: 'sin-datos',
+          });
+
           return;
         }
 
@@ -82,7 +103,17 @@ export function useEta(
             posicionActual !== null,
           ),
         );
+
+      } catch {
+
+        if (vigente) {
+          setEstadoEta({
+            tipo: 'sin-datos',
+          });
+        }
+
       } finally {
+
         if (vigente) {
           setCargando(false);
         }
@@ -94,6 +125,7 @@ export function useEta(
     return () => {
       vigente = false;
     };
+
   }, [
     ruta,
     paradaId,
