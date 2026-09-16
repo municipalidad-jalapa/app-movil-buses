@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { MenuAcceso } from './MenuAcceso';
 import './Layout.css';
 
 interface Props {
@@ -21,6 +22,9 @@ interface Props {
 /**
  * Cascaron de la app: la cabecera verde del canvas (logo y "EcoRuta") y el
  * area de contenido. Movil primero.
+ *
+ * A la derecha de la marca vive el menu de acceso por rol (pasajero, conductor,
+ * admin): es el unico punto de entrada a las tres caras del sistema.
  */
 export function Layout({ children, aSangre = false, estado }: Props) {
   return (
@@ -39,7 +43,10 @@ export function Layout({ children, aSangre = false, estado }: Props) {
           </svg>
           EcoRuta
         </span>
-        {estado && <span className="apl__estado">{estado}</span>}
+        <span className="apl__acciones">
+          {estado && <span className="apl__estado">{estado}</span>}
+          <MenuAcceso />
+        </span>
       </header>
       <main className={aSangre ? 'apl__contenido apl__contenido--a-sangre' : 'apl__contenido'}>
         {children}

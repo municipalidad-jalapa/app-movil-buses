@@ -32,6 +32,14 @@
   font-weight: 800;
 }
 
+/* Bloque derecho de la cabecera: estado del servicio (si lo hay) y el menu
+   de acceso por rol, alineados a la derecha. */
+.apl__acciones {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .apl__contenido {
   flex: 1;
   width: 100%;
