@@ -9,6 +9,10 @@ import { Mapa } from './paginas/Mapa';
 import { NoEncontrada } from './paginas/NoEncontrada';
 import { LoginConductor } from './paginas/conductor/LoginConductor';
 import { PanelConductor } from './paginas/conductor/PanelConductor';
+import { RutaProtegidaAdmin } from './componentes/admin/RutaProtegidaAdmin';
+import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
+import { LoginAdmin } from './paginas/admin/LoginAdmin';
+import { PanelAdmin } from './paginas/admin/PanelAdmin';
 
 export function App() {
   return (
@@ -42,6 +46,27 @@ export function App() {
               <RutaProtegida>
                 <PanelConductor />
               </RutaProtegida>
+            }
+          />
+
+          {/* SCRUM-173: panel web municipal, escritorio. Sesion propia del administrador. */}
+          <Route
+            path="/admin/*"
+            element={
+              <AuthAdminProvider>
+                <Routes>
+                  <Route path="login" element={<LoginAdmin />} />
+                  <Route
+                    index
+                    element={
+                      <RutaProtegidaAdmin>
+                        <PanelAdmin />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  <Route path="*" element={<Navigate to="/admin" replace />} />
+                </Routes>
+              </AuthAdminProvider>
             }
           />
 
