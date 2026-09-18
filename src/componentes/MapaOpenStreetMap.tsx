@@ -86,7 +86,8 @@ export function MapaOpenStreetMap({
   const marcadorBus = useRef<Marker | null>(null);
   const marcadorYo = useRef<Marker | null>(null);
   const marcadoresParada = useRef<Marker[]>([]);
-  const encuadrado = useRef(false);
+  /** La ruta que ya se encuadro. Al elegir otra, se vuelve a encuadrar. */
+  const rutaEncuadrada = useRef<number | null>(null);
   const elegidaAlAbrir = useRef(paradaElegidaId);
   // El manejador cambia en cada render; los marcadores llaman siempre al ultimo.
   const alElegir = useRef(onElegirParada);
@@ -201,8 +202,11 @@ export function MapaOpenStreetMap({
     // saltaria bajo el dedo y seria imposible de seguir.
     // Si se llega con una parada ya elegida (el QR de la parada, o una reserva
     // vigente), se abre sobre ella, como R2; si no, con la ruta entera.
-    if (!encuadrado.current) {
-      const elegida = ruta.paradas.find((p) => p.id === elegidaAlAbrir.current);
+    if (rutaEncuadrada.current !== ruta.id) {
+      // Solo la primera vez se abre sobre la parada del QR o de la reserva; al
+      // cambiar de ruta se muestra la ruta nueva entera.
+      const primeraVez = rutaEncuadrada.current === null;
+      const elegida = primeraVez ? ruta.paradas.find((p) => p.id === elegidaAlAbrir.current) : undefined;
       if (elegida) {
         instancia.easeTo({
           center: [elegida.longitud, elegida.latitud],
@@ -211,9 +215,9 @@ export function MapaOpenStreetMap({
           duration: 0,
         });
       } else {
-        encuadrarRuta(instancia, ruta, 0);
+        encuadrarRuta(instancia, ruta, primeraVez ? 0 : 600);
       }
-      encuadrado.current = true;
+      rutaEncuadrada.current = ruta.id;
     }
   }, [ruta, listo]);
 
@@ -238,7 +242,15 @@ export function MapaOpenStreetMap({
   // --- El bus --------------------------------------------------------------
   useEffect(() => {
     const instancia = mapa.current;
-    if (!instancia || !listo || !posicionBus) return;
+    if (!instancia || !listo) return;
+
+    // Sin posicion (por ejemplo, recien cambiada la ruta) no queda el bus de la
+    // ruta anterior dibujado en el mapa.
+    if (!posicionBus) {
+      marcadorBus.current?.remove();
+      marcadorBus.current = null;
+      return;
+    }
 
     const donde: LngLatLike = [posicionBus.longitud, posicionBus.latitud];
 
