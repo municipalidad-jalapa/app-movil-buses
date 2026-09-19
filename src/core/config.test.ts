@@ -3,6 +3,10 @@ import { config, leerConfiguracion } from './config';
 
 const entornoValido = {
   VITE_API_BASE_URL: 'https://api.ejemplo.com',
+  VITE_FIREBASE_API_KEY: 'clave-firebase',
+  VITE_FIREBASE_AUTH_DOMAIN: 'ecoruta.firebaseapp.com',
+  VITE_FIREBASE_PROJECT_ID: 'ecoruta',
+  VITE_FIREBASE_APP_ID: '1:1:web:abc',
 };
 
 describe('leerConfiguracion', () => {
@@ -35,18 +39,83 @@ describe('leerConfiguracion', () => {
     expect(() => leerConfiguracion({})).toThrow(/Falta la variable VITE_API_BASE_URL/);
   });
 
+  it('falla con un mensaje claro si falta una variable de Firebase', () => {
+    expect(() =>
+      leerConfiguracion({
+        ...entornoValido,
+        VITE_FIREBASE_API_KEY: '',
+      }),
+    ).toThrow(/Falta la variable VITE_FIREBASE_API_KEY/);
+  });
+
   it('falla con un mensaje claro si la URL tiene formato invalido', () => {
     expect(() =>
       leerConfiguracion({
+        ...entornoValido,
         VITE_API_BASE_URL: 'no-es-una-url',
       }),
     ).toThrow(/VITE_API_BASE_URL no es una URL valida/);
+  });
+
+  it('deja el simulador apagado si la variable no esta o no es true', () => {
+    expect(leerConfiguracion(entornoValido).authConductorSimulado).toBe(false);
+    expect(
+      leerConfiguracion({
+        ...entornoValido,
+        VITE_AUTH_CONDUCTOR_SIMULADO: 'false',
+      }).authConductorSimulado,
+    ).toBe(false);
+  });
+
+  it('activa el simulador solo cuando la variable vale true', () => {
+    const resultado = leerConfiguracion({
+      ...entornoValido,
+      VITE_AUTH_CONDUCTOR_SIMULADO: 'true',
+    });
+
+    expect(resultado.authConductorSimulado).toBe(true);
   });
 });
 
 describe('config', () => {
   it('queda validada y congelada al cargar el modulo', () => {
     expect(config.apiBaseUrl).toBe('https://api.ejemplo.test');
+    expect(config.firebaseProjectId).toBe('ecoruta-prueba');
+    expect(config.authConductorSimulado).toBe(false);
     expect(Object.isFrozen(config)).toBe(true);
+  });
+});
+
+describe('configuracion de avisos (HU-58)', () => {
+  const mensajeria = {
+    VITE_FIREBASE_MESSAGING_SENDER_ID: '123456',
+    VITE_FIREBASE_VAPID_KEY: 'vapid',
+  };
+
+  it('deja los avisos apagados si no hay variables de mensajeria', () => {
+    expect(leerConfiguracion(entornoValido).mensajeria).toBeNull();
+  });
+
+  it('reutiliza el proyecto de Firebase de la sesion del conductor', () => {
+    const resultado = leerConfiguracion({ ...entornoValido, ...mensajeria });
+    expect(resultado.mensajeria).toMatchObject({
+      apiKey: entornoValido.VITE_FIREBASE_API_KEY,
+      projectId: entornoValido.VITE_FIREBASE_PROJECT_ID,
+      appId: entornoValido.VITE_FIREBASE_APP_ID,
+      messagingSenderId: '123456',
+      vapidKey: 'vapid',
+    });
+  });
+
+  it('falla nombrando lo que falta si el .env quedo a medias', () => {
+    expect(() =>
+      leerConfiguracion({ ...entornoValido, VITE_FIREBASE_MESSAGING_SENDER_ID: '123456' }),
+    ).toThrow(/VITE_FIREBASE_VAPID_KEY/);
+  });
+
+  it('trata una variable vacia como ausente', () => {
+    expect(() =>
+      leerConfiguracion({ ...entornoValido, ...mensajeria, VITE_FIREBASE_VAPID_KEY: '   ' }),
+    ).toThrow(/VITE_FIREBASE_VAPID_KEY/);
   });
 });

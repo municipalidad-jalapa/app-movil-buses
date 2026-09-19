@@ -12,6 +12,13 @@ import type { Posicion } from '../core/tipos';
 /** Ruta de respaldo cuando el flujo en vivo no conecta (SCRUM-139, HU-44). */
 export const RUTA_POSICION = '/api/v1/telemetria/posicion';
 
+/**
+ * Cada cuanto se pregunta la posicion mientras el flujo en vivo esta caido
+ * (HU-61). El bus reporta cada pocos segundos; mas seguido no aporta y gasta
+ * datos del pasajero.
+ */
+export const CONSULTA_DE_RESPALDO_MS = 10_000;
+
 export interface EstadoPosicionBus {
   /** `null` mientras no haya ninguna posicion todavia. No es un error. */
   posicion: Posicion | null;
@@ -39,7 +46,15 @@ export interface EstadoPosicionBus {
  * creciente al reconectar (SCRUM-246) y como se presenta la falta de posicion
  * (SCRUM-247). Este hook solo entrega el dato y el estado.
  */
-export function usePosicionBus(crearFuente?: FabricaDeFuente): EstadoPosicionBus {
+export function usePosicionBus(
+  crearFuente?: FabricaDeFuente,
+  /**
+   * La ruta cuyo bus se sigue. `undefined`: toda la flota (como antes de V12).
+   * `null`: la ruta todavia no se conoce y no se pide nada, para no pintar un
+   * bus de otra ruta mientras carga.
+   */
+  rutaId?: number | null,
+): EstadoPosicionBus {
   const [posicion, setPosicion] = useState<Posicion | null>(null);
   const [estadoConexion, setEstadoConexion] = useState<EstadoConexion>('conectando');
   const [recibidoEn, setRecibidoEn] = useState<Date | null>(null);
@@ -58,14 +73,25 @@ export function usePosicionBus(crearFuente?: FabricaDeFuente): EstadoPosicionBus
     setRecibidoEn(new Date());
   }
 
+  const consulta = rutaId !== undefined && rutaId !== null ? `${RUTA_POSICION}?rutaId=${rutaId}` : RUTA_POSICION;
+
   useEffect(() => {
+    // Cambio de ruta: lo que se sabia es de otro bus. Se empieza de cero.
+    ultima.current = null;
+    setPosicion(null);
+    setRecibidoEn(null);
+    setError(null);
+    setCargaInicialLista(false);
+    setEstadoConexion('conectando');
+    if (rutaId === null) return;
+
     const control = new AbortController();
     let vigente = true;
 
     // 1. Carga inicial. Si el flujo ya trajo algo mas nuevo mientras esta
     //    consulta viajaba, aceptarSiEsMasReciente la descarta sola.
     apiClient
-      .get<Posicion>(RUTA_POSICION, { signal: control.signal })
+      .get<Posicion>(consulta, { signal: control.signal })
       .then((datos) => {
         if (!vigente) return;
         if (datos) aceptarSiEsMasReciente(datos);
@@ -85,6 +111,7 @@ export function usePosicionBus(crearFuente?: FabricaDeFuente): EstadoPosicionBus
         onEstado: (estado) => vigente && setEstadoConexion(estado),
       },
       crearFuente,
+      rutaId,
     );
 
     return () => {
@@ -94,7 +121,29 @@ export function usePosicionBus(crearFuente?: FabricaDeFuente): EstadoPosicionBus
     };
     // crearFuente solo se inyecta en pruebas y no cambia en vida del componente.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [rutaId]);
+
+  // HU-61: mientras el flujo en vivo reconecta, la posicion se sigue pidiendo
+  // por la ruta de respaldo. Asi el bus no se congela en el mapa si el SSE
+  // tarda en volver (o si un proxy lo corta y nunca vuelve).
+  useEffect(() => {
+    if (estadoConexion !== 'reconectando') return;
+    const control = new AbortController();
+    const consultar = () =>
+      apiClient
+        .get<Posicion>(consulta, { signal: control.signal, intentos: 1 })
+        .then((datos) => {
+          if (datos && !control.signal.aborted) aceptarSiEsMasReciente(datos);
+        })
+        .catch(() => {});
+    const temporizador = setInterval(consultar, CONSULTA_DE_RESPALDO_MS);
+    return () => {
+      clearInterval(temporizador);
+      control.abort();
+    };
+    // aceptarSiEsMasReciente solo usa refs y setters estables.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [estadoConexion, consulta]);
 
   return { posicion, estadoConexion, recibidoEn, error, cargaInicialLista };
 }

@@ -52,6 +52,11 @@
   height: 100%;
 }
 
+/* El tono calido del raster en modo claro, tal cual MapaOSM.dc.html. */
+.mapa-jalapa__capa--calida {
+  filter: sepia(0.18) saturate(0.68) brightness(1.06) hue-rotate(-6deg);
+}
+
 .mapa-jalapa__rotulo {
   font-family: var(--fuente-mapa);
   font-size: 11px;
@@ -140,23 +145,6 @@
   cursor: default;
 }
 
-/* El popup del nombre de la parada, con el lenguaje del mock. */
-.mapa-jalapa .maplibregl-popup-content {
-  background: var(--mapa-pastilla);
-  color: var(--mapa-pastilla-tinta);
-  font-family: var(--fuente-mapa);
-  font-size: 13px;
-  font-weight: 700;
-  border: 1px solid var(--mapa-pastilla-borde);
-  border-radius: 6px 2px 6px 2px;
-  padding: 6px 10px;
-  box-shadow: none;
-}
-
-.mapa-jalapa .maplibregl-popup-tip {
-  border-top-color: var(--mapa-pastilla);
-}
-
 /* La atribucion de MapLibre, con la misma pastilla que el resto. */
 .mapa-jalapa .maplibregl-ctrl-attrib {
   background: var(--mapa-pastilla);
@@ -171,10 +159,4 @@
 
 .mapa-jalapa .maplibregl-ctrl-attrib a {
   color: inherit;
-}
-
-/* Area tactil de 48px en los controles (DESIGN.md 5 [DURA]). */
-.mapa-jalapa .maplibregl-ctrl button {
-  width: 48px;
-  height: 48px;
 }

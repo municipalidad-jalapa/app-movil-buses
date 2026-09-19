@@ -4,24 +4,40 @@
   min-height: 100dvh;
 }
 
+/* Cabecera del canvas (MapaOSM): verde de marca, 12/18/14 px, fila de 30 px. */
 .apl__encabezado {
   display: flex;
-  align-items: baseline;
-  gap: var(--esp-2);
-  padding: calc(var(--esp-3) + var(--seguro-arriba)) var(--esp-4) var(--esp-3);
-  background: var(--color-marca);
-  color: #fff;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: var(--alto-encabezado);
+  padding: calc(12px + var(--seguro-arriba)) 18px 14px;
+  background: var(--verde-jumay);
+  color: var(--superficie-base);
 }
 
 .apl__marca {
-  font-weight: 700;
-  font-size: 1.125rem;
-  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--fuente-titulos);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1;
+  color: #fbf7f0;
 }
 
-.apl__lugar {
-  font-size: 0.875rem;
-  opacity: 0.85;
+.apl__estado {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* Bloque derecho de la cabecera: estado del servicio (si lo hay) y el menu
+   de acceso por rol, alineados a la derecha. */
+.apl__acciones {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
 }
 
 /* El estado del servicio se empuja a la derecha del encabezado. */
@@ -49,4 +65,15 @@
   padding: 0;
   /* min-height: 0 deja que el hijo de 100dvh no desborde el flex. */
   min-height: 0;
+}
+
+/* Modo oscuro, artboard M3: la cabecera baja a verde profundo. */
+@media (prefers-color-scheme: dark) {
+  .apl__encabezado {
+    background: var(--verde-jumay-fuerte);
+  }
+
+  .apl__marca {
+    color: #f4eee2;
+  }
 }

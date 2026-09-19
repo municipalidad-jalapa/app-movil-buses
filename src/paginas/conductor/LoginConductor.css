@@ -1,0 +1,130 @@
+.login-conductor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-6);
+  width: 100%;
+  animation: login-entrada 420ms ease both;
+}
+
+.login-conductor__etiqueta {
+  margin: 0;
+  color: var(--verde-jumay);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+.login-conductor__encabezado h1 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.login-conductor__encabezado p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+  color: var(--tinta-secundaria);
+}
+
+.login-conductor__aviso {
+  margin: 0;
+  padding: var(--esp-4);
+  border-radius: 12px;
+  background: var(--amarillo-volcan-superficie);
+  color: var(--amarillo-volcan-tinta);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.login-conductor__formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+}
+
+.login-conductor__campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--tinta-secundaria);
+}
+
+.login-conductor__campo input {
+  min-height: 48px;
+  padding: 0 var(--esp-4);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 15px;
+  transition: border-color 200ms ease, outline-color 200ms ease;
+}
+
+.login-conductor__campo input:focus {
+  outline: 3px solid var(--verde-jumay-superficie);
+  border-color: var(--verde-jumay);
+}
+
+.login-conductor__enviar {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--verde-jumay);
+  color: var(--superficie-base);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.login-conductor__enviar:hover:not(:disabled) {
+  filter: brightness(1.06);
+  transform: scale(1.02);
+}
+
+.login-conductor__enviar:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.login-conductor__enviar:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.login-conductor__enviar:focus-visible {
+  outline: 3px solid var(--verde-jumay-superficie);
+  outline-offset: 2px;
+}
+
+@keyframes login-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-conductor {
+    animation: none;
+  }
+
+  .login-conductor__enviar,
+  .login-conductor__campo input {
+    transition: none;
+  }
+}

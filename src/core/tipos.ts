@@ -3,7 +3,7 @@
  * (gt.muni.jalapa.ecoruta.*.dto). Si cambia el backend, cambia esto.
  *
  * CUIDADO CON LAS COORDENADAS: la API expone `latitud` y `longitud` como campos
- * con nombre, pero PostGIS y Google Maps trabajan en orden (lon, lat). Invertirlas
+ * con nombre, pero PostGIS, GeoJSON y MapLibre trabajan en orden (lon, lat). Invertirlas
  * es el bug clasico de este dominio: el bus aparece en el oceano Indico.
  */
 
@@ -85,4 +85,49 @@ export interface RegistroCreadoResponse {
   paradaId: number;
   estado: string;
   expiraEn: string;
+}
+
+/**
+ * `demanda/web/dto/ResumenRutaResponse.java` (SCRUM-284). Solo lo que usa el
+ * mapa: el conteo de reservas vigentes por parada.
+ */
+export interface ResumenRuta {
+  reservasActivas: {
+    porParada: { paradaId: number; reservasActivas: number }[];
+    calculadoEn: string;
+  };
+}
+
+/**
+ * Estado de la reserva (`demanda/dominio/EstadoReserva.java`).
+ *
+ * ACTIVA al reservar, RENOVADA si el pasajero extendio la vigencia (HU-52),
+ * ABORDO o CANCELADA segun la respuesta de abordaje (HU-58) o la cancelacion
+ * (HU-124), y EXPIRADA si vencio sin respuesta.
+ */
+export type EstadoReserva = 'ACTIVA' | 'RENOVADA' | 'ABORDO' | 'CANCELADA' | 'EXPIRADA';
+
+/** La reserva tal como la guarda la app. */
+export interface Reserva {
+  id: number;
+  paradaId: number;
+  estado: EstadoReserva;
+  expiraEn: string;
+}
+
+/** Cuerpo de `POST /api/v1/dispositivos/notificaciones`. Responde 204. */
+export interface RegistroTokenRequest {
+  dispositivoId: string;
+  tokenNotificacion: string;
+}
+
+/** Cuerpo de `POST /api/v1/reservas/{id}/abordaje`. */
+export interface AbordajeRequest {
+  subio: boolean;
+}
+
+/** Respuesta 200 de `POST /api/v1/reservas/{id}/abordaje`. */
+export interface RespuestaAbordaje {
+  id: number;
+  estado: EstadoReserva;
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type RefObject } from 'react';
 import {
   comoPuntoGeografico,
   crearProyeccion,
@@ -6,7 +6,7 @@ import {
 } from '../core/proyeccionMapa';
 import type { Posicion, Ruta } from '../core/tipos';
 import { FondoCargando, FondoCroquis } from './FondosDeMapa';
-import { MapaOpenStreetMap } from './MapaOpenStreetMap';
+import { MapaOpenStreetMap, type ControlMapa } from './MapaOpenStreetMap';
 import { OverlayRuta, type ParadaEnMapa } from './OverlayRuta';
 import './MapaJalapa.css';
 
@@ -28,6 +28,8 @@ export type ModoMapa = 'claro' | 'oscuro';
 interface Props {
   ruta: Ruta | null;
   posicionBus: Posicion | null;
+  /** El dato del bus tiene mas de 5 min: el marcador se atenua (HU-60). */
+  busRancio?: boolean;
   /** Posiciones anteriores, de mas vieja a mas nueva. Dibujan la estela. */
   historial?: readonly Posicion[];
   capa?: CapaMapa;
@@ -35,16 +37,27 @@ interface Props {
   desvio?: boolean;
   /** Parada que el pasajero eligio esperar. */
   paradaTuyaId?: number | null;
+  /** paradaId -> personas esperando, para el contador bajo cada parada. */
+  esperandoPorParada?: ReadonlyMap<number, number>;
+  /** El punto "yo", si el pasajero compartio su ubicacion. */
+  ubicacionPasajero?: { latitud: number; longitud: number } | null;
+  onElegirParada?: (id: number) => void;
+  control?: RefObject<ControlMapa | null>;
 }
 
 export function MapaJalapa({
   ruta,
   posicionBus,
+  busRancio = false,
   historial = [],
   capa = 'mapa',
   modo = 'claro',
   desvio = false,
   paradaTuyaId = null,
+  esperandoPorParada,
+  ubicacionPasajero = null,
+  onElegirParada,
+  control,
 }: Props) {
   const oscuro = modo === 'oscuro';
 
@@ -90,8 +103,13 @@ export function MapaJalapa({
         <MapaOpenStreetMap
           ruta={ruta}
           posicionBus={posicionBus}
+          busRancio={busRancio}
           oscuro={oscuro}
-          paradaTuyaId={paradaTuyaId}
+          paradaElegidaId={paradaTuyaId}
+          esperandoPorParada={esperandoPorParada}
+          ubicacionPasajero={ubicacionPasajero}
+          onElegirParada={onElegirParada}
+          control={control}
           onNoDisponible={() => setMapaNoDisponible(true)}
         />
       )}
@@ -106,9 +124,11 @@ export function MapaJalapa({
             paradas={paradas}
             trazoRuta={trazoRuta}
             bus={bus}
+            busRancio={busRancio}
             estela={estela}
             desvio={desvio}
             trazoReal={desvio && bus ? [...trazoRuta.slice(0, 2), bus] : []}
+            onElegirParada={onElegirParada}
           />
         </>
       )}

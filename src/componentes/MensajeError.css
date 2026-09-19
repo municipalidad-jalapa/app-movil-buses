@@ -5,10 +5,10 @@
   align-items: flex-start;
   gap: var(--esp-3);
   padding: var(--esp-4);
-  border: 1px solid var(--color-error);
-  border-radius: 12px;
-  background: var(--color-error-fondo);
-  color: var(--color-texto);
+  border: 2px solid var(--rojo-santa-marta);
+  border-radius: var(--radio-tarjeta);
+  background: var(--rojo-santa-marta-superficie);
+  color: var(--tinta);
 }
 
 .aviso-error__icono {
@@ -16,7 +16,7 @@
   width: 24px;
   height: 24px;
   margin-top: 2px;
-  color: var(--color-error);
+  color: var(--rojo-santa-marta);
 }
 
 .aviso-error__cuerpo {
@@ -31,9 +31,9 @@
 }
 
 .aviso-error__accion {
-  min-width: 48px;
-  min-height: 48px;
+  min-width: var(--tactil-minimo);
+  min-height: var(--tactil-minimo);
   background: transparent;
-  color: var(--color-error);
-  border-color: var(--color-error);
+  color: var(--rojo-santa-marta);
+  border: 2px solid var(--rojo-santa-marta);
 }

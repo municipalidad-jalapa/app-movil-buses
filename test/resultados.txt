@@ -1,0 +1,174 @@
+================================================================================
+RESULTADOS DE PRUEBAS -- Historia "Zona sin senal" (sin conexion, artboard 09)
+================================================================================
+Fecha  : 2026-09-12 21:26
+Node   : v24.21.0
+Vitest : 3.2.7
+Rama   : feature/HU-Desarrollo-83---La-app-se-comporta-bien-sin-conexion
+
+Criterios de aceptacion:
+  AC1  Todo error de red muestra un mensaje entendible, nunca un ApiError crudo.
+  AC2  Existe forma de reintentar.
+  AC3  La app no se cierra ni se congela al perder la red.
+
+
+--------------------------------------------------------------------------------
+RESUMEN
+--------------------------------------------------------------------------------
+  Pruebas automaticas ........ 259 / 259  PASARON     (34 archivos, 0 fallos)
+  Nuevas de esta historia .... 10 / 10    PASARON     (2 archivos nuevos)
+  Verificacion de tipos ...... tsc --noEmit : OK (sin errores)
+  Build de produccion ........ OK  (dist/ generado, sin errores)
+  Pruebas manuales/simuladas . 2 de 5 verificadas con capturas reales (ver detalle abajo)
+
+  ESTADO GENERAL: VERDE. No se encontro ningun error relacionado a esta
+  historia. Los 3 criterios de aceptacion tienen prueba automatica en verde.
+
+
+--------------------------------------------------------------------------------
+A. PRUEBAS AUTOMATICAS NUEVAS  (test/sin-conexion/unitarios/)
+--------------------------------------------------------------------------------
+  [PASO]  useEnLinea.test.ts ............................................ 4 / 4
+    [PASO]  arranca en linea cuando navigator.onLine no dice lo contrario
+    [PASO]  arranca sin conexion si navigator.onLine ya es false al montar
+    [PASO]  pasa a sin conexion cuando el navegador dispara "offline"
+    [PASO]  vuelve a en linea cuando el navegador dispara "online"
+
+  [PASO]  AvisoSinConexion.test.tsx .................................... 6 / 6
+    [PASO]  muestra "Sin internet" como titulo
+    [PASO]  sin ningun dato previo, lo dice sin sonar a error
+    [PASO]  con un dato previo, muestra la hora de lo ultimo que se supo
+    [PASO]  avisa que los numeros pueden haber cambiado y que se van a
+            actualizar solos
+    [PASO]  el boton "Intentar de nuevo" dispara onReintentar
+    [PASO]  es una pantalla de primera clase, no un error: nada de role="alert"
+
+  Comando: npx vitest run test/sin-conexion
+  Resultado real: Test Files 2 passed (2) / Tests 10 passed (10)
+
+
+--------------------------------------------------------------------------------
+B. PRUEBAS DEL PROYECTO QUE RESPALDAN ESTA HISTORIA (ya existian)
+--------------------------------------------------------------------------------
+  [PASO]  src/paginas/Mapa.test.tsx ................................... 21 / 21
+          incluye: "sin red muestra el estado del artboard 09, sin tono de
+          error"; "con un dato de mas de 5 minutos, la hora pasa al frente";
+          "con un dato fresco no se avisa nada"                            AC1
+  [PASO]  src/hooks/usePosicionBus.test.ts ............................. 8 / 8
+          incluye: "si falla la carga inicial, el flujo en vivo sigue
+          funcionando"; "mientras el flujo reconecta, sigue pidiendo la
+          posicion por la ruta de respaldo (HU-61)"; "un 204 significa que
+          aun no hay posicion, no un error"                             AC1/AC3
+  [PASO]  src/componentes/BannerConexion.test.tsx ....................... 3 / 3
+          "al reconectar informa, no alarma"; "mientras conecta dice que
+          busca al bus"; "en vivo combina color, icono y texto"            AC1
+  [PASO]  src/core/errores.test.ts ..................................... 11 / 11
+          traduce 400/404/422/401/403/429/5xx/red a texto claro; nunca
+          expone codigo HTTP, "TypeError", "fetch" ni ingles tecnico        AC1
+  [PASO]  src/core/apiClient.test.ts ................................... 18 / 18
+          toda falla llega como ErrorApi; reintenta red y 5xx (3 intentos,
+          backoff 250/500/1000 ms); no reintenta 4xx; corta a los 10 s con
+          AbortController y trata el timeout como fallo de red         AC1/AC2/AC3
+  [PASO]  src/componentes/MapaJalapa.test.tsx .......................... 10 / 10
+          "sin WebGL2 cae al croquis en vez de romperse"; "la capa de
+          croquis no dice que algo fallo"; "mientras carga avisa sin tapar
+          el mapa con un error"                                            AC3
+  [PASO]  src/componentes/HoraUltimoDato.test.tsx ....................... 2 / 2
+          hora con numeros tabulares; un dato de otro dia lleva la fecha    AC1
+  [PASO]  src/hooks/useUbicacion.test.ts ................................ 3 / 3
+          mensaje claro al negar el permiso o sin soporte de geolocalizacion AC1
+
+
+--------------------------------------------------------------------------------
+C. RESTO DE LA BATERIA DEL PROYECTO (regresion — no tocada por esta historia)
+--------------------------------------------------------------------------------
+  [PASO]  src/core/autenticacion/AuthProvider.test.tsx ................. 10 / 10
+  [PASO]  src/componentes/TarjetaAbordaje.test.tsx ....................... 7 / 7
+  [PASO]  src/pruebas/features/avisos_y_abordaje.test.tsx .............. 46 / 46
+  [PASO]  src/componentes/HojaReserva.test.tsx ........................... 7 / 7
+  [PASO]  src/componentes/PreferenciaNotificaciones.test.tsx ............. 7 / 7
+  [PASO]  src/paginas/conductor/LoginConductor.test.tsx .................. 3 / 3
+  [PASO]  src/componentes/MarcadorBus.test.tsx ........................... 8 / 8
+  [PASO]  src/componentes/RutaProtegida.test.tsx ......................... 3 / 3
+  [PASO]  src/componentes/EstadoSinPosicion.test.tsx ..................... 1 / 1
+  [PASO]  src/core/config.test.ts ....................................... 13 / 13
+  [PASO]  src/core/flujoDePosiciones.test.ts ............................ 10 / 10
+  [PASO]  src/core/reservas.test.ts ...................................... 7 / 7
+  [PASO]  src/core/interpolacionPosicion.test.ts ........................ 10 / 10
+  [PASO]  src/core/notificaciones/registroDeToken.test.ts ................ 3 / 3
+  [PASO]  src/core/notificaciones/permisoNotificaciones.test.ts .......... 10 / 10
+  [PASO]  src/core/registroDemanda.test.ts ............................... 1 / 1
+  [PASO]  src/core/identidadDispositivo.test.ts .......................... 2 / 2
+  [PASO]  src/core/recorridoDeRuta.test.ts ............................... 4 / 4
+  [PASO]  src/core/autenticacion/traducirErrorFirebase.test.ts ........... 4 / 4
+  [PASO]  src/core/autenticacion/sesionConductor.test.ts .................. 4 / 4
+  [PASO]  src/core/frescuraDato.test.ts ................................... 4 / 4
+  [PASO]  src/core/distanciaAParada.test.ts ............................... 6 / 6
+  [PASO]  test/SCRUM-148-HU-53/unitarios/identidadDispositivo.test.ts .... 2 / 2
+  [PASO]  test/SCRUM-148-HU-53/unitarios/registroDemanda.test.ts ......... 1 / 1
+
+
+--------------------------------------------------------------------------------
+D. VERIFICACION DE TIPOS Y BUILD
+--------------------------------------------------------------------------------
+  [PASO]  npx tsc --noEmit ........ sin errores
+  [PASO]  npm run build ........... dist/ generado correctamente
+          Nota: aviso de tamano de chunk (MapLibre + Firebase, pre-existente).
+          Es una advertencia, no un error; no bloquea el build.
+
+
+--------------------------------------------------------------------------------
+E. PRUEBAS MANUALES / SIMULADAS  (navegador real, ver manual.md seccion 2)
+--------------------------------------------------------------------------------
+Se armo un backend simulado (Node puro) para poder ver los dos estados con
+datos reales en el navegador (no habia backend real disponible). Se uso
+Playwright headless para las capturas.
+
+  [OK]      M1  Backend simulado arriba + abrir "/"
+                -> mapa, ruta, paradas con contador, bus ubicado.
+                   SIN ningun aviso.                    Captura: 01-conectado.png
+  [OK]      M2  Backend simulado caido + recargar "/"
+                -> banner "Sin datos nuevos. Se esta reconectando." + tarjeta
+                   "Sin datos nuevos: revisa tu conexion e intenta de nuevo."
+                   + boton "Intentar de nuevo" + mapa en croquis.
+                   Sin ApiError ni codigo HTTP en pantalla.
+                                                         Captura: 02-sin-conexion.png
+  [ ]       M3  DevTools Offline con la app abierta (AvisoSinConexion "Sin
+                internet") -- cubierto por prueba automatica, pendiente de
+                repetir a mano si se quiere doble verificacion visual.
+  [ ]       M4  Reintentar y recuperar backend en vivo -- mismo mecanismo que
+                M1/M2, pendiente de repetir a mano la transicion.
+  [ ]       M5  Red lenta / intermitente (Slow 3G) -- cubierto por prueba
+                automatica de timeout.
+
+Ambas capturas (M1 y M2) ya se le enviaron al usuario durante la sesion de
+pruebas de esta historia.
+
+
+--------------------------------------------------------------------------------
+F. COBERTURA POR CRITERIO
+--------------------------------------------------------------------------------
+  AC1  mensaje entendible, nunca crudo
+       errores.test.ts, apiClient.test.ts, AvisoSinConexion.test.tsx,
+       BannerConexion.test.tsx, Mapa.test.tsx, usePosicionBus.test.ts   -> PASO
+
+  AC2  forma de reintentar
+       AvisoSinConexion.test.tsx (boton), MensajeError via Mapa.test.tsx -> PASO
+
+  AC3  no se cierra ni se congela
+       apiClient.test.ts (timeout), MapaJalapa.test.tsx (sin WebGL2),
+       usePosicionBus.test.ts (HU-61), useEnLinea.test.ts               -> PASO
+
+
+--------------------------------------------------------------------------------
+G. COMO REPRODUCIR ESTE RESULTADO
+--------------------------------------------------------------------------------
+  npm install
+  npm test                              # 34 archivos, 259 pruebas
+  npx vitest run test/sin-conexion      # solo las 10 nuevas
+  npx tsc --noEmit
+  npm run build
+
+================================================================================
+FIN DEL REPORTE -- Ningun error encontrado en esta historia.
+================================================================================

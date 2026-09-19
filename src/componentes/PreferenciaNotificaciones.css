@@ -1,0 +1,95 @@
+/*
+ * Invitacion a activar los avisos (HU-58), dentro de la hoja de R3.
+ *
+ * El canvas no la dibuja dentro de la hoja: se arma con sus piezas. Tarjeta
+ * interna con voluta sobre #F4EEE2, como la del artboard 09, y botones
+ * pastilla. Pendiente de revision de diseno.
+ */
+.avisos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-suave);
+  color: var(--tinta);
+}
+
+.avisos__encabezado {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avisos h2 {
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 800;
+  letter-spacing: normal;
+}
+
+.avisos p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--tinta-cuerpo);
+}
+
+.avisos__icono {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  color: var(--verde-jumay);
+}
+
+.avisos__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Area tactil de 48 px (DESIGN.md §12 [DURA]). */
+.avisos__boton-principal,
+.avisos__boton-secundario {
+  flex: 1 1 auto;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: var(--radio-pastilla);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.avisos__boton-principal {
+  border: none;
+  background: var(--verde-jumay);
+  color: #fbf7f0;
+}
+
+.avisos__boton-secundario {
+  border: 2px solid var(--borde);
+  background: transparent;
+  color: var(--tinta-secundaria);
+}
+
+.avisos__boton-secundario:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Confirmacion: color + icono + texto, nunca solo color (§3.1 [DURA]). */
+.avisos--activado {
+  flex-direction: row;
+  align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .avisos__icono {
+    color: var(--amarillo-volcan);
+  }
+
+  .avisos__boton-principal {
+    background: var(--amarillo-volcan);
+    color: var(--amarillo-volcan-tinta);
+  }
+}
