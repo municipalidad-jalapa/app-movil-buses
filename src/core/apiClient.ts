@@ -55,7 +55,7 @@ export function configurarManejador401(manejador: (() => void) | null): void {
 }
 
 export interface OpcionesPeticion {
-  metodo?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  metodo?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   cuerpo?: unknown;
   /**
    * Token JWT explicito. Si no se pasa, se toma del ProveedorDeToken.

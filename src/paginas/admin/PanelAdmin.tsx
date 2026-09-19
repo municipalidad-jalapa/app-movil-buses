@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { AvisoInactividad } from '../../componentes/admin/AvisoInactividad';
 import { ChipEstadoServicio } from '../../componentes/admin/ChipEstadoServicio';
 import { IconoSalir, SimboloEcoRuta } from '../../componentes/admin/IconosPanel';
+import { NavegacionPanel } from '../../componentes/admin/NavegacionPanel';
 import { ErrorApi } from '../../core/errores';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
 import { consultarServicio, type EstadoServicio, type RutaEnServicio } from '../../core/panelAdmin/panelAdminApi';
@@ -69,6 +70,7 @@ export function PanelAdmin() {
           <span className="panel-cabecera__ecoruta">EcoRuta</span>
           <span className="panel-cabecera__separador" aria-hidden="true" />
           <span className="panel-cabecera__seccion">Panel municipal</span>
+          <NavegacionPanel />
         </div>
         <div className="panel-cabecera__usuario">
           <span className="panel-cabecera__correo">{sesion?.correo}</span>

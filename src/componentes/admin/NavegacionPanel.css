@@ -1,0 +1,29 @@
+/* Secciones del panel municipal en la cabecera (SCRUM-26, A.3). */
+
+.panel-navegacion {
+  display: flex;
+  align-items: stretch;
+  margin-left: 16px;
+  align-self: stretch;
+}
+
+.panel-navegacion__enlace {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  color: var(--verde-jumay-suave);
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.panel-navegacion__enlace--activo {
+  color: #fbf7f0;
+  font-weight: 500;
+  box-shadow: inset 0 -3px 0 var(--amarillo-volcan);
+}
+
+.panel-navegacion__enlace:focus-visible {
+  outline: 3px solid var(--verde-jumay-superficie);
+  outline-offset: -3px;
+}

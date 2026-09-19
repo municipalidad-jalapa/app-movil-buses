@@ -13,6 +13,8 @@ import { RutaProtegidaAdmin } from './componentes/admin/RutaProtegidaAdmin';
 import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
 import { LoginAdmin } from './paginas/admin/LoginAdmin';
 import { PanelAdmin } from './paginas/admin/PanelAdmin';
+import { OpinionesPanel } from './paginas/admin/OpinionesPanel';
+import { OpinarSobreElServicio } from './componentes/opiniones/OpinarSobreElServicio';
 
 export function App() {
   return (
@@ -30,6 +32,8 @@ export function App() {
                 <ReservaProvider>
                   <Layout aSangre estado={<SelectorDeRuta />}>
                     <Mapa />
+                    {/* SCRUM-26: opinar sobre la ruta que se esta mirando. */}
+                    <OpinarSobreElServicio />
                   </Layout>
                 </ReservaProvider>
               </RutaElegidaProvider>
@@ -61,6 +65,14 @@ export function App() {
                     element={
                       <RutaProtegidaAdmin>
                         <PanelAdmin />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  <Route
+                    path="opiniones"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <OpinionesPanel />
                       </RutaProtegidaAdmin>
                     }
                   />

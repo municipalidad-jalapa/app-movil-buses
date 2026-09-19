@@ -1,0 +1,208 @@
+/* Opiniones en el panel municipal (SCRUM-26, A.3). Canvas «EcoRuta · Opiniones», pantallas 5 y 6. */
+
+.opiniones-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.opiniones-filtros select,
+.opiniones-filtros input {
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-control);
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 15px;
+}
+
+.opiniones-filtros__ruta select {
+  width: 280px;
+}
+
+.opiniones-filtros__vehiculo select {
+  width: 200px;
+}
+
+.opiniones-filtros__tipo select {
+  width: 180px;
+}
+
+.opiniones-filtros__fecha input {
+  width: 160px;
+}
+
+.opiniones-enlace {
+  min-height: 48px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--verde-jumay);
+  font: inherit;
+  font-size: 15px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.opiniones-desglose {
+  font-size: 13px;
+  color: var(--tinta-secundaria);
+}
+
+.opiniones-promedios {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.opiniones-promedios li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.opiniones-promedios__nombre {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--tinta);
+}
+
+.opiniones-promedios__valor {
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.opiniones-estrellas {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--tinta-apagada);
+}
+
+.opiniones-tabla td {
+  padding: 16px;
+  vertical-align: top;
+}
+
+.opiniones-chip,
+.opiniones-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radio-pastilla);
+  font-size: 13px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.opiniones-chip {
+  background: var(--superficie-hundida);
+  color: var(--tinta-cuerpo);
+}
+
+.opiniones-estado--pendiente {
+  background: var(--amarillo-volcan-superficie);
+  color: var(--amarillo-volcan-tinta);
+}
+
+.opiniones-estado--atendida {
+  background: var(--verde-jumay-superficie);
+  color: var(--verde-jumay);
+}
+
+.opiniones-texto {
+  max-width: 360px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--tinta-cuerpo);
+}
+
+.opiniones-atender {
+  display: flex;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.opiniones-atendida-por {
+  display: block;
+  margin-top: 6px;
+  font-size: 11.5px;
+  line-height: 16px;
+  color: var(--tinta-tenue);
+}
+
+.opiniones-paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--borde);
+}
+
+.opiniones-paginacion__botones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.opiniones-pagina {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pastilla);
+  background: var(--superficie-base);
+  color: var(--verde-jumay);
+  cursor: pointer;
+}
+
+.opiniones-pagina:disabled {
+  color: var(--tinta-apagada);
+  cursor: not-allowed;
+}
+
+.opiniones-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 32px;
+  text-align: center;
+}
+
+.opiniones-vacio__icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-suave);
+  color: var(--tinta-secundaria);
+}
+
+@media (prefers-color-scheme: dark) {
+  .opiniones-estado--atendida,
+  .opiniones-enlace,
+  .opiniones-pagina {
+    color: var(--verde-jumay-suave);
+  }
+
+  .opiniones-estado--pendiente {
+    color: #f2d27a;
+  }
+}
