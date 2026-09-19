@@ -6,6 +6,7 @@
 }
 
 .panel-conductor h1 {
+  margin: 0;
   font-size: 20px;
   line-height: 26px;
   font-weight: 500;
@@ -19,8 +20,34 @@
   color: var(--tinta-secundaria);
 }
 
+.panel-conductor__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--esp-4);
+}
+
+.panel-conductor__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel-conductor__vacio {
+  padding: var(--esp-4);
+  border: 1px dashed var(--borde);
+  border-radius: 12px;
+}
+
+.panel-conductor__pie {
+  align-self: center;
+}
+
 .panel-conductor__salir {
-  align-self: flex-start;
+  flex: 0 0 auto;
   min-width: 48px;
   min-height: 48px;
   border: 1px solid var(--borde);
