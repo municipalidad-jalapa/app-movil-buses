@@ -33,8 +33,26 @@ Característica: Entrar al panel web municipal
     Cuando sigo sin usar el panel hasta que vence
     Entonces vuelvo al login con el mensaje "Cerramos tu sesión por inactividad. Entra de nuevo para seguir."
 
-  @criterio-6
+  @criterio-6 @HU-79
   Escenario: El administrador ve todas las rutas, no una sola
     Dado que tengo una sesión de administrador que vence en 30 minutos
     Cuando abro el panel municipal
-    Entonces la tabla muestra las 2 rutas del servicio con su estado
+    Entonces la tabla muestra las 3 rutas del panel con su estado de transmisión
+
+  @HU-79
+  Escenario: Una ruta con reservas activas muestra el total y el detalle por parada
+    Dado que tengo una sesión de administrador que vence en 30 minutos
+    Cuando abro el panel municipal
+    Entonces veo 5 reservas activas y el detalle "Parada 10: 3" y "Parada 11: 2"
+
+  @HU-79
+  Escenario: Una ruta sin reservas muestra "Sin reservas"
+    Dado que tengo una sesión de administrador que vence en 30 minutos
+    Cuando abro el panel municipal
+    Entonces veo "Sin reservas" en la ruta sin reservas activas
+
+  @HU-79
+  Escenario: Una ruta sin vehículo asignado aparece como sin transmitir
+    Dado que tengo una sesión de administrador que vence en 30 minutos
+    Cuando abro el panel municipal
+    Entonces veo "Sin vehículo asignado" y el estado "Sin transmitir"

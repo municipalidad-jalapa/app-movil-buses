@@ -12,14 +12,14 @@ import { expect, vi } from 'vitest';
 import { RutaProtegidaAdmin } from '../../componentes/admin/RutaProtegidaAdmin';
 import { ErrorApi } from '../../core/errores';
 import { AuthAdminProvider } from '../../core/panelAdmin/AuthAdminProvider';
-import { consultarServicio, intercambiarTokenAdmin } from '../../core/panelAdmin/panelAdminApi';
+import { consultarPanel, intercambiarTokenAdmin } from '../../core/panelAdmin/panelAdminApi';
 import { borrarSesionAdmin, guardarSesionAdmin } from '../../core/panelAdmin/sesionAdmin';
 import { LoginAdmin } from '../../paginas/admin/LoginAdmin';
 import { PanelAdmin } from '../../paginas/admin/PanelAdmin';
 
 /**
- * Aceptacion de SCRUM-173 (HU-78) en el panel. El 403 y el vencimiento real del
- * JWT los prueba el backend; aqui se prueba lo que ve el administrador.
+ * Aceptacion de SCRUM-173 (HU-78) y del contrato de rutas de HU-79. El 403 y el
+ * vencimiento real del JWT los prueba el backend; aqui se prueba lo que ve el administrador.
  */
 
 setVitestCucumberConfiguration(getVitestCucumberConfiguration({ language: 'es' }));
@@ -41,27 +41,38 @@ vi.mock('../../core/panelAdmin/panelAdminApi', async (original) => ({
   ...(await original<typeof import('../../core/panelAdmin/panelAdminApi')>()),
   intercambiarTokenAdmin: vi.fn(),
   renovarSesionAdmin: vi.fn(),
-  consultarServicio: vi.fn(),
+  consultarPanel: vi.fn(),
 }));
 
-const SERVICIO = {
-  consultadoEn: '2026-09-14T10:42:00Z',
+const PANEL = {
   rutas: [
     {
       rutaId: 1,
       nombre: 'Ruta de ejemplo - Centro de Jalapa',
-      paradas: 8,
-      bus: { id: 1, identificador: 'BUS-01', placa: 'P-000BBB' },
-      estado: 'EN_RUTA' as const,
-      posicion: { latitud: 14.63, longitud: -89.98, velocidadKmh: 24, timestamp: '2026-09-14T10:41:00Z', vehiculo: 'BUS-01' },
+      vehiculoId: 1,
+      posicion: { latitud: 14.63, longitud: -89.98, registradaEn: '2026-09-14T10:41:00Z' },
+      transmitiendo: true,
+      reservasPorParada: [
+        { paradaId: 10, activas: 3 },
+        { paradaId: 11, activas: 2 },
+        { paradaId: 12, activas: 0 },
+      ],
     },
     {
       rutaId: 2,
       nombre: 'Ruta de prueba - Parque Central a Metroplaza',
-      paradas: 5,
-      bus: { id: 2, identificador: 'BUS-02', placa: 'P-000CCC' },
-      estado: 'SIN_DATOS_RECIENTES' as const,
+      vehiculoId: 2,
       posicion: null,
+      transmitiendo: false,
+      reservasPorParada: [{ paradaId: 20, activas: 0 }],
+    },
+    {
+      rutaId: 3,
+      nombre: 'Ruta periurbana - Barrio La Esperanza',
+      vehiculoId: null,
+      posicion: null,
+      transmitiendo: false,
+      reservasPorParada: [],
     },
   ],
 };
@@ -98,7 +109,7 @@ describeFeature(feature, ({ Background, Scenario, BeforeEachScenario, AfterEachS
 
   BeforeEachScenario(() => {
     borrarSesionAdmin();
-    vi.mocked(consultarServicio).mockResolvedValue(SERVICIO);
+    vi.mocked(consultarPanel).mockResolvedValue(PANEL);
     vi.mocked(intercambiarTokenAdmin).mockImplementation(async (_idToken, correo) => {
       if (correo.startsWith('conductor')) {
         throw new ErrorApi(403, 'Esta cuenta no tiene permiso para el panel municipal');
@@ -188,12 +199,61 @@ describeFeature(feature, ({ Background, Scenario, BeforeEachScenario, AfterEachS
     When('abro el panel municipal', () => {
       montar('/admin');
     });
-    Then('la tabla muestra las 2 rutas del servicio con su estado', async () => {
+    Then('la tabla muestra las 3 rutas del panel con su estado de transmisión', async () => {
       expect(await screen.findByText('Ruta de ejemplo - Centro de Jalapa')).toBeTruthy();
       expect(screen.getByText('Ruta de prueba - Parque Central a Metroplaza')).toBeTruthy();
-      expect(screen.getByText('En ruta')).toBeTruthy();
-      expect(screen.getByText('Sin datos recientes')).toBeTruthy();
-      expect(consultarServicio).toHaveBeenCalledWith('jwt-admin', expect.anything());
+      expect(screen.getByText('Ruta periurbana - Barrio La Esperanza')).toBeTruthy();
+      expect(screen.getByText('Transmitiendo')).toBeTruthy();
+      expect(screen.getAllByText('Sin transmitir')).toHaveLength(2);
+      expect(screen.queryByRole('columnheader', { name: 'Velocidad' })).toBeNull();
+      expect(screen.getByRole('columnheader', { name: 'Reservas activas' })).toBeTruthy();
+      expect(consultarPanel).toHaveBeenCalledWith('jwt-admin', expect.anything());
+    });
+  });
+
+  Scenario('Una ruta con reservas activas muestra el total y el detalle por parada', ({ Given, When, Then }) => {
+    Given('que tengo una sesión de administrador que vence en 30 minutos', () => {
+      guardarSesionAdmin({ token: 'jwt-admin', expiraEnMs: Date.now() + 30 * 60_000, inactividadMinutos: 30, correo: 'a@muni.gt' });
+    });
+    When('abro el panel municipal', () => {
+      montar('/admin');
+    });
+    Then('veo 5 reservas activas y el detalle "Parada 10: 3" y "Parada 11: 2"', async () => {
+      const fila = (await screen.findByText('Ruta de ejemplo - Centro de Jalapa')).closest('tr');
+      expect(fila?.textContent).toContain('5');
+      expect(fila?.textContent).toContain('Parada 10: 3');
+      expect(fila?.textContent).toContain('Parada 11: 2');
+      expect(fila?.textContent).not.toContain('Parada 12');
+    });
+  });
+
+  Scenario('Una ruta sin reservas muestra "Sin reservas"', ({ Given, When, Then }) => {
+    Given('que tengo una sesión de administrador que vence en 30 minutos', () => {
+      guardarSesionAdmin({ token: 'jwt-admin', expiraEnMs: Date.now() + 30 * 60_000, inactividadMinutos: 30, correo: 'a@muni.gt' });
+    });
+    When('abro el panel municipal', () => {
+      montar('/admin');
+    });
+    Then('veo "Sin reservas" en la ruta sin reservas activas', async () => {
+      const sinReservas = (await screen.findByText('Ruta de prueba - Parque Central a Metroplaza')).closest('tr');
+      expect(sinReservas?.textContent).toContain('Sin reservas');
+      expect(sinReservas?.textContent).toMatch(/0/);
+      const sinVehiculo = screen.getByText('Ruta periurbana - Barrio La Esperanza').closest('tr');
+      expect(sinVehiculo?.textContent).toContain('Sin reservas');
+    });
+  });
+
+  Scenario('Una ruta sin vehículo asignado aparece como sin transmitir', ({ Given, When, Then }) => {
+    Given('que tengo una sesión de administrador que vence en 30 minutos', () => {
+      guardarSesionAdmin({ token: 'jwt-admin', expiraEnMs: Date.now() + 30 * 60_000, inactividadMinutos: 30, correo: 'a@muni.gt' });
+    });
+    When('abro el panel municipal', () => {
+      montar('/admin');
+    });
+    Then('veo "Sin vehículo asignado" y el estado "Sin transmitir"', async () => {
+      const fila = (await screen.findByText('Ruta periurbana - Barrio La Esperanza')).closest('tr');
+      expect(fila?.textContent).toContain('Sin vehículo asignado');
+      expect(fila?.textContent).toContain('Sin transmitir');
     });
   });
 });
