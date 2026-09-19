@@ -23,10 +23,13 @@ export interface OpinionCreada {
   vehiculoId: number | null;
 }
 
-/** Sin cuenta: la opinion se atribuye al identificador anonimo de este navegador. */
-export async function enviarOpinion(opinion: NuevaOpinion): Promise<OpinionCreada> {
+/** Se atribuye al identificador anonimo del navegador y, si hay sesion, a la cuenta del pasajero. */
+export async function enviarOpinion(opinion: NuevaOpinion, tokenPasajero?: string): Promise<OpinionCreada> {
   const respuesta = await apiClient.post<OpinionCreada>('/api/v1/opiniones', opinion, {
     cabeceras: { [CABECERA_DISPOSITIVO]: obtenerIdDispositivo() },
+    // Con sesion de pasajero la opinion queda tambien en su cuenta (bloque B).
+    // Sin ella no se manda ningun token: nunca el del conductor.
+    token: tokenPasajero ?? '',
     // Un reintento automatico podria registrar la misma opinion dos veces.
     intentos: 1,
   });

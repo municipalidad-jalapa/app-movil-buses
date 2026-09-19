@@ -117,8 +117,10 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     });
     Then('se envía una sola vez con 4 estrellas para la ruta 1', async () => {
       await waitFor(() => expect(enviarOpinion).toHaveBeenCalledTimes(1));
+      // Sin sesion de pasajero no viaja ningun token (segundo argumento vacio).
       expect(enviarOpinion).toHaveBeenCalledWith(
         expect.objectContaining({ tipo: 'calificacion', rutaId: 1, estrellas: 4 }),
+        undefined,
       );
     });
     And('veo "Gracias, recibimos tu opinión"', async () => {

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { estaVigente } from '../../estado/ReservaProvider';
 import { useReserva } from '../../hooks/useReserva';
 import { useRutaElegida } from '../../hooks/useRutaElegida';
+import { useSesionPasajero } from '../../core/pasajero/SesionPasajeroContext';
 import { ErrorApi } from '../../core/errores';
 import { enviarOpinion, esLimiteDeEnvios, TEXTO_MAXIMO, type TipoOpinion } from '../../core/opiniones';
 import {
@@ -39,6 +40,7 @@ export const MENSAJE_LIMITE = 'Enviaste varias opiniones seguidas. Intenta de nu
 export function OpinarSobreElServicio() {
   const { rutaActiva } = useRutaElegida();
   const { reserva } = useReserva();
+  const sesionPasajero = useSesionPasajero();
   const [abierta, setAbierta] = useState(false);
   const [tipo, setTipo] = useState<TipoOpinion | null>(null);
   const [estrellas, setEstrellas] = useState(0);
@@ -88,7 +90,7 @@ export function OpinarSobreElServicio() {
         texto: texto.trim() || undefined,
         estrellas: estrellas || undefined,
         reservaId: reserva && estaVigente(reserva) ? reserva.id : undefined,
-      });
+      }, sesionPasajero?.sesion?.token);
       setEstado('enviada');
     } catch (causa) {
       if (esLimiteDeEnvios(causa)) {

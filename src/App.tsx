@@ -15,10 +15,13 @@ import { LoginAdmin } from './paginas/admin/LoginAdmin';
 import { PanelAdmin } from './paginas/admin/PanelAdmin';
 import { OpinionesPanel } from './paginas/admin/OpinionesPanel';
 import { OpinarSobreElServicio } from './componentes/opiniones/OpinarSobreElServicio';
+import { PuertaDelPasajero } from './componentes/sesionPasajero/PuertaDelPasajero';
+import { SesionPasajeroProvider } from './core/pasajero/SesionPasajeroProvider';
 
 export function App() {
   return (
     <AuthProvider>
+      <SesionPasajeroProvider>
       <BrowserRouter>
         <Routes>
           <Route
@@ -28,6 +31,8 @@ export function App() {
               // La reserva vive fuera del mapa: la comparten la hoja y los
               // avisos del bus (HU-58).
               // La ruta elegida la comparten el selector de la cabecera y el mapa.
+              // SCRUM-26, B.1: la primera vez se elige invitado o cuenta de Google.
+              <PuertaDelPasajero>
               <RutaElegidaProvider>
                 <ReservaProvider>
                   <Layout aSangre estado={<SelectorDeRuta />}>
@@ -37,6 +42,7 @@ export function App() {
                   </Layout>
                 </ReservaProvider>
               </RutaElegidaProvider>
+              </PuertaDelPasajero>
             }
           />
 
@@ -92,6 +98,7 @@ export function App() {
           />
         </Routes>
       </BrowserRouter>
+      </SesionPasajeroProvider>
     </AuthProvider>
   );
 }
