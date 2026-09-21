@@ -35,7 +35,7 @@
   font-family: var(--fuente-titulos);
   font-size: 28px;
   font-weight: 800;
-  color: #fbf7f0;
+  color: var(--sobre-marca);
 }
 
 .entrada__titulo {
@@ -46,7 +46,7 @@
   font-size: 26px;
   line-height: 32px;
   font-weight: 500;
-  color: #fbf7f0;
+  color: var(--sobre-marca);
 }
 
 .entrada__bajada {
@@ -274,7 +274,7 @@
   }
 
   .entrada__error {
-    color: #f0b4ab;
+    color: var(--alerta-sobre-oscuro);
   }
 
   .vinculado-aviso {
@@ -283,7 +283,7 @@
 
   .vinculado-entendido {
     background: var(--verde-jumay-apagado);
-    color: #fbf7f0;
+    color: var(--sobre-marca);
   }
 }
 

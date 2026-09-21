@@ -15,17 +15,17 @@
   display: flex;
   gap: 12px;
   padding: 12px 16px;
-  border: 1px solid var(--amarillo-volcan);
+  border: 1px solid var(--aviso-borde);
   border-radius: var(--radio-tarjeta-chica);
-  background: var(--amarillo-volcan-superficie);
+  background: var(--aviso-superficie);
   box-shadow: var(--sombra);
-  color: var(--amarillo-volcan-tinta);
+  color: var(--aviso-tinta);
 }
 
 .demora__icono {
   flex: none;
   margin-top: 2px;
-  color: var(--amarillo-volcan-tinta);
+  color: var(--aviso-tinta);
 }
 
 .demora__texto {

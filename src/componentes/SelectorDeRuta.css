@@ -25,14 +25,15 @@
   appearance: none;
   -webkit-appearance: none;
   max-width: 100%;
-  min-height: 40px;
+  /* Bloque G: es el control principal de la cabecera; 40 px no alcanzaba. */
+  min-height: var(--tactil-minimo);
   padding: 8px 34px 8px 14px;
   border: none;
   border-radius: var(--radio-pastilla);
   background-color: var(--amarillo-volcan);
   color: var(--amarillo-volcan-tinta);
   font-family: var(--fuente);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;

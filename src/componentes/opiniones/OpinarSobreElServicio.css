@@ -338,15 +338,15 @@
   .opinion-primario:not(:disabled) {
     border-color: var(--verde-jumay-apagado);
     background: var(--verde-jumay-apagado);
-    color: #fbf7f0;
+    color: var(--sobre-marca);
   }
 
   .opinion-aviso--error {
-    color: #f0b4ab;
+    color: var(--alerta-sobre-oscuro);
   }
 
   .opinion-aviso--limite {
-    color: #f2d27a;
+    color: var(--aviso-sobre-oscuro);
   }
 }
 

@@ -203,7 +203,7 @@
   }
 
   .opiniones-estado--pendiente {
-    color: #f2d27a;
+    color: var(--aviso-sobre-oscuro);
   }
 }
 

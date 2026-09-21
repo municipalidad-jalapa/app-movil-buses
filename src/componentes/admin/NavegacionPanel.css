@@ -18,7 +18,7 @@
 }
 
 .panel-navegacion__enlace--activo {
-  color: #fbf7f0;
+  color: var(--sobre-marca);
   font-weight: 500;
   box-shadow: inset 0 -3px 0 var(--amarillo-volcan);
 }

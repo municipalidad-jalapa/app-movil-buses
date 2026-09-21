@@ -351,6 +351,31 @@ No inventes respuestas a estas. Si una tarea depende de alguna, detente y pregun
 
 ---
 
+## 16. Criterios visuales verificables (SCRUM-26, bloque G)
+
+«Visiblemente agradable» no se puede revisar: depende de quién mire. Estas son las mismas ideas
+traducidas a números, y **una prueba los revisa sola** en cada corrida
+(`src/pruebas/features/criterios_visuales.feature`). Si alguien los rompe, la suite falla y dice
+cuál archivo.
+
+| Criterio | Regla verificable | Dónde se revisa |
+|---|---|---|
+| Tipografía legible | `body` a `1rem` (16 px) con interlínea 1.5; nada por debajo de 11 px, y entre 11 y 13 px solo los sellos del mapa ya existentes | `tamanosDeLetra()` |
+| Contraste WCAG AA | cada par documentado de texto sobre fondo llega a **4.5:1**, en modo claro **y** en modo oscuro | `contraste()` sobre los tokens del tema |
+| Área tocable | `--tactil-minimo` ≥ 44 px y ningún control del teléfono declara menos; los adornos (manija, pastilla de carga) no cuentan | `alturasMinimasDeControles()` |
+| Espaciado consistente | escala base 4 (`--esp-1` … `--esp-12`), sin valores sueltos en los componentes nuevos | revisión en el PR |
+| Paleta en un solo lugar | ningún `.css` nuevo escribe un color a mano: todo sale de `tema.css`. La lista de deuda heredada está en la prueba y **no puede crecer** | `coloresFueraDelTema()` |
+| Sin desplazamiento horizontal | ninguna pantalla del pasajero fija un ancho mayor a 360 px fuera de una consulta de medios | `anchosQueDesbordan()` |
+| Carga, error y vacío | cada pantalla los trata de forma explícita: texto que explica, `role="status"` o `role="alert"`, y una salida cuando el vacío es filtrable | pruebas de pantalla |
+
+Dos notas sobre el contraste, que es donde aparecieron los problemas reales:
+
+- La marca **no cambia** de día a noche ([DURA]), pero el verde y el rojo de marca **como texto**
+  sobre la superficie oscura se quedaban en 1.5:1 y 2.1:1. Por eso existen `--acento-texto`,
+  `--alerta-texto` y el trío `--aviso-*`: son los que se usan cuando el color es texto o icono;
+  para rellenos y trazos se siguen usando los de marca.
+- El texto deshabilitado (`--tinta-apagada`) queda fuera de la exigencia, como permite WCAG.
+
 ## 15. Lista de verificación antes de entregar cualquier pantalla
 
 - [ ] El dato principal se lee en menos de tres segundos bajo sol.
@@ -366,3 +391,4 @@ No inventes respuestas a estas. Si una tarea depende de alguna, detente y pregun
 - [ ] Atribución de OpenStreetMap presente si hay mapa.
 - [ ] El microcopy usa el vocabulario de la sección 10.
 - [ ] Contraste verificado, incluida la simulación de daltonismo.
+- [ ] Los criterios de la sección 16 pasan (`npx vitest run src/pruebas/features/criterios_visuales.test.tsx`).

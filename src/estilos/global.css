@@ -47,14 +47,15 @@ h1 {
 }
 
 a {
-  color: var(--verde-jumay);
+  /* Bloque G: el verde de marca no llega a AA sobre la superficie oscura. */
+  color: var(--acento-texto);
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
 
 a:hover {
-  color: var(--rojo-santa-marta);
+  color: var(--alerta-texto);
 }
 
 button {
