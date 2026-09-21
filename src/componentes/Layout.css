@@ -40,6 +40,13 @@
   gap: 12px;
 }
 
+/* El estado del servicio se empuja a la derecha del encabezado. */
+.apl__estado {
+  margin-left: auto;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .apl__contenido {
   flex: 1;
   width: 100%;
