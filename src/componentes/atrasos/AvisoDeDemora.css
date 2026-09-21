@@ -1,0 +1,64 @@
+/*
+ * Aviso de demora del piloto (SCRUM-26, E.3).
+ *
+ * Amarillo volcán: es un aviso, no un error. Rojo está reservado para lo que
+ * sale mal, y una demora avisada es justo lo contrario: alguien se tomó el
+ * trabajo de decirlo. Color, icono y texto juntos (DESIGN.md §3).
+ */
+
+.demora {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(var(--seguro-abajo, 0px) + 96px);
+  z-index: 25;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--amarillo-volcan);
+  border-radius: var(--radio-tarjeta-chica);
+  background: var(--amarillo-volcan-superficie);
+  box-shadow: var(--sombra);
+  color: var(--amarillo-volcan-tinta);
+}
+
+.demora__icono {
+  flex: none;
+  margin-top: 2px;
+  color: var(--amarillo-volcan-tinta);
+}
+
+.demora__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.demora__titulo {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.demora__detalle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.demora__comentario {
+  margin: 2px 0 0;
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 720px) {
+  .demora {
+    left: auto;
+    right: 16px;
+    max-width: 380px;
+  }
+}

@@ -14,6 +14,7 @@ import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
 import { LoginAdmin } from './paginas/admin/LoginAdmin';
 import { PanelAdmin } from './paginas/admin/PanelAdmin';
 import { OpinionesPanel } from './paginas/admin/OpinionesPanel';
+import { AvisoDeDemora } from './componentes/atrasos/AvisoDeDemora';
 import { OpinarSobreElServicio } from './componentes/opiniones/OpinarSobreElServicio';
 import { PuertaDelPasajero } from './componentes/sesionPasajero/PuertaDelPasajero';
 import { SesionPasajeroProvider } from './core/pasajero/SesionPasajeroProvider';
@@ -39,6 +40,8 @@ export function App() {
                     <Mapa />
                     {/* SCRUM-26: opinar sobre la ruta que se esta mirando. */}
                     <OpinarSobreElServicio />
+                    {/* SCRUM-26, E.3: el atraso que avisó el piloto, junto al ETA. */}
+                    <AvisoDeDemora />
                   </Layout>
                 </ReservaProvider>
               </RutaElegidaProvider>

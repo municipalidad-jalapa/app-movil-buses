@@ -1,3 +1,4 @@
+import { ReportarAtraso } from '../../componentes/atrasos/ReportarAtraso';
 import { Layout } from '../../componentes/Layout';
 import { useAuth } from '../../core/autenticacion/useAuth';
 import './PanelConductor.css';
@@ -17,6 +18,8 @@ export function PanelConductor() {
           Sesión de {usuario?.correo}
           {rol ? ` · ${rol}` : ''}.
         </p>
+        {/* SCRUM-26, bloque E.2: el piloto avisa que viene demorado. */}
+        <ReportarAtraso />
         <button type="button" className="panel-conductor__salir" onClick={() => void cerrarSesion()}>
           Cerrar sesión
         </button>
