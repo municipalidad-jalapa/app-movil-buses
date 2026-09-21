@@ -56,3 +56,64 @@ export async function consultarServicio(token: string, signal?: AbortSignal): Pr
   const respuesta = await apiClient.get<EstadoServicio>('/api/v1/admin/servicio', { token, signal });
   return respuesta ?? { consultadoEn: new Date().toISOString(), rutas: [] };
 }
+
+// ---------------------------------------------------------------------------
+// Pasajeros subidos (SCRUM-26, bloque F)
+// ---------------------------------------------------------------------------
+
+export type Granularidad = 'DIA' | 'SEMANA' | 'MES';
+
+export interface ConteoPorGrupo {
+  id: number;
+  nombre: string;
+  abordajes: number;
+}
+
+export interface AbordajesPorPeriodo {
+  periodo: string;
+  abordajes: number;
+}
+
+export interface ConteoDeAbordajes {
+  total: number;
+  granularidad: Granularidad;
+  porRuta: ConteoPorGrupo[];
+  porVehiculo: ConteoPorGrupo[];
+  porPeriodo: AbordajesPorPeriodo[];
+}
+
+export interface FiltrosAbordajes {
+  rutaId?: number | '';
+  vehiculoId?: number | '';
+  desde?: string;
+  hasta?: string;
+  granularidad?: Lowercase<Granularidad>;
+}
+
+/**
+ * Cuenta los abordajes que marcó el piloto, que es el dato que prevalece.
+ * Lo que respondió el pasajero no entra: si se contaran las dos fuentes, el
+ * número dejaría de ser comparable entre rutas.
+ */
+export async function consultarAbordajes(
+  token: string,
+  filtros: FiltrosAbordajes = {},
+  signal?: AbortSignal,
+): Promise<ConteoDeAbordajes> {
+  const parametros = new URLSearchParams();
+  if (filtros.rutaId) parametros.set('rutaId', String(filtros.rutaId));
+  if (filtros.vehiculoId) parametros.set('vehiculoId', String(filtros.vehiculoId));
+  if (filtros.desde) parametros.set('desde', `${filtros.desde}T00:00:00Z`);
+  if (filtros.hasta) parametros.set('hasta', `${filtros.hasta}T23:59:59Z`);
+  if (filtros.granularidad) parametros.set('granularidad', filtros.granularidad);
+
+  const consulta = parametros.toString();
+  const respuesta = await apiClient.get<ConteoDeAbordajes>(
+    `/api/v1/admin/abordajes${consulta ? `?${consulta}` : ''}`,
+    { token, signal },
+  );
+  if (!respuesta) {
+    throw new Error('El conteo de abordajes no devolvió una respuesta.');
+  }
+  return respuesta;
+}

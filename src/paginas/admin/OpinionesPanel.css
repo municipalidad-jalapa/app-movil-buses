@@ -206,3 +206,26 @@
     color: #f2d27a;
   }
 }
+
+/* SCRUM-26, bloque F: promedios por dimension dentro de cada ruta o vehiculo. */
+.opiniones-dimensiones {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 0;
+  padding: 0 0 0 4px;
+  border-left: 2px solid var(--borde-sutil);
+  list-style: none;
+}
+
+.opiniones-dimensiones li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.opiniones-dimensiones__nombre {
+  min-width: 132px;
+  color: var(--tinta-tenue);
+}

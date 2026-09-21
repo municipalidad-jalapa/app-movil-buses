@@ -21,6 +21,7 @@ import {
   type FiltrosOpiniones,
   type OpinionDelPanel,
   type PaginaDeOpiniones,
+  DIMENSIONES,
   type PromedioOpiniones,
   type TipoOpinion,
 } from '../../core/opiniones';
@@ -327,7 +328,11 @@ export function OpinionesPanel() {
 }
 
 function TarjetaPromedios({ titulo, filas }: { titulo: string; filas?: PromedioOpiniones[] }) {
-  const calificadas = (filas ?? []).filter((f) => f.promedio !== null);
+  // Una fila entra si tiene la calificación general o alguna de las tres
+  // dimensiones del bloque F: puntuar solo la limpieza también es calificar.
+  const calificadas = (filas ?? []).filter(
+    (f) => f.promedio !== null || f.calidad !== null || f.limpieza !== null || f.conduccion !== null,
+  );
   return (
     <div className="panel-cifra">
       <span className="panel-cifra__etiqueta">{titulo}</span>
@@ -338,9 +343,34 @@ function TarjetaPromedios({ titulo, filas }: { titulo: string; filas?: PromedioO
           {calificadas.map((f) => (
             <li key={f.id}>
               <span className="opiniones-promedios__nombre">{f.nombre}</span>
-              <Estrellas valor={f.promedio!} />
-              <span className="opiniones-promedios__valor tabular">{decimal.format(f.promedio!)}</span>
-              <span className="panel-ayuda tabular">({f.calificadas})</span>
+              {f.promedio !== null ? (
+                <>
+                  <Estrellas valor={f.promedio} />
+                  <span className="opiniones-promedios__valor tabular">{decimal.format(f.promedio)}</span>
+                  <span className="panel-ayuda tabular">({f.calificadas})</span>
+                </>
+              ) : (
+                <span className="panel-ayuda">Sin calificación general</span>
+              )}
+              {/*
+                SCRUM-26, bloque F: cada dimensión por separado. La que nadie
+                puntuó dice «sin datos», nunca un cero que parezca mala nota.
+              */}
+              <ul className="opiniones-dimensiones">
+                {DIMENSIONES.map(({ clave, etiqueta }) => (
+                  <li key={clave}>
+                    <span className="opiniones-dimensiones__nombre">{etiqueta}</span>
+                    {f[clave] === null ? (
+                      <span className="panel-ayuda">Sin datos</span>
+                    ) : (
+                      <>
+                        <Estrellas valor={f[clave]!} />
+                        <span className="opiniones-promedios__valor tabular">{decimal.format(f[clave]!)}</span>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </li>
           ))}
         </ul>

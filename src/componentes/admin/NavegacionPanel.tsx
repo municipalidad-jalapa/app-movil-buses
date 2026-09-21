@@ -14,6 +14,10 @@ export function NavegacionPanel() {
       <NavLink to="/admin/opiniones" className={claseEnlace}>
         Opiniones
       </NavLink>
+      {/* SCRUM-26, bloque F: pasajeros subidos segun lo que marco el piloto. */}
+      <NavLink to="/admin/abordajes" className={claseEnlace}>
+        Pasajeros subidos
+      </NavLink>
     </nav>
   );
 }

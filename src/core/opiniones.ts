@@ -15,7 +15,20 @@ export interface NuevaOpinion {
   texto?: string;
   estrellas?: number;
   reservaId?: number;
+  /** SCRUM-26, bloque F: las tres valoraciones, cada una de 1 a 5 y opcional. */
+  calidad?: number;
+  limpieza?: number;
+  conduccion?: number;
 }
+
+/** Las tres dimensiones que la gente puntúa por separado (bloque F). */
+export type DimensionDeOpinion = 'calidad' | 'limpieza' | 'conduccion';
+
+export const DIMENSIONES: { clave: DimensionDeOpinion; etiqueta: string }[] = [
+  { clave: 'calidad', etiqueta: 'Calidad del servicio' },
+  { clave: 'limpieza', etiqueta: 'Limpieza de la unidad' },
+  { clave: 'conduccion', etiqueta: 'Conducción prudente' },
+];
 
 export interface OpinionCreada {
   id: number;
@@ -56,6 +69,10 @@ export interface OpinionDelPanel {
   vehiculoId: number | null;
   vehiculo: string | null;
   estrellas: number | null;
+  /** SCRUM-26, bloque F: null cuando el pasajero no puntuó esa dimensión. */
+  calidad: number | null;
+  limpieza: number | null;
+  conduccion: number | null;
   /** Ya neutralizado por el backend: se muestra como texto, nunca como HTML. */
   texto: string | null;
   atendidaEn: string | null;
@@ -66,6 +83,10 @@ export interface PromedioOpiniones {
   id: number;
   nombre: string;
   promedio: number | null;
+  /** Bloque F: un promedio en null es «sin datos», nunca un cero. */
+  calidad: number | null;
+  limpieza: number | null;
+  conduccion: number | null;
   calificadas: number;
   opiniones: number;
 }

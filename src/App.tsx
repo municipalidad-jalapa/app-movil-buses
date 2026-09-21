@@ -13,6 +13,7 @@ import { RutaProtegidaAdmin } from './componentes/admin/RutaProtegidaAdmin';
 import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
 import { LoginAdmin } from './paginas/admin/LoginAdmin';
 import { PanelAdmin } from './paginas/admin/PanelAdmin';
+import { AbordajesPanel } from './paginas/admin/AbordajesPanel';
 import { OpinionesPanel } from './paginas/admin/OpinionesPanel';
 import { AvisoDeDemora } from './componentes/atrasos/AvisoDeDemora';
 import { OpinarSobreElServicio } from './componentes/opiniones/OpinarSobreElServicio';
@@ -82,6 +83,14 @@ export function App() {
                     element={
                       <RutaProtegidaAdmin>
                         <OpinionesPanel />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  <Route
+                    path="abordajes"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <AbordajesPanel />
                       </RutaProtegidaAdmin>
                     }
                   />

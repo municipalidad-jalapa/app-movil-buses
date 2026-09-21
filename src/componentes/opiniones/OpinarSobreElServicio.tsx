@@ -4,7 +4,14 @@ import { useReserva } from '../../hooks/useReserva';
 import { useRutaElegida } from '../../hooks/useRutaElegida';
 import { useSesionPasajero } from '../../core/pasajero/SesionPasajeroContext';
 import { ErrorApi } from '../../core/errores';
-import { enviarOpinion, esLimiteDeEnvios, TEXTO_MAXIMO, type TipoOpinion } from '../../core/opiniones';
+import {
+  DIMENSIONES,
+  enviarOpinion,
+  esLimiteDeEnvios,
+  TEXTO_MAXIMO,
+  type DimensionDeOpinion,
+  type TipoOpinion,
+} from '../../core/opiniones';
 import {
   IconoBus,
   IconoCerrar,
@@ -44,6 +51,12 @@ export function OpinarSobreElServicio() {
   const [abierta, setAbierta] = useState(false);
   const [tipo, setTipo] = useState<TipoOpinion | null>(null);
   const [estrellas, setEstrellas] = useState(0);
+  // SCRUM-26, bloque F: tres valoraciones independientes, todas opcionales.
+  const [porDimension, setPorDimension] = useState<Record<DimensionDeOpinion, number>>({
+    calidad: 0,
+    limpieza: 0,
+    conduccion: 0,
+  });
   const [texto, setTexto] = useState('');
   const [estado, setEstado] = useState<Estado>('editando');
   const [detalleError, setDetalleError] = useState<string | null>(null);
@@ -61,12 +74,14 @@ export function OpinarSobreElServicio() {
   if (!rutaActiva) return null;
 
   const quedan = TEXTO_MAXIMO - [...texto].length;
-  const hayContenido = texto.trim() !== '' || estrellas > 0;
+  const hayValoracionPorDimension = DIMENSIONES.some(({ clave }) => porDimension[clave] > 0);
+  const hayContenido = texto.trim() !== '' || estrellas > 0 || hayValoracionPorDimension;
   const puedeEnviar = tipo !== null && hayContenido && quedan >= 0 && estado !== 'enviando' && estado !== 'limite';
 
   function limpiar() {
     setTipo(null);
     setEstrellas(0);
+    setPorDimension({ calidad: 0, limpieza: 0, conduccion: 0 });
     setTexto('');
     setEstado('editando');
     setDetalleError(null);
@@ -89,6 +104,9 @@ export function OpinarSobreElServicio() {
         rutaId: rutaActiva.id,
         texto: texto.trim() || undefined,
         estrellas: estrellas || undefined,
+        calidad: porDimension.calidad || undefined,
+        limpieza: porDimension.limpieza || undefined,
+        conduccion: porDimension.conduccion || undefined,
         reservaId: reserva && estaVigente(reserva) ? reserva.id : undefined,
       }, sesionPasajero?.sesion?.token);
       setEstado('enviada');
@@ -218,6 +236,47 @@ export function OpinarSobreElServicio() {
                   </div>
                   {estrellas > 0 && <span className="opinion-estrellas__valor tabular">{estrellas} de 5</span>}
                 </div>
+              </fieldset>
+
+              <fieldset className="opinion-grupo">
+                <legend>
+                  ¿Cómo estuvo cada cosa? <span className="opinion-opcional">(opcional)</span>
+                </legend>
+                {/*
+                  SCRUM-26, bloque F. Tres valoraciones independientes: el
+                  servicio puede ser puntual con la unidad sucia, o la unidad
+                  impecable y el piloto manejando mal. Puntuar una no obliga a
+                  puntuar las otras.
+                */}
+                {DIMENSIONES.map(({ clave, etiqueta }) => (
+                  <div key={clave} className="opinion-dimension">
+                    <span className="opinion-dimension__nombre" id={`dimension-${clave}`}>
+                      {etiqueta}
+                    </span>
+                    <div className="opinion-estrellas">
+                      <div role="radiogroup" aria-labelledby={`dimension-${clave}`}>
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <button
+                            key={n}
+                            type="button"
+                            role="radio"
+                            aria-checked={porDimension[clave] === n}
+                            aria-label={`${etiqueta}: ${n} ${n === 1 ? 'estrella' : 'estrellas'} de 5`}
+                            className="opinion-estrella"
+                            onClick={() =>
+                              setPorDimension((previo) => ({
+                                ...previo,
+                                [clave]: previo[clave] === n ? 0 : n,
+                              }))
+                            }
+                          >
+                            <IconoEstrella tamano={26} llena={n <= porDimension[clave]} />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </fieldset>
 
               <label className="opinion-campo">

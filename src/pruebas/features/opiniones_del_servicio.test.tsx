@@ -54,6 +54,9 @@ const PAGINA: PaginaDeOpiniones = {
       vehiculoId: 1,
       vehiculo: 'BUS-01',
       estrellas: null,
+      calidad: null,
+      limpieza: null,
+      conduccion: null,
       // Asi llega del backend: neutralizado.
       texto: '&lt;b&gt;hola&lt;/b&gt;',
       atendidaEn: null,

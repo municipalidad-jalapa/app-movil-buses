@@ -356,3 +356,33 @@
     animation: none;
   }
 }
+
+/*
+ * SCRUM-26, bloque F: las tres valoraciones por dimension. Cada fila es
+ * nombre + estrellas; en telefono el nombre va arriba para que las estrellas
+ * conserven su area tocable.
+ */
+.opinion-dimension {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+}
+
+.opinion-dimension + .opinion-dimension {
+  border-top: 1px solid var(--borde-sutil);
+}
+
+.opinion-dimension__nombre {
+  font-size: 14px;
+  color: var(--tinta-secundaria);
+}
+
+@media (min-width: 420px) {
+  .opinion-dimension {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}

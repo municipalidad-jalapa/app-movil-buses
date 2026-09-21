@@ -1,0 +1,40 @@
+/*
+ * Pasajeros subidos (SCRUM-26, bloque F). Reusa la estructura sobria del panel
+ * municipal (DESIGN.md §11): sin color decorativo, la cifra manda.
+ */
+
+.abordajes-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.abordajes-conteo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.abordajes-conteo li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.abordajes-conteo__nombre {
+  color: var(--tinta-secundaria);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abordajes-conteo__valor {
+  font-weight: 600;
+  color: var(--tinta);
+}
