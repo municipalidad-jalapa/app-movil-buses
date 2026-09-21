@@ -13,6 +13,7 @@ import { RutaProtegidaAdmin } from './componentes/admin/RutaProtegidaAdmin';
 import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
 import { LoginAdmin } from './paginas/admin/LoginAdmin';
 import { PanelAdmin } from './paginas/admin/PanelAdmin';
+import { ExportarDatos } from './paginas/admin/ExportarDatos';
 
 export function App() {
   return (
@@ -61,6 +62,14 @@ export function App() {
                     element={
                       <RutaProtegidaAdmin>
                         <PanelAdmin />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  <Route
+                    path="exportar"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <ExportarDatos />
                       </RutaProtegidaAdmin>
                     }
                   />

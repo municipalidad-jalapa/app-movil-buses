@@ -1,0 +1,215 @@
+================================================================================
+RESULTADOS DE PRUEBAS -- HU Desarrollo-86 "Exportar los datos del servicio" (FRONTEND)
+================================================================================
+Fecha  : 2026-09-20 20:45
+Node   : v24.21.0
+Vitest : 3.2.7
+Rama   : main
+
+Criterios de aceptacion:
+  C1  Exportacion en formato de hoja de calculo desde el panel web.
+  C2  Rango de fechas seleccionable.
+  C3  La exportacion no expone datos que identifiquen a un pasajero.
+
+--------------------------------------------------------------------------------
+RESUMEN
+--------------------------------------------------------------------------------
+  Bateria completa del proyecto .. 384 / 384  PASARON   (42 archivos, 0 fallos)
+  De esta HU (simuladas + unitarias + componente + Gherkin) .. 94 / 94  PASARON   (5 archivos)
+  Regresion (resto del proyecto) ........................ 290 / 290  PASARON
+  E2E en navegador real (Chromium) con backend simulado ... 12 / 12  PASARON
+  Verificacion de tipos (tsc --noEmit) .................................. OK
+  Build de produccion (npm run build) ................................... OK
+  Entorno real, solo lectura y sin credenciales ....................... PASO
+
+  ESTADO GENERAL: VERDE. Ninguna prueba fallo.
+  Limite: el .xlsx real y el login con credenciales de QA NO se probaron desde aqui (ver seccion D).
+
+--------------------------------------------------------------------------------
+A. PRUEBAS DE ESTA HU, POR ARCHIVO
+--------------------------------------------------------------------------------
+  [PASO]  src/core/panelAdmin/exportacion.test.ts ................................ 8 / 8
+  [PASO]  src/pruebas/features/exportar_datos_del_servicio.test.tsx ............ 18 / 18
+  [PASO]  test/HU-Desarrollo-86-exportar-datos/componentes/ExportarDatos.test.tsx .. 23 / 23
+  [PASO]  test/HU-Desarrollo-86-exportar-datos/unitarios/rangoDeFechas.test.ts .. 29 / 29
+  [PASO]  test/HU-Desarrollo-86-exportar-datos/simulados/servidorSimulado.test.ts .. 16 / 16
+
+--------------------------------------------------------------------------------
+B. DETALLE PRUEBA POR PRUEBA (HU-86)
+--------------------------------------------------------------------------------
+
+  src/core/panelAdmin/exportacion.test.ts
+    [PASO]  diasDelRango cuenta ambos extremos
+    [PASO]  exportarDatosDelServicio pide el rango con Bearer y toma el nombre de Content-Disposition
+    [PASO]  exportarDatosDelServicio usa un nombre por defecto sin Content-Disposition
+    [PASO]  exportarDatosDelServicio lanza ErrorApi con el estado 400
+    [PASO]  exportarDatosDelServicio lanza ErrorApi con el estado 401
+    [PASO]  exportarDatosDelServicio lanza ErrorApi con el estado 403
+    [PASO]  exportarDatosDelServicio lanza ErrorApi con el estado 422
+    [PASO]  exportarDatosDelServicio una falla de red es ErrorApi con estado 0
+
+  src/pruebas/features/exportar_datos_del_servicio.test.tsx
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Descargo la hoja de cálculo de un rango de fechas Dado que tengo una sesión de administrador en la pantalla de exportar datos
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Descargo la hoja de cálculo de un rango de fechas Cuando elijo del "2026-09-01" al "2026-09-15" y descargo
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Descargo la hoja de cálculo de un rango de fechas Entonces se pide el archivo de ese rango con mi sesión
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Descargo la hoja de cálculo de un rango de fechas Y se guarda el archivo "exportacion-servicio_2026-09-01_2026-09-15.xlsx"
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Un rango invertido no se envía Dado que tengo una sesión de administrador en la pantalla de exportar datos
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Un rango invertido no se envía Cuando elijo del "2026-09-15" al "2026-09-01" y descargo
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Un rango invertido no se envía Entonces veo el aviso "La fecha final no puede ser anterior a la fecha de inicio."
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Un rango invertido no se envía Y no se pide ningún archivo
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Un rango de más de 366 días no se envía Dado que tengo una sesión de administrador en la pantalla de exportar datos
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Un rango de más de 366 días no se envía Cuando elijo del "2025-01-01" al "2026-09-15" y descargo
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Un rango de más de 366 días no se envía Entonces veo el aviso "El rango puede abarcar como máximo 366 días."
+    [PASO]  Característica: Exportar los datos del servicio Escenario: Un rango de más de 366 días no se envía Y no se pide ningún archivo
+    [PASO]  Característica: Exportar los datos del servicio Escenario: El backend rechaza el rango Dado que tengo una sesión de administrador en la pantalla de exportar datos
+    [PASO]  Característica: Exportar los datos del servicio Escenario: El backend rechaza el rango Y que el servicio rechaza el rango con "El rango no puede superar 366 días"
+    [PASO]  Característica: Exportar los datos del servicio Escenario: El backend rechaza el rango Cuando elijo del "2026-09-01" al "2026-09-15" y descargo
+    [PASO]  Característica: Exportar los datos del servicio Escenario: El backend rechaza el rango Entonces veo el aviso "El rango no puede superar 366 días"
+    [PASO]  Característica: Exportar los datos del servicio Escenario: La pantalla avisa que no hay datos de pasajeros Dado que tengo una sesión de administrador en la pantalla de exportar datos
+    [PASO]  Característica: Exportar los datos del servicio Escenario: La pantalla avisa que no hay datos de pasajeros Entonces veo que el archivo no incluye información que identifique a ningún pasajero
+
+  test/HU-Desarrollo-86-exportar-datos/componentes/ExportarDatos.test.tsx
+    [PASO]  HU-86 · pantalla Exportar datos · acceso sin sesion de administrador manda al login
+    [PASO]  HU-86 · pantalla Exportar datos · acceso con sesion muestra titulo, correo y enlaces de navegacion
+    [PASO]  HU-86 · pantalla Exportar datos · selector de fechas (criterio 2) "Hasta" arranca en hoy (hora de Guatemala) y "Desde" vacio
+    [PASO]  HU-86 · pantalla Exportar datos · selector de fechas (criterio 2) los campos son selectores de fecha y no dejan elegir el futuro
+    [PASO]  HU-86 · pantalla Exportar datos · selector de fechas (criterio 2) avisa el maximo de 366 dias y que se cuenta en hora de Guatemala
+    [PASO]  HU-86 · pantalla Exportar datos · selector de fechas (criterio 2) sin elegir "Desde" no envia y lo dice
+    [PASO]  HU-86 · pantalla Exportar datos · selector de fechas (criterio 2) un solo dia (desde = hasta) se envia
+    [PASO]  HU-86 · pantalla Exportar datos · selector de fechas (criterio 2) corregir el rango limpia el aviso de error al reenviar
+    [PASO]  HU-86 · pantalla Exportar datos · descarga (criterio 1) descarga el archivo con el nombre del servidor y lo confirma
+    [PASO]  HU-86 · pantalla Exportar datos · descarga (criterio 1) libera la URL temporal del archivo
+    [PASO]  HU-86 · pantalla Exportar datos · descarga (criterio 1) mientras genera, el boton se bloquea y no se duplica la peticion
+    [PASO]  HU-86 · pantalla Exportar datos · descarga (criterio 1) se puede descargar otro rango despues del primero
+    [PASO]  HU-86 · pantalla Exportar datos · descarga (criterio 1) al desmontar durante la descarga no hay errores ni se descarga nada
+    [PASO]  HU-86 · pantalla Exportar datos · errores 422: muestra el motivo del backend en lenguaje claro
+    [PASO]  HU-86 · pantalla Exportar datos · errores 400: mensaje generico, sin codigos
+    [PASO]  HU-86 · pantalla Exportar datos · errores 401: cierra la sesion y manda al login
+    [PASO]  HU-86 · pantalla Exportar datos · errores 403: cierra la sesion y manda al login
+    [PASO]  HU-86 · pantalla Exportar datos · errores sin red: "revisa tu conexion", con opcion de reintentar el mismo rango
+    [PASO]  HU-86 · pantalla Exportar datos · errores 500: dice que el servicio no esta disponible, sin jerga
+    [PASO]  HU-86 · pantalla Exportar datos · errores un error inesperado (no ErrorApi) muestra un mensaje propio
+    [PASO]  HU-86 · pantalla Exportar datos · privacidad (criterio 3) avisa que solo hay datos agregados y no identifican a un pasajero
+    [PASO]  HU-86 · pantalla Exportar datos · privacidad (criterio 3) describe las 3 hojas del archivo
+    [PASO]  HU-86 · pantalla Exportar datos · privacidad (criterio 3) la pantalla no ofrece ningun campo de pasajero ni dispositivo
+
+  test/HU-Desarrollo-86-exportar-datos/unitarios/rangoDeFechas.test.ts
+    [PASO]  diasDelRango (ambos extremos inclusivos) 2026-09-01 → 2026-09-01 = 1 dias
+    [PASO]  diasDelRango (ambos extremos inclusivos) 2026-09-01 → 2026-09-02 = 2 dias
+    [PASO]  diasDelRango (ambos extremos inclusivos) 2026-02-27 → 2026-03-02 = 4 dias
+    [PASO]  diasDelRango (ambos extremos inclusivos) 2024-02-28 → 2024-03-01 = 3 dias
+    [PASO]  diasDelRango (ambos extremos inclusivos) 2025-01-01 → 2025-12-31 = 365 dias
+    [PASO]  diasDelRango (ambos extremos inclusivos) 2024-01-01 → 2024-12-31 = 366 dias
+    [PASO]  diasDelRango (ambos extremos inclusivos) 2025-01-01 → 2026-01-01 = 366 dias
+    [PASO]  diasDelRango (ambos extremos inclusivos) 2025-01-01 → 2026-01-02 = 367 dias
+    [PASO]  validarRango (mismas reglas que el backend) el maximo es 366
+    [PASO]  validarRango (mismas reglas que el backend) acepta 2026-09-01 → 2026-09-01
+    [PASO]  validarRango (mismas reglas que el backend) acepta 2026-09-01 → 2026-09-15
+    [PASO]  validarRango (mismas reglas que el backend) acepta 2025-01-01 → 2026-01-01
+    [PASO]  validarRango (mismas reglas que el backend) acepta 2024-01-01 → 2024-12-31
+    [PASO]  validarRango (mismas reglas que el backend) pide elegir ambas fechas: "" → "2026-09-15"
+    [PASO]  validarRango (mismas reglas que el backend) pide elegir ambas fechas: "2026-09-01" → ""
+    [PASO]  validarRango (mismas reglas que el backend) pide elegir ambas fechas: "" → ""
+    [PASO]  validarRango (mismas reglas que el backend) pide elegir ambas fechas: "01/09/2026" → "2026-09-15"
+    [PASO]  validarRango (mismas reglas que el backend) pide elegir ambas fechas: "2026-9-1" → "2026-09-15"
+    [PASO]  validarRango (mismas reglas que el backend) rechaza un rango invertido
+    [PASO]  validarRango (mismas reglas que el backend) rechaza 367 dias
+    [PASO]  hoyEnGuatemala (UTC-6, no UTC) a las 03:00 UTC todavia es el dia anterior en Guatemala
+    [PASO]  hoyEnGuatemala (UTC-6, no UTC) a las 06:00 UTC ya es el dia nuevo en Guatemala
+    [PASO]  hoyEnGuatemala (UTC-6, no UTC) a las 05:59 UTC sigue siendo el dia anterior
+    [PASO]  hoyEnGuatemala (UTC-6, no UTC) cambio de anio
+    [PASO]  nombre del archivo (Content-Disposition) con comillas
+    [PASO]  nombre del archivo (Content-Disposition) sin comillas
+    [PASO]  nombre del archivo (Content-Disposition) con filename* en UTF-8
+    [PASO]  nombre del archivo (Content-Disposition) sin cabecera usa el nombre de respaldo con el rango
+    [PASO]  nombre del archivo (Content-Disposition) cabecera sin filename usa el respaldo
+
+  test/HU-Desarrollo-86-exportar-datos/simulados/servidorSimulado.test.ts
+    [PASO]  HU-86 · servidor simulado · descarga correcta descarga un .xlsx real por HTTP: bytes intactos, nombre del servidor
+    [PASO]  HU-86 · servidor simulado · descarga correcta un archivo grande (5 MB) llega completo
+    [PASO]  HU-86 · servidor simulado · descarga correcta acepta el rango maximo de 366 dias y un solo dia
+    [PASO]  HU-86 · servidor simulado · lo que sale del navegador (criterio 3, lado cliente) es un GET con Bearer y SOLO los parametros desde y hasta
+    [PASO]  HU-86 · servidor simulado · lo que sale del navegador (criterio 3, lado cliente) no envia identificadores de dispositivo, cookies ni cuerpo
+    [PASO]  HU-86 · servidor simulado · lo que sale del navegador (criterio 3, lado cliente) el token no viaja en la URL (no es un enlace <a href>)
+    [PASO]  HU-86 · servidor simulado · errores 401 sin sesion valida
+    [PASO]  HU-86 · servidor simulado · errores 403 con cuenta de conductor
+    [PASO]  HU-86 · servidor simulado · errores 400 fecha con formato invalido
+    [PASO]  HU-86 · servidor simulado · errores 400 falta una fecha
+    [PASO]  HU-86 · servidor simulado · errores 422 rango invertido
+    [PASO]  HU-86 · servidor simulado · errores 422 mas de 366 dias
+    [PASO]  HU-86 · servidor simulado · errores un 500 del servidor llega como ErrorApi 500
+    [PASO]  HU-86 · servidor simulado · errores servidor caido: ErrorApi de red (estado 0), no una excepcion cruda
+    [PASO]  HU-86 · servidor simulado · errores cancelar con AbortSignal corta la descarga
+    [PASO]  HU-86 · servidor simulado · errores ningun mensaje para el usuario expone codigos HTTP ni jerga tecnica
+
+--------------------------------------------------------------------------------
+C. E2E EN NAVEGADOR REAL (test/HU-Desarrollo-86-exportar-datos/e2e-navegador.mjs)
+--------------------------------------------------------------------------------
+  [PASO]  E1 · navegar desde la portada a "Exportar datos" con el enlace de la cabecera
+  [PASO]  E2 · criterio 1 y 2: descarga real del .xlsx de un rango (bytes y nombre intactos)
+  [PASO]  E3 · criterio 2: el rango invertido no se envia y se avisa
+  [PASO]  E4 · criterio 2: un rango de 367 dias no se envia
+  [PASO]  E5 · el limite exacto de 366 dias SI se envia
+  [PASO]  E6 · el backend responde 422: se muestra su mensaje y no se descarga nada
+  [PASO]  E7 · sesion vencida (401): vuelve al login y borra la sesion
+  [PASO]  E8 · sin sesion, /admin/exportar manda al login
+  [PASO]  E9 · criterio 3: la pantalla avisa que no hay datos de pasajeros y no pide datos personales
+  [PASO]  E10 · "Hasta" arranca en hoy (Guatemala) y no deja elegir el futuro
+  [PASO]  E11 · pantalla sin scroll horizontal en escritorio
+  [PASO]  E12 · servicio caido: mensaje de conexion, sin jerga, y se puede reintentar
+  Capturas: test/HU-Desarrollo-86-exportar-datos/evidencia/
+
+--------------------------------------------------------------------------------
+D. ENTORNO REAL (solo lectura, sin credenciales)
+--------------------------------------------------------------------------------
+  [PASO]  GET /api/v1/admin/exportaciones/servicio sin token -> 401 (esperado 401)
+  [INFO]  GET a una ruta admin inexistente sin token -> 401
+  [INFO]  Access-Control-Allow-Origin: (no viene) | Expose-Headers: (no viene)
+  Lectura: el servidor responde y exige sesion, pero da 401 igual con una ruta que no existe, asi que esto
+  NO demuestra que el endpoint este desplegado en produccion. Queda pendiente probar con un token de
+  administrador de QA (paso 1 de la revision manual en MANUAL_DE_PRUEBAS.md).
+
+--------------------------------------------------------------------------------
+E. RESTO DE LA BATERIA (regresion: nada de lo agregado rompio lo existente)
+--------------------------------------------------------------------------------
+  [PASO]  src/componentes/BannerConexion.test.tsx ................................ 3 / 3
+  [PASO]  src/componentes/EstadoSinPosicion.test.tsx ............................. 1 / 1
+  [PASO]  src/componentes/HojaReserva.test.tsx ................................... 7 / 7
+  [PASO]  src/componentes/HoraUltimoDato.test.tsx ................................ 2 / 2
+  [PASO]  src/componentes/MapaJalapa.test.tsx .................................. 10 / 10
+  [PASO]  src/componentes/MarcadorBus.test.tsx ................................... 8 / 8
+  [PASO]  src/componentes/PreferenciaNotificaciones.test.tsx ..................... 7 / 7
+  [PASO]  src/componentes/RutaProtegida.test.tsx ................................. 3 / 3
+  [PASO]  src/componentes/TarjetaAbordaje.test.tsx ............................... 7 / 7
+  [PASO]  src/core/apiClient.test.ts ........................................... 18 / 18
+  [PASO]  src/core/config.test.ts .............................................. 13 / 13
+  [PASO]  src/core/distanciaAParada.test.ts ...................................... 6 / 6
+  [PASO]  src/core/errores.test.ts ............................................. 11 / 11
+  [PASO]  src/core/flujoDePosiciones.test.ts ................................... 12 / 12
+  [PASO]  src/core/frescuraDato.test.ts .......................................... 4 / 4
+  [PASO]  src/core/identidadDispositivo.test.ts .................................. 2 / 2
+  [PASO]  src/core/interpolacionPosicion.test.ts ............................... 10 / 10
+  [PASO]  src/core/recorridoDeRuta.test.ts ....................................... 4 / 4
+  [PASO]  src/core/registroDemanda.test.ts ....................................... 1 / 1
+  [PASO]  src/core/reservas.test.ts .............................................. 7 / 7
+  [PASO]  src/hooks/useInactividad.test.ts ....................................... 3 / 3
+  [PASO]  src/hooks/usePosicionBus.test.ts ....................................... 8 / 8
+  [PASO]  src/hooks/useUbicacion.test.ts ......................................... 3 / 3
+  [PASO]  src/paginas/Mapa.test.tsx ............................................ 27 / 27
+  [PASO]  src/paginas/PantallaRegistro.test.tsx .................................. 2 / 2
+  [PASO]  src/core/autenticacion/AuthProvider.test.tsx ......................... 10 / 10
+  [PASO]  src/core/autenticacion/sesionConductor.test.ts ......................... 4 / 4
+  [PASO]  src/core/autenticacion/traducirErrorFirebase.test.ts ................... 4 / 4
+  [PASO]  src/core/notificaciones/permisoNotificaciones.test.ts ................ 10 / 10
+  [PASO]  src/core/notificaciones/registroDeToken.test.ts ........................ 3 / 3
+  [PASO]  src/paginas/conductor/LoginConductor.test.tsx .......................... 3 / 3
+  [PASO]  src/pruebas/features/avisos_y_abordaje.test.tsx ...................... 46 / 46
+  [PASO]  src/pruebas/features/entrar_al_panel_municipal.test.tsx .............. 18 / 18
+  [PASO]  test/sin-conexion/unitarios/AvisoSinConexion.test.tsx .................. 6 / 6
+  [PASO]  test/sin-conexion/unitarios/useEnLinea.test.ts ......................... 4 / 4
+  [PASO]  test/SCRUM-148-HU-53/unitarios/identidadDispositivo.test.ts ............ 2 / 2
+  [PASO]  test/SCRUM-148-HU-53/unitarios/registroDemanda.test.ts ................. 1 / 1
+
+================================================================================
+Regenerar: node test/HU-Desarrollo-86-exportar-datos/generar-resultados.mjs
+================================================================================

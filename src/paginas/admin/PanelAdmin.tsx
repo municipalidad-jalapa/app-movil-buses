@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AvisoInactividad } from '../../componentes/admin/AvisoInactividad';
 import { ChipEstadoServicio } from '../../componentes/admin/ChipEstadoServicio';
-import { IconoSalir, SimboloEcoRuta } from '../../componentes/admin/IconosPanel';
+import { CabeceraPanel } from '../../componentes/admin/CabeceraPanel';
 import { ErrorApi } from '../../core/errores';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
 import { consultarServicio, type EstadoServicio, type RutaEnServicio } from '../../core/panelAdmin/panelAdminApi';
@@ -63,21 +63,7 @@ export function PanelAdmin() {
 
   return (
     <div className="panel-escritorio">
-      <header className="panel-cabecera">
-        <div className="panel-cabecera__marca">
-          <SimboloEcoRuta tamano={30} />
-          <span className="panel-cabecera__ecoruta">EcoRuta</span>
-          <span className="panel-cabecera__separador" aria-hidden="true" />
-          <span className="panel-cabecera__seccion">Panel municipal</span>
-        </div>
-        <div className="panel-cabecera__usuario">
-          <span className="panel-cabecera__correo">{sesion?.correo}</span>
-          <button type="button" className="panel-boton panel-boton--cabecera" onClick={() => cerrarSesion()}>
-            <IconoSalir />
-            Cerrar sesión
-          </button>
-        </div>
-      </header>
+      <CabeceraPanel />
 
       <main className="panel-principal">
         <div className="panel-principal__encabezado">
