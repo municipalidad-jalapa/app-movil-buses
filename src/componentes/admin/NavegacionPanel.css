@@ -27,3 +27,20 @@
   outline: 3px solid var(--verde-jumay-superficie);
   outline-offset: -3px;
 }
+
+@media (max-width: 640px) {
+  .panel-navegacion {
+    flex: 1 1 100%;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .panel-navegacion__enlace {
+    flex: 1 1 0;
+    justify-content: center;
+    min-width: 0;
+    padding: 8px 4px;
+    font-size: 13px;
+    text-align: center;
+  }
+}

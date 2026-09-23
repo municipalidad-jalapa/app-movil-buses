@@ -8,7 +8,7 @@ import {
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { signInWithPopup } from 'firebase/auth';
 import { MemoryRouter } from 'react-router-dom';
-import { expect, vi } from 'vitest';
+import { expect, it, vi } from 'vitest';
 
 import { MenuAcceso } from '../../componentes/MenuAcceso';
 import { PuertaDelPasajero } from '../../componentes/sesionPasajero/PuertaDelPasajero';
@@ -53,6 +53,20 @@ function montar() {
 }
 
 const abrirMenu = () => fireEvent.click(screen.getByRole('button', { name: /Cuenta|Invitado|Acceder/ }));
+
+it('explica el fallo de Google también al iniciar desde el menú de invitado', async () => {
+  localStorage.setItem(CLAVE_MODO, 'invitado');
+  vi.mocked(signInWithPopup).mockRejectedValueOnce(Object.assign(new Error('x'), { code: 'auth/internal-error' }));
+  montar();
+  abrirMenu();
+  await act(async () => {
+    fireEvent.click(screen.getByRole('menuitem', { name: /Iniciar sesión/ }));
+  });
+  expect((await screen.findByRole('alert')).textContent).toContain('No pudimos iniciar sesión con Google.');
+  fireEvent.click(screen.getByRole('button', { name: /Continuar como invitado/ }));
+  expect(screen.getByText('App del pasajero')).toBeTruthy();
+  cleanup();
+});
 
 describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) => {
   BeforeEachScenario(() => {

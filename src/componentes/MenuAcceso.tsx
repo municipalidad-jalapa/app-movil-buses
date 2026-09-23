@@ -157,6 +157,12 @@ export function MenuAcceso() {
           </Link>
         </div>
       )}
+      {pasajero?.modo === 'invitado' && pasajero.error && !abierto && (
+        <div className="menu-acceso__error" role="alert">
+          <p>{pasajero.error}</p>
+          <button type="button" onClick={pasajero.entrarComoInvitado}>Continuar como invitado</button>
+        </div>
+      )}
     </div>
   );
 }

@@ -20,6 +20,7 @@
   --amarillo-volcan: #f2b705;        /* "tu parada", confirmacion, acento */
   --amarillo-volcan-tinta: #241c00;  /* texto sobre amarillo */
   --amarillo-volcan-superficie: #fbf0d6;
+  --amarillo-volcan-superficie-tinta: #241c00;
 
   --rojo-santa-marta: #8c2b22;       /* identidad; "yo" en el mapa; soltar la reserva */
   --rojo-santa-marta-superficie: #f6e4e0;
@@ -139,6 +140,7 @@
 
     --verde-jumay-superficie: #20291f;
     --amarillo-volcan-superficie: #3a2e0c;
+    --amarillo-volcan-superficie-tinta: #f6e5b6;
     --rojo-santa-marta-superficie: #3a1a15;
   }
 }

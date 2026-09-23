@@ -7,7 +7,8 @@ import {
 } from '@amiceli/vitest-cucumber';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { expect, vi } from 'vitest';
+import { expect, vi, test } from 'vitest';
+import { apiClient } from '../../core/apiClient';
 
 import { OpinarSobreElServicio } from '../../componentes/opiniones/OpinarSobreElServicio';
 import { enviarOpinion, listarOpiniones, type PaginaDeOpiniones, type PromedioOpiniones } from '../../core/opiniones';
@@ -255,3 +256,23 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     });
   });
 });
+
+for (const Pantalla of [OpinionesPanel, AbordajesPanel]) {
+  test(`${Pantalla.name}: carga vehículos desde el catálogo municipal`, async () => {
+    vi.mocked(listarOpiniones).mockResolvedValue(pagina([]));
+    vi.mocked(consultarAbordajes).mockResolvedValue(conteo({}));
+    const consulta = vi.spyOn(apiClient, 'get').mockImplementation(async (ruta) => {
+      if (ruta === '/api/v1/admin/vehiculos') throw new Error('403: solo SuperAdmin');
+      return (ruta === '/api/v1/admin/catalogo/vehiculos'
+        ? [{ id: 1, identificador: 'BUS-01' }, { id: 2, identificador: 'BUS-02' }] : []) as never;
+    });
+    try {
+      montarPanel(Pantalla);
+      const selector = screen.getByRole('combobox', { name: 'Vehículo' });
+      expect(await within(selector).findByRole('option', { name: 'BUS-01' })).toBeTruthy();
+      expect(within(selector).getByRole('option', { name: 'BUS-02' })).toBeTruthy();
+      fireEvent.change(selector, { target: { value: '2' } });
+      expect((selector as HTMLSelectElement).value).toBe('2');
+    } finally { cleanup(); consulta.mockRestore(); }
+  });
+}

@@ -79,7 +79,7 @@
   border: none;
   border-radius: var(--radio-pastilla);
   background: var(--verde-jumay);
-  color: var(--superficie-base);
+  color: var(--sobre-marca);
   font-size: 19px;
   font-weight: 800;
   display: flex;
@@ -98,7 +98,7 @@
 
 .hoja-reserva__primario--apagado {
   background: var(--borde-sutil);
-  color: var(--tinta-apagada);
+  color: var(--tinta);
 }
 
 .hoja-reserva__enlace {
@@ -120,7 +120,7 @@
   width: 100%;
   min-height: 52px;
   background: transparent;
-  color: var(--rojo-santa-marta);
+  color: var(--alerta-texto);
   border: 2px solid var(--borde-sutil);
   font-size: 17px;
   font-weight: 800;
@@ -136,7 +136,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 .hoja-reserva__giro {
@@ -204,7 +204,7 @@
 
 .hoja-reserva__numero-40 {
   font-size: 40px;
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 .hoja-reserva__rotulo {
@@ -267,7 +267,7 @@
 
 .hoja-reserva__numero-44 {
   font-size: 44px;
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 .hoja-reserva__aviso-min {

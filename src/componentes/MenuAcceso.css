@@ -112,7 +112,7 @@
 
 .menu-acceso__avatar--invitado {
   background: var(--verde-jumay-superficie);
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 .menu-acceso__cuenta {
@@ -164,12 +164,47 @@
   flex: 0 0 22px;
 }
 
+.menu-acceso__error {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 41;
+  width: min(300px, calc(100vw - 32px));
+  padding: 16px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-tarjeta);
+  box-shadow: var(--sombra);
+  color: var(--tinta);
+}
+
+.menu-acceso__error p {
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.menu-acceso__error button {
+  min-height: var(--tactil-minimo);
+  padding: 0 12px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-control);
+  background: var(--superficie-base);
+  color: var(--acento-texto);
+  font: inherit;
+  cursor: pointer;
+}
+
+.menu-acceso__error button:focus-visible {
+  outline: 3px solid var(--acento-texto);
+  outline-offset: 2px;
+}
+
 .menu-acceso__titulo--salir {
-  color: var(--rojo-santa-marta);
+  color: var(--alerta-texto);
 }
 
 .menu-acceso__titulo--entrar {
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 @media (prefers-color-scheme: dark) {

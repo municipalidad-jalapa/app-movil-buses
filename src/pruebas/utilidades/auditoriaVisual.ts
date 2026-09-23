@@ -78,16 +78,28 @@ export function tamanosDeLetra(): { ruta: string; px: number }[] {
  */
 export function alturasMinimasDeControles(): { ruta: string; selector: string; px: number }[] {
   const esControl =
-    /(button|select|input|textarea)|boton|opcion|estrella|enlace|acceso|cerrar|salir|lista|tipo|entrada__|primario|secundario/;
-  // Los adornos no se tocan: manija de la hoja, pastilla de "cargando", chips.
-  const esAdorno = /manija|cargando|esqueleto|chip|insignia/;
+    /\b(button|select|input|textarea|a)\b|\[role=.?button|boton|opcion|estrella|enlace|acceso|cerrar|salir|lista|tipo|entrada__|primario|secundario/;
   const tactilMinimo = Number(
     readFileSync('src/estilos/tema.css', 'utf8').match(/--tactil-minimo:\s*([0-9.]+)px/)?.[1] ?? 0,
   );
+  // La clase debe pertenecer a un elemento realmente interactivo en JSX. Esto
+  // distingue, por ejemplo, .entrada__opcion (button) de .entrada__titulo (h1).
+  const clasesInteractivas = new Set<string>();
+  function visitarTsx(directorio: string): void {
+    for (const entrada of readdirSync(directorio)) {
+      const ruta = join(directorio, entrada);
+      if (statSync(ruta).isDirectory()) visitarTsx(ruta);
+      else if (entrada.endsWith('.tsx')) {
+        const fuente = readFileSync(ruta, 'utf8');
+        for (const [, , clases] of fuente.matchAll(/<(button|input|select|textarea|a)\b[^>]*?className="([^"]+)"/gs)) {
+          for (const clase of clases.split(/\s+/)) clasesInteractivas.add(clase);
+        }
+      }
+    }
+  }
+  visitarTsx('src');
 
   return hojasDeEstilo()
-    // El panel municipal es de escritorio por diseño (DESIGN.md §11).
-    .filter(({ ruta }) => !ruta.includes('/admin/'))
     .flatMap(({ ruta, css }) => {
       const salida: { ruta: string; selector: string; px: number }[] = [];
       for (const bloque of sinMediaQueries(css).split('}')) {
@@ -95,18 +107,58 @@ export function alturasMinimasDeControles(): { ruta: string; selector: string; p
         if (corte < 0) continue;
         const selector = bloque.slice(0, corte).split(/[{;]/).pop()!.trim().replace(/\s+/g, ' ');
         const declaraciones = bloque.slice(corte + 1);
-        const alto = declaraciones.match(/min-height:\s*([^;]+);/);
-        if (!alto || !esControl.test(selector) || esAdorno.test(selector)) continue;
+        const alto = declaraciones.match(/(?:min-height|height):\s*([^;]+)(?:;|$)/);
+        const elementoGenerico = /(^|[\s,>+~])(?:button|input|select|textarea|a)(?=[\s,:.#\[]|$)/.test(selector);
+        const claseInteractiva = [...selector.matchAll(/\.([a-zA-Z0-9_-]+)/g)]
+          .some(([, clase]) => clasesInteractivas.has(clase));
+        if (!alto || (!elementoGenerico && !claseInteractiva) || (!esControl.test(selector) && !claseInteractiva)) continue;
 
         const valor = alto[1].trim();
         // El token es la forma correcta de declararlo; vale lo que dice el tema.
-        const px = valor.includes('--tactil-minimo') ? tactilMinimo : Number(valor.replace('px', ''));
+        const px = valor.includes('--tactil-minimo') ? tactilMinimo
+          : /^\d+(?:\.\d+)?px$/.test(valor) ? Number(valor.slice(0, -2)) : Number.NaN;
         if (!Number.isNaN(px)) {
           salida.push({ ruta, selector, px });
         }
       }
       return salida;
     });
+}
+
+/** La deuda se compara por valor y frecuencia, no solo por nombre de archivo. */
+export function coloresManualesPorArchivo(): Record<string, string[]> {
+  return Object.fromEntries(hojasDeEstilo()
+    .filter(({ ruta }) => ruta !== 'src/estilos/tema.css')
+    .map(({ ruta, css }) => [ruta, [...sinComentarios(css).matchAll(/#[0-9a-fA-F]{3,8}\b/g)]
+      .map(([hex]) => hex.toLowerCase())] as const)
+    .filter(([, colores]) => colores.length > 0));
+}
+
+/** Pares semánticos nuevos y colores de texto/fondo declarados juntos en CSS. */
+export function paresDeContraste(): { ruta: string; texto: string; fondo: string }[] {
+  const pares: { ruta: string; texto: string; fondo: string }[] = [];
+  const { claro } = paleta();
+  for (const nombre of Object.keys(claro)) {
+    const pareja = nombre.endsWith('-texto') ? nombre.replace(/-texto$/, '-fondo')
+      : nombre.endsWith('-superficie-tinta') ? nombre.replace(/-tinta$/, '')
+        : nombre.endsWith('-tinta') ? (() => {
+          const base = nombre.replace(/-tinta$/, '');
+          const superficie = `${base}-superficie`;
+          return claro[`${superficie}-tinta`] ? base : superficie;
+        })() : null;
+    if (pareja && claro[pareja]) pares.push({ ruta: 'src/estilos/tema.css', texto: nombre, fondo: pareja });
+  }
+  for (const { ruta, css } of hojasDeEstilo()) {
+    if (ruta === 'src/estilos/tema.css') continue;
+    for (const [, bloque] of sinComentarios(css).matchAll(/\{([^{}]+)\}/g)) {
+      const color = bloque.match(/(?:^|;)\s*color:\s*var\(--([a-z0-9-]+)\)/);
+      const fondo = bloque.match(/(?:^|;)\s*(?:background|background-color):\s*var\(--([a-z0-9-]+)\)/);
+      if (color && fondo && claro[color[1]] && claro[fondo[1]]) {
+        pares.push({ ruta, texto: color[1], fondo: fondo[1] });
+      }
+    }
+  }
+  return pares;
 }
 
 /** Colores escritos a mano (hex) fuera del tema: la paleta vive en un solo lugar. */

@@ -46,6 +46,8 @@ export function AbordajesPanel() {
   const [error, setError] = useState<string | null>(null);
   const [rutas, setRutas] = useState<Ruta[]>([]);
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
+  const [errorVehiculos, setErrorVehiculos] = useState(false);
+  const [intentoVehiculos, setIntentoVehiculos] = useState(0);
 
   const alCerrarPorInactividad = useCallback(() => cerrarSesion('inactividad'), [cerrarSesion]);
   const { segundosRestantes, seguir } = useInactividad({
@@ -70,10 +72,13 @@ export function AbordajesPanel() {
     const control = new AbortController();
     apiClient.get<Ruta[]>('/api/v1/rutas', { signal: control.signal }).then((r) => setRutas(r ?? []), () => {});
     apiClient
-      .get<Vehiculo[]>('/api/v1/admin/vehiculos', { token, signal: control.signal })
-      .then((v) => setVehiculos(v ?? []), () => {});
+      .get<Vehiculo[]>('/api/v1/admin/catalogo/vehiculos', { token, signal: control.signal })
+      .then((v) => {
+        setVehiculos(v ?? []);
+        setErrorVehiculos(false);
+      }, () => { if (!control.signal.aborted) setErrorVehiculos(true); });
     return () => control.abort();
-  }, [token]);
+  }, [token, intentoVehiculos]);
 
   useEffect(() => {
     if (!token) return;
@@ -200,6 +205,13 @@ export function AbordajesPanel() {
             Limpiar
           </button>
         </form>
+        {errorVehiculos && (
+          <div className="panel-aviso panel-aviso--error" role="alert">
+            No pudimos cargar los vehículos del filtro.
+            <button type="button" className="panel-boton panel-boton--secundario"
+              onClick={() => setIntentoVehiculos((n) => n + 1)}>Reintentar vehículos</button>
+          </div>
+        )}
 
         {error && (
           <p className="panel-aviso panel-aviso--error" role="alert">

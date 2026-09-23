@@ -66,7 +66,7 @@ button {
   border: none;
   border-radius: var(--radio-pastilla);
   background: var(--verde-jumay);
-  color: var(--superficie-base);
+  color: var(--sobre-marca);
   cursor: pointer;
   transition: opacity 0.12s ease, transform 0.12s ease;
 }
@@ -81,7 +81,7 @@ button:active:not(:disabled) {
 
 button:disabled {
   background: var(--borde-sutil);
-  color: var(--tinta-apagada);
+  color: var(--tinta);
   cursor: not-allowed;
 }
 

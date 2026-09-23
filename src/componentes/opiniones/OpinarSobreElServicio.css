@@ -17,7 +17,7 @@
   border-radius: var(--radio-pastilla);
   background: var(--superficie-tarjeta);
   box-shadow: var(--sombra);
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
   font: inherit;
   font-size: 15px;
   font-weight: 500;
@@ -139,12 +139,12 @@
 
 .opinion-aviso--error {
   background: var(--rojo-santa-marta-superficie);
-  color: var(--rojo-santa-marta);
+  color: var(--alerta-texto);
 }
 
 .opinion-aviso--limite {
   background: var(--amarillo-volcan-superficie);
-  color: var(--amarillo-volcan-tinta);
+  color: var(--amarillo-volcan-superficie-tinta);
 }
 
 .opinion-grupo {
@@ -171,11 +171,13 @@
 
 .opinion-tipos {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .opinion-tipo {
-  flex: 1 1 0;
+  flex: 1 1 calc(50% - 8px);
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -193,9 +195,9 @@
 }
 
 .opinion-tipo--elegido {
-  border-color: var(--verde-jumay);
+  border-color: var(--acento-texto);
   background: var(--verde-jumay);
-  color: var(--superficie-base);
+  color: var(--sobre-marca);
 }
 
 .opinion-estrellas {
@@ -280,7 +282,7 @@
   border: 0;
   border-radius: var(--radio-pastilla);
   background: var(--verde-jumay);
-  color: var(--superficie-base);
+  color: var(--sobre-marca);
   font: inherit;
   font-size: 16px;
   font-weight: 500;
@@ -301,7 +303,7 @@
   height: 64px;
   border-radius: var(--radio-tarjeta);
   background: var(--verde-jumay-superficie);
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 .opinion-girando {

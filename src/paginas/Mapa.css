@@ -52,7 +52,7 @@
   background: var(--superficie-tarjeta);
   border: 2px solid var(--borde-sutil);
   border-radius: var(--radio-tarjeta);
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 .pantalla-mapa__pista svg {
@@ -155,7 +155,7 @@
   background: var(--superficie-tarjeta);
   border: 2px solid var(--borde);
   border-radius: var(--radio-pastilla);
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 .pantalla-mapa__redondo:hover:not(:disabled) {
@@ -164,7 +164,7 @@
 
 .pantalla-mapa__redondo:disabled {
   background: var(--superficie-tarjeta);
-  color: var(--tinta-apagada);
+  color: var(--tinta-secundaria);
 }
 
 /* La atribucion (requisito de licencia) queda justo encima de la hoja. La

@@ -13,7 +13,7 @@
   min-height: var(--alto-encabezado);
   padding: calc(12px + var(--seguro-arriba)) 18px 14px;
   background: var(--verde-jumay);
-  color: var(--superficie-base);
+  color: var(--sobre-marca);
 }
 
 .apl__marca {
@@ -38,6 +38,26 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
+}
+
+@media (max-width: 420px) {
+  .apl__encabezado {
+    flex-wrap: wrap;
+    padding-inline: 16px;
+  }
+
+  .apl__acciones {
+    flex: 1 1 100%;
+    justify-content: space-between;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .apl__estado {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-left: 0;
+  }
 }
 
 /* El estado del servicio se empuja a la derecha del encabezado. */

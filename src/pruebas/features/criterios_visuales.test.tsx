@@ -20,6 +20,8 @@ import {
   alturasMinimasDeControles,
   anchosQueDesbordan,
   coloresFueraDelTema,
+  coloresManualesPorArchivo,
+  paresDeContraste,
   contraste,
   paleta,
   tamanosDeLetra,
@@ -75,6 +77,88 @@ const DEUDA_DE_PALETA = [
   'src/paginas/PantallaRegistro.css',
   'src/paginas/admin/PanelMunicipal.css',
 ];
+
+const COLORES_HEREDADOS = {
+  "src/componentes/AvisoSinConexion.css": [
+    "#2e2a24",
+    "#fbf7f0",
+    "#fbf7f0",
+    "#c2b8a8"
+  ],
+  "src/componentes/HojaReserva.css": [
+    "#fbf7f0",
+    "#3b352b",
+    "#6b6357",
+    "#3b352b",
+    "#e39a90",
+    "#3b352b"
+  ],
+  "src/componentes/Layout.css": [
+    "#fbf7f0",
+    "#f4eee2"
+  ],
+  "src/componentes/MapaJalapa.css": [
+    "#e6dcc8",
+    "#e6dcc8",
+    "#cbd9bd",
+    "#d6cbb4",
+    "#f4eee2",
+    "#fbf7f0",
+    "#b9cda6",
+    "#98b383",
+    "#6b6357",
+    "#fbf7f0",
+    "#2e2a24",
+    "#ddd3c2",
+    "#1a1712",
+    "#1a1712",
+    "#20291f",
+    "#2e2a22",
+    "#302b23",
+    "#3b352b",
+    "#25301f",
+    "#33422a",
+    "#9a9082",
+    "#241f19",
+    "#e3dacb",
+    "#3b352b",
+    "#ddd3c2",
+    "#efe7d7",
+    "#e6dcc8",
+    "#fbf7f0",
+    "#2e2a24"
+  ],
+  "src/componentes/MenuAcceso.css": [
+    "#fbf7f0",
+    "#fbf7f0",
+    "#10402a",
+    "#f0b4ab"
+  ],
+  "src/componentes/PreferenciaNotificaciones.css": [
+    "#fbf7f0"
+  ],
+  "src/componentes/SelectorDeRuta.css": [
+    "#1c1a17",
+    "#fbf7f0"
+  ],
+  "src/componentes/TarjetaAbordaje.css": [
+    "#fbf7f0"
+  ],
+  "src/paginas/PantallaRegistro.css": [
+    "#fff"
+  ],
+  "src/paginas/admin/PanelMunicipal.css": [
+    "#fbf7f0",
+    "#fbf7f0",
+    "#fbf7f0",
+    "#fbf7f0",
+    "#fbf7f0",
+    "#fbf7f0",
+    "#fbf7f0",
+    "#f0b4ab",
+    "#f2d27a"
+  ]
+};
 
 /** Letras menores a 13 px: solo sellos y atribuciones sobre el mapa. */
 const LETRA_PEQUENA_PERMITIDA = [
@@ -163,6 +247,25 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
           .toBeGreaterThanOrEqual(4.5);
       }
     });
+    And('los pares de color descubiertos en tokens y CSS cumplen AA', () => {
+      const temas = paleta();
+      const pares = paresDeContraste();
+      expect(pares.length).toBeGreaterThan(5);
+      expect(pares).toContainEqual({
+        ruta: 'src/paginas/conductor/LoginConductor.css', texto: 'tinta', fondo: 'superficie-hundida',
+      });
+      expect(pares).toContainEqual({
+        ruta: 'src/paginas/conductor/LoginConductor.css', texto: 'sobre-marca', fondo: 'verde-jumay',
+      });
+      const fallos: string[] = [];
+      for (const [modo, tokens] of Object.entries(temas)) {
+        for (const { ruta, texto, fondo } of pares) {
+          const ratio = contraste(tokens[texto], tokens[fondo]);
+          if (ratio < 4.5) fallos.push(`${ruta}: ${texto} sobre ${fondo} (${modo}): ${ratio.toFixed(2)}:1`);
+        }
+      }
+      expect(fallos).toEqual([]);
+    });
     And('cada par de color documentado llega a 4.5 a 1 en modo oscuro', () => {
       const { oscuro } = paleta();
       for (const [texto, fondo] of PARES) {
@@ -191,6 +294,7 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
   Scenario('La paleta vive en un solo lugar', ({ Then }) => {
     Then('los colores nuevos salen del tema y no se escriben a mano', () => {
       expect(coloresFueraDelTema()).toEqual(DEUDA_DE_PALETA);
+      expect(coloresManualesPorArchivo()).toEqual(COLORES_HEREDADOS);
     });
   });
 

@@ -7,7 +7,7 @@ import {
 } from '@amiceli/vitest-cucumber';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { expect, vi } from 'vitest';
+import { expect, vi, test } from 'vitest';
 
 import { OpinarSobreElServicio } from '../../componentes/opiniones/OpinarSobreElServicio';
 import { ErrorApi } from '../../core/errores';
@@ -200,4 +200,28 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
       expect(marcarAtendida).toHaveBeenCalledWith('jwt', 91);
     });
   });
+});
+
+test('envía el texto literal y lo muestra sin ejecutar HTML ni decodificar dos veces', async () => {
+  const literal = '  <script>alert("x")</script> & texto &lt;b&gt;  ';
+  const neutralizado = '  &lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt; &amp; texto &amp;lt;b&amp;gt;  ';
+  vi.mocked(enviarOpinion).mockReset();
+  vi.mocked(enviarOpinion).mockResolvedValue({ id: 91, rutaId: 1, vehiculoId: 1 });
+  try {
+    render(<OpinarSobreElServicio />);
+    fireEvent.click(screen.getByRole('button', { name: 'Opinar sobre el servicio' }));
+    fireEvent.click(screen.getByRole('radio', { name: /Comentario/ }));
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: literal } });
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar opinión' }));
+    await waitFor(() => expect(enviarOpinion).toHaveBeenCalledWith(
+      expect.objectContaining({ texto: literal }), undefined));
+    cleanup();
+    vi.mocked(listarOpiniones).mockResolvedValue({ ...PAGINA,
+      opiniones: [{ ...PAGINA.opiniones[0], texto: neutralizado }] });
+    render(<MemoryRouter><AuthAdminContext.Provider value={sesionAdmin()}>
+      <OpinionesPanel />
+    </AuthAdminContext.Provider></MemoryRouter>);
+    await waitFor(() => expect(document.querySelector('.opiniones-texto')?.textContent).toBe(literal));
+    expect(document.querySelector('.opiniones-texto script, .opiniones-texto b')).toBeNull();
+  } finally { cleanup(); }
 });

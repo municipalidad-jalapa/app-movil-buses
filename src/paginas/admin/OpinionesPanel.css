@@ -40,7 +40,7 @@
   padding: 0 8px;
   border: 0;
   background: transparent;
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
   font: inherit;
   font-size: 15px;
   text-decoration: underline;
@@ -64,6 +64,7 @@
 .opiniones-promedios li {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   font-size: 15px;
   line-height: 22px;
@@ -113,12 +114,12 @@
 
 .opiniones-estado--pendiente {
   background: var(--amarillo-volcan-superficie);
-  color: var(--amarillo-volcan-tinta);
+  color: var(--amarillo-volcan-superficie-tinta);
 }
 
 .opiniones-estado--atendida {
   background: var(--verde-jumay-superficie);
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 .opiniones-texto {
@@ -166,7 +167,7 @@
   border: 1px solid var(--borde);
   border-radius: var(--radio-pastilla);
   background: var(--superficie-base);
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
   cursor: pointer;
 }
 
@@ -211,6 +212,8 @@
 .opiniones-dimensiones {
   display: flex;
   flex-direction: column;
+  flex: 1 1 100%;
+  min-width: 0;
   gap: 2px;
   margin: 4px 0 0;
   padding: 0 0 0 4px;
@@ -221,11 +224,12 @@
 .opiniones-dimensiones li {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   font-size: 13px;
 }
 
 .opiniones-dimensiones__nombre {
-  min-width: 132px;
+  min-width: 0;
   color: var(--tinta-tenue);
 }

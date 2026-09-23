@@ -102,7 +102,7 @@ export function OpinarSobreElServicio() {
       await enviarOpinion({
         tipo,
         rutaId: rutaActiva.id,
-        texto: texto.trim() || undefined,
+        texto: texto || undefined,
         estrellas: estrellas || undefined,
         calidad: porDimension.calidad || undefined,
         limpieza: porDimension.limpieza || undefined,

@@ -17,7 +17,7 @@
   gap: var(--esp-4);
   padding: calc(64px + var(--seguro-arriba)) 24px 0;
   background: var(--verde-jumay);
-  color: var(--superficie-base);
+  color: var(--sobre-marca);
 }
 
 .entrada__voluta {
@@ -88,7 +88,7 @@
   border: 2px solid var(--verde-jumay);
   border-radius: var(--radio-pastilla);
   background: var(--superficie-base);
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
   font: inherit;
   font-size: 16px;
   font-weight: 500;
@@ -124,7 +124,7 @@
   padding: var(--esp-4);
   border-radius: var(--radio-tarjeta);
   background: var(--rojo-santa-marta-superficie);
-  color: var(--rojo-santa-marta);
+  color: var(--alerta-texto);
 }
 
 .entrada__error svg {
@@ -226,7 +226,7 @@
   padding: var(--esp-4);
   border-radius: var(--radio-tarjeta);
   background: var(--verde-jumay-superficie);
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 .vinculado-aviso svg {
@@ -255,7 +255,7 @@
   border: 0;
   border-radius: var(--radio-pastilla);
   background: var(--verde-jumay);
-  color: var(--superficie-base);
+  color: var(--sobre-marca);
   font: inherit;
   font-size: 16px;
   font-weight: 500;

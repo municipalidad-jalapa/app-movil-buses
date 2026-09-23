@@ -14,6 +14,7 @@ Característica: Criterios visuales verificables
   @G-criterio-1
   Escenario: El contraste cumple WCAG AA de día y de noche
     Entonces cada par de color documentado llega a 4.5 a 1 en modo claro
+    Y los pares de color descubiertos en tokens y CSS cumplen AA
     Y cada par de color documentado llega a 4.5 a 1 en modo oscuro
 
   @G-criterio-1
