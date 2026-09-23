@@ -45,7 +45,7 @@ export function App() {
           <Route
             path="/privacidad"
             element={
-              <Layout>
+              <Layout anchoAmplio>
                 <Privacidad />
               </Layout>
             }
@@ -54,7 +54,7 @@ export function App() {
           <Route
             path="/aviso-legal"
             element={
-              <Layout>
+              <Layout anchoAmplio>
                 <AvisoLegal />
               </Layout>
             }

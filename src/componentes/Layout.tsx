@@ -16,6 +16,12 @@ interface Props {
   aSangre?: boolean;
 
   /**
+   * Permite usar un contenedor mas amplio en pantallas de escritorio
+   * sin afectar el ancho normal del resto de la aplicacion.
+   */
+  anchoAmplio?: boolean;
+
+  /**
    * Estado del servicio, a la derecha de la marca.
    */
   estado?: ReactNode;
@@ -34,9 +40,18 @@ interface Props {
 export function Layout({
   children,
   aSangre = false,
+  anchoAmplio = false,
   estado,
   sinPie = false,
 }: Props) {
+  const clasesContenido = [
+    'apl__contenido',
+    aSangre ? 'apl__contenido--a-sangre' : '',
+    anchoAmplio ? 'apl__contenido--amplio' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <div className="apl">
       <header className="apl__encabezado">
@@ -78,13 +93,7 @@ export function Layout({
         </span>
       </header>
 
-      <main
-        className={
-          aSangre
-            ? 'apl__contenido apl__contenido--a-sangre'
-            : 'apl__contenido'
-        }
-      >
+      <main className={clasesContenido}>
         {children}
       </main>
 

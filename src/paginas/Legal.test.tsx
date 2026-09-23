@@ -36,7 +36,11 @@ describe('HU-89 - Política de privacidad y aviso legal', () => {
   });
 
   it('la política explica el uso de la ubicación', () => {
-    render(<Privacidad />);
+    render(
+      <MemoryRouter>
+        <Privacidad />
+      </MemoryRouter>,
+    );
 
     expect(
       screen.getByRole('heading', {
@@ -58,7 +62,11 @@ describe('HU-89 - Política de privacidad y aviso legal', () => {
   });
 
   it('la política explica las notificaciones', () => {
-    render(<Privacidad />);
+    render(
+      <MemoryRouter>
+        <Privacidad />
+      </MemoryRouter>,
+    );
 
     expect(
       screen.getByRole('heading', {
@@ -72,7 +80,11 @@ describe('HU-89 - Política de privacidad y aviso legal', () => {
   });
 
   it('la política muestra el contacto de la Municipalidad', () => {
-    render(<Privacidad />);
+    render(
+      <MemoryRouter>
+        <Privacidad />
+      </MemoryRouter>,
+    );
 
     expect(
       screen.getByText(
@@ -86,7 +98,11 @@ describe('HU-89 - Política de privacidad y aviso legal', () => {
   });
 
   it('el aviso legal identifica al responsable y la finalidad del sitio', () => {
-    render(<AvisoLegal />);
+    render(
+      <MemoryRouter>
+        <AvisoLegal />
+      </MemoryRouter>,
+    );
 
     expect(
       screen.getByRole('heading', {
@@ -110,6 +126,60 @@ describe('HU-89 - Política de privacidad y aviso legal', () => {
       screen.getByText(
         /EcoRuta es un servicio de seguimiento del transporte público de la Municipalidad de Jalapa/i,
       ),
+    ).toBeTruthy();
+  });
+
+  it('la política permite volver al mapa', () => {
+    render(
+      <MemoryRouter>
+        <Privacidad />
+      </MemoryRouter>,
+    );
+
+    const volver = screen.getByRole('link', {
+      name: /volver al mapa/i,
+    });
+
+    expect(volver.getAttribute('href')).toBe('/');
+  });
+
+  it('el aviso legal permite volver al mapa', () => {
+    render(
+      <MemoryRouter>
+        <AvisoLegal />
+      </MemoryRouter>,
+    );
+
+    const volver = screen.getByRole('link', {
+      name: /volver al mapa/i,
+    });
+
+    expect(volver.getAttribute('href')).toBe('/');
+  });
+
+  it('la política incluye un índice de contenidos', () => {
+    render(
+      <MemoryRouter>
+        <Privacidad />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByRole('navigation', {
+        name: /contenido de la política de privacidad/i,
+      }),
+    ).toBeTruthy();
+
+    expect(
+      screen.getByRole('link', {
+        name: 'Ubicación',
+      }),
+    ).toBeTruthy();
+
+    expect(
+      screen.getByRole('link', {
+        name: 'Contacto',
+      }),
     ).toBeTruthy();
   });
 });
