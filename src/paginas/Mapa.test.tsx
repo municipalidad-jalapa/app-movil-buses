@@ -265,6 +265,52 @@ describe('Pantalla del pasajero: vigencia de la reserva (HU-52)', () => {
   });
 });
 
+describe('Pantalla del pasajero: correcciones de QA 4.1', () => {
+  it('el boton de ubicacion va en dos toques: primero donde estoy, despues la parada mas cercana', async () => {
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: 'Ver mi ubicación' }));
+    // Primer toque: solo te ubica. No elige parada.
+    await screen.findByText('Tocá otra vez: parada más cercana');
+    expect(solicitarUbicacion).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('Parada elegida')).toBeNull();
+
+    // Segundo toque: la parada mas cercana a (14.6323, -89.9871) es el Mercado.
+    fireEvent.click(screen.getByRole('button', { name: 'Ir a la parada más cercana' }));
+    await screen.findByText('Parada elegida');
+    expect(screen.getByRole('heading', { name: '1a Calle - Mercado' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Ver mi ubicación' })).toBeTruthy();
+  });
+
+  it('la hoja se achica a una linea y se vuelve a abrir', () => {
+    guardarReservaVigente();
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: 'Achicar para ver el mapa' }));
+    expect(screen.queryByRole('button', { name: 'Ya no voy a esperar' })).toBeNull();
+    const resumen = screen.getByRole('button', { name: /Esperando en 1a Calle - Mercado\s*5 min/ });
+    fireEvent.click(resumen);
+    expect(screen.getByRole('button', { name: 'Ya no voy a esperar' })).toBeTruthy();
+  });
+
+  it('con la hoja achicada, el aviso por vencer la vuelve a abrir', () => {
+    guardarReservaVigente(enMs(90_000));
+    abrir();
+    // Quedan menos de dos minutos: ya esta preguntando, aunque se intente achicar.
+    expect(screen.getByText('¿Seguís esperando?')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Achicar para ver el mapa' }));
+    expect(screen.getByRole('button', { name: 'Sigo esperando' })).toBeTruthy();
+    expect(screen.getByText(/Tu aviso vence en 1 min/)).toBeTruthy();
+  });
+
+  it('avisa por vencer con dos minutos de margen y vibra una sola vez', () => {
+    const vibrate = vi.fn();
+    Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+    guardarReservaVigente(enMs(110_000));
+    abrir();
+    expect(screen.getByText('¿Seguís esperando?')).toBeTruthy();
+    expect(vibrate).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('Pantalla del pasajero: datos del bus (HU-60) y sin conexion (09)', () => {
   it('con un dato de mas de 5 minutos, la hora pasa al frente', () => {
     const hace = new Date(Date.now() - 8 * 60_000);

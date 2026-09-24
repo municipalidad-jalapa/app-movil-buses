@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { HojaReserva, type FaseHoja } from './HojaReserva';
+import { HojaReserva, textoVence, type FaseHoja } from './HojaReserva';
 
 afterEach(cleanup);
 
@@ -15,6 +15,33 @@ function pintar(fase: FaseHoja, extra: Partial<Parameters<typeof HojaReserva>[0]
   render(<HojaReserva fase={fase} nombreParada="1a Calle - Mercado" {...manejadores} {...extra} />);
   return manejadores;
 }
+
+describe('HojaReserva minimizable (QA 4.1)', () => {
+  it('minimizada muestra una linea con la parada y los minutos, y se abre al tocarla', () => {
+    const onAlternarTamano = vi.fn();
+    pintar('confirmada', { minimizada: true, onAlternarTamano, minutosDeAviso: 3, esperando: 2 });
+    expect(screen.queryByText('Ya avisamos que estás esperando')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /Esperando en 1a Calle - Mercado\s*3 min/ }));
+    expect(onAlternarTamano).toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Mostrar tu parada' }).getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('la manija achica la hoja abierta', () => {
+    const onAlternarTamano = vi.fn();
+    pintar('vacia', { onAlternarTamano });
+    const manija = screen.getByRole('button', { name: 'Achicar para ver el mapa' });
+    expect(manija.getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(manija);
+    expect(onAlternarTamano).toHaveBeenCalled();
+  });
+
+  it('dice cuanto falta para que venza el aviso', () => {
+    expect(textoVence(95)).toBe('en 1 min 35 s');
+    expect(textoVence(120)).toBe('en 2 min');
+    expect(textoVence(40.2)).toBe('en 41 segundos');
+    expect(textoVence(null)).toBe('en menos de dos minutos');
+  });
+});
 
 describe('HojaReserva (MapaOSM, R1–R3)', () => {
   it('R1: sin parada pregunta donde va a esperar y ofrece la mas cercana', () => {

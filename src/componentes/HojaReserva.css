@@ -21,6 +21,21 @@
   justify-content: center;
 }
 
+/* La manija es boton cuando la hoja se puede achicar: area tocable de 44 px. */
+.hoja-reserva__manija--boton {
+  width: 100%;
+  min-height: 30px;
+  padding: 0;
+  margin-top: -4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.hoja-reserva__manija--boton:hover span {
+  background: var(--tinta-apagada);
+}
+
 .hoja-reserva__manija span {
   width: 56px;
   height: 5px;
@@ -68,6 +83,48 @@
   font-size: 15px;
   line-height: 1.4;
   color: var(--tinta-secundaria);
+}
+
+/* --- Minimizada (QA 4.1) ------------------------------------------------ */
+
+.hoja-reserva--minimizada {
+  gap: 2px;
+  padding-bottom: calc(10px + var(--seguro-abajo));
+}
+
+.hoja-reserva__resumen {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 4px;
+  background: transparent;
+  border: none;
+  color: var(--tinta);
+  text-align: left;
+  cursor: pointer;
+}
+
+.hoja-reserva__resumen-texto {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hoja-reserva__resumen-cifra {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+  border-radius: var(--radio-pastilla);
+  font-size: 15px;
+  font-weight: 800;
 }
 
 /* --- Botones ------------------------------------------------------------ */

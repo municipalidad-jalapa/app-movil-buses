@@ -21,6 +21,7 @@ import { TarjetaAbordaje } from '../componentes/TarjetaAbordaje';
 import { metrosEntre, minutosRestantes, paradaMasCercana, textoDistancia } from '../core/distanciaAParada';
 import { ErrorApi } from '../core/errores';
 import { esRancio } from '../core/frescuraDato';
+import { notificarSiNoSeVe, vibrar } from '../core/notificaciones/avisoLocal';
 import { obtenerIdDispositivo } from '../core/identidadDispositivo';
 import { cancelarReserva, registrarDemanda, renovarReserva } from '../core/registroDemanda';
 import type { EstadoReserva, RegistroCreadoResponse, Reserva } from '../core/tipos';
@@ -43,8 +44,15 @@ const YA_AVISASTE = 'Ya avisamos desde este teléfono que estás esperando. No h
 const RADIO_APROXIMACION_M = 250;
 const RADIO_LLEGADA_M = 40;
 
-/** HU-52: con este tiempo o menos, la hoja pregunta si sigue esperando. */
-const PREGUNTAR_SI_SIGUE_MS = 60_000;
+/**
+ * HU-52 y QA 4.1: con este tiempo o menos, se avisa que la reserva esta por
+ * vencer y la hoja pregunta si sigue esperando. Dos minutos dan margen para
+ * sacar el telefono del bolsillo y responder.
+ */
+const PREGUNTAR_SI_SIGUE_MS = 120_000;
+
+/** Cuanto dura la pista "Toca otra vez" del boton de ubicacion. */
+const PISTA_UBICACION_MS = 6_000;
 
 /** Fases que la pantalla lleva por su cuenta; "confirmada" sale de la reserva. */
 type FaseLocal = Exclude<FaseHoja, 'confirmada'>;
@@ -91,6 +99,11 @@ export function Mapa() {
   );
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  // QA 4.1: el boton redondo de ubicacion va en dos toques. El primero te
+  // muestra donde estas; el segundo te lleva a la parada mas cercana.
+  const [ubicacionCentrada, setUbicacionCentrada] = useState(false);
+  // QA 4.1: la hoja se puede achicar a una linea para ver el mapa.
+  const [hojaMinimizada, setHojaMinimizada] = useState(false);
   // La parada del QR se aplica una sola vez: despues, el pasajero puede cambiar
   // de ruta sin que el QR lo vuelva a arrastrar.
   const paradaDelQr = useRef<number | null>(!reserva ? paradaId : null);
@@ -178,6 +191,21 @@ export function Mapa() {
   const minutos = reservaVigente ? minutosRestantes(reserva!.expiraEn, ahora) : null;
   const preguntarSiSigue = msRestantes !== null && msRestantes <= PREGUNTAR_SI_SIGUE_MS;
 
+  // QA 4.1: avisar cuando la reserva esta por vencer. Una vez por vencimiento
+  // (renovar cambia expiraEn y rearma el aviso): vibra y, si la pagina no esta
+  // a la vista, deja una notificacion del sistema.
+  const vencimientoAvisado = useRef<string | null>(null);
+  useEffect(() => {
+    if (!preguntarSiSigue || !reserva || vencimientoAvisado.current === reserva.expiraEn) return;
+    vencimientoAvisado.current = reserva.expiraEn;
+    vibrar();
+    void notificarSiNoSeVe({
+      titulo: 'Tu aviso está por vencer',
+      cuerpo: '¿Seguís esperando el bus? Abrí EcoRuta y tocá «Sigo esperando».',
+      etiqueta: 'reserva-' + reserva.id + '-vence',
+    });
+  }, [preguntarSiSigue, reserva]);
+
   const elegir = useCallback(
     (id: number) => {
       // Con la reserva hecha, la parada no cambia por un toque en el mapa.
@@ -189,6 +217,34 @@ export function Mapa() {
     },
     [reservaVigente, resuelta, enviando],
   );
+
+  // La pista del segundo toque se retira sola.
+  useEffect(() => {
+    if (!ubicacionCentrada) return;
+    const t = setTimeout(() => setUbicacionCentrada(false), PISTA_UBICACION_MS);
+    return () => clearTimeout(t);
+  }, [ubicacionCentrada]);
+
+  /** El boton redondo: primero "donde estoy", despues "la parada mas cercana". */
+  async function botonUbicacion() {
+    if (ubicacionCentrada) {
+      setUbicacionCentrada(false);
+      if ((reservaVigente || resuelta) && reserva) {
+        // Con reserva, la parada que importa es la tuya.
+        control.current?.verParada(reserva.paradaId);
+        return;
+      }
+      await usarCercana();
+      return;
+    }
+    const donde = await solicitarUbicacion();
+    if (!donde) {
+      setAviso(SIN_UBICACION_CERCANA);
+      return;
+    }
+    control.current?.verPunto(donde.latitud, donde.longitud);
+    setUbicacionCentrada(true);
+  }
 
   async function usarCercana() {
     if (reservaVigente || resuelta) {
@@ -313,6 +369,11 @@ export function Mapa() {
       <TarjetaAbordaje preguntando={preguntandoAbordaje} onListo={cerrarAbordaje} />
     ) : null;
 
+  // Lo que pide respuesta abre la hoja aunque se haya achicado.
+  const hojaAbiertaAFuerza =
+    preguntarSiSigue || contenidoAbordaje !== null || aviso !== null || fase === 'buscando';
+  const hojaChica = hojaMinimizada && !hojaAbiertaAFuerza;
+
   return (
     <div
       className={enLinea ? 'pantalla-mapa' : 'pantalla-mapa pantalla-mapa--sin-conexion'}
@@ -416,20 +477,37 @@ export function Mapa() {
               <path d="M3 11h18M7 20v-2M17 20v-2" />
             </svg>
           </button>
-          <button
-            type="button"
-            className="pantalla-mapa__redondo"
-            title="Usar mi ubicación"
-            aria-label="Usar mi ubicación"
-            onClick={() => void usarCercana()}
-            disabled={enviando || fase === 'buscando'}
-          >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="3.4" />
-              <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" />
-            </svg>
-          </button>
+          <div className="pantalla-mapa__con-pista">
+            {ubicacionCentrada && (
+              <span className="pantalla-mapa__pista-boton" role="status">
+                {reservaVigente || resuelta ? 'Tocá otra vez: tu parada' : 'Tocá otra vez: parada más cercana'}
+              </span>
+            )}
+            <button
+              type="button"
+              className={
+                ubicacionCentrada ? 'pantalla-mapa__redondo pantalla-mapa__redondo--segundo' : 'pantalla-mapa__redondo'
+              }
+              title={ubicacionCentrada ? 'Ir a la parada más cercana' : 'Ver mi ubicación'}
+              aria-label={ubicacionCentrada ? 'Ir a la parada más cercana' : 'Ver mi ubicación'}
+              onClick={() => void botonUbicacion()}
+              disabled={enviando || fase === 'buscando'}
+            >
+              {ubicacionCentrada ? (
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                  <path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z" />
+                  <circle cx="12" cy="10" r="2.4" />
+                </svg>
+              ) : (
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3.4" />
+                  <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="pantalla-mapa__hoja" ref={hoja}>
@@ -443,6 +521,9 @@ export function Mapa() {
             aviso={aviso}
             enviando={enviando}
             preguntarSiSigue={preguntarSiSigue}
+            segundosRestantes={msRestantes !== null ? msRestantes / 1000 : null}
+            minimizada={hojaChica}
+            onAlternarTamano={() => setHojaMinimizada(!hojaChica)}
             extraConfirmada={<PreferenciaNotificaciones />}
             contenido={contenidoAbordaje}
             onUsarCercana={() => void usarCercana()}

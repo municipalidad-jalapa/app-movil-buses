@@ -230,3 +230,32 @@
     right: 0;
   }
 }
+
+/* --- Boton de ubicacion en dos toques (QA 4.1) ------------------------- */
+
+.pantalla-mapa__con-pista {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* "Toca otra vez: ..." a la izquierda del boton, sin empujarlo. */
+.pantalla-mapa__pista-boton {
+  position: absolute;
+  right: calc(100% + 10px);
+  white-space: nowrap;
+  padding: 8px 12px;
+  background: var(--verde-jumay);
+  color: var(--superficie-base);
+  border-radius: var(--radio-pastilla);
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(28, 26, 23, 0.18);
+}
+
+/* Segundo toque: el boton se marca en amarillo de "tu parada". */
+.pantalla-mapa__redondo--segundo {
+  background: var(--amarillo-volcan);
+  border-color: var(--amarillo-volcan-tinta);
+  color: var(--amarillo-volcan-tinta);
+}

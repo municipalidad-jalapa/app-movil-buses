@@ -58,6 +58,8 @@ export interface ControlMapa {
   verParada(id: number): void;
   /** Vuelve a encuadrar la ruta entera. */
   verRuta(): void;
+  /** Centra en un punto cualquiera, como la ubicacion del pasajero. */
+  verPunto(latitud: number, longitud: number): void;
 }
 
 interface Props {
@@ -339,6 +341,15 @@ export function MapaOpenStreetMap({
       },
       verRuta() {
         if (mapa.current && ruta) encuadrarRuta(mapa.current, ruta, 600, margenesActuales());
+      },
+      verPunto(latitud, longitud) {
+        if (!mapa.current) return;
+        mapa.current.easeTo({
+          center: [longitud, latitud],
+          zoom: Math.max(mapa.current.getZoom(), 16),
+          offset: desplazamiento(margenesActuales()),
+          duration: 700,
+        });
       },
     };
     // margenesActuales lee un ref: no hace falta como dependencia.
