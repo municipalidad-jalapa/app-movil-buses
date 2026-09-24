@@ -5,10 +5,10 @@
 
 .pantalla-mapa {
   position: relative;
-  /* Lo que queda de ventana bajo el encabezado. dvh y no vh: en moviles la
-     barra del navegador se come la diferencia. */
-  height: calc(100dvh - var(--alto-encabezado));
-  min-height: 480px;
+  /* Lo que queda de ventana bajo el encabezado: el Layout a sangre mide
+     100dvh y el mapa toma el resto, mida lo que mida la cabecera. */
+  flex: 1;
+  min-height: 0;
   width: 100%;
   overflow: hidden;
 }
@@ -181,5 +181,52 @@
   .pantalla-mapa__pista,
   .pantalla-mapa__redondo {
     color: var(--amarillo-volcan);
+  }
+}
+
+/*
+ * QA (pantallas pequenas): los avisos de arriba apilados tapaban la ruta. En
+ * telefonos bajos la pista de R1 se omite --la hoja ya dice lo mismo-- y los
+ * avisos se compactan.
+ */
+@media (max-height: 740px), (max-width: 380px) {
+  .pantalla-mapa__encima {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .pantalla-mapa__pista {
+    display: none;
+  }
+
+  .pantalla-mapa__rancio,
+  .pantalla-mapa__viene {
+    padding: 8px 12px;
+  }
+
+  .pantalla-mapa__rancio span {
+    font-size: 14px;
+  }
+}
+
+/* En escritorio y tableta la hoja no cruza todo el mapa: queda como tarjeta
+   abajo a la izquierda, del ancho de un telefono. */
+@media (min-width: 768px) {
+  .pantalla-mapa__abajo > .pantalla-mapa__hoja {
+    align-self: flex-start;
+    width: min(460px, calc(100% - 32px));
+    margin: 0 0 16px 16px;
+  }
+
+  .pantalla-mapa__hoja .hoja-reserva {
+    border: 2px solid var(--borde-sutil);
+    box-shadow: 0 6px 24px rgba(28, 26, 23, 0.14);
+  }
+
+  /* La atribucion vuelve a su esquina: la hoja ya no la tapa. */
+  .pantalla-mapa .maplibregl-ctrl-bottom-left {
+    bottom: 0;
+    left: auto;
+    right: 0;
   }
 }

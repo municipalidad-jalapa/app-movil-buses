@@ -65,6 +65,57 @@
   padding: 0;
   /* min-height: 0 deja que el hijo de 100dvh no desborde el flex. */
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * QA (pantallas pequenas): la cabecera real mide mas que --alto-encabezado en
+ * cuanto aparece el selector de ruta, y el mapa, calculado con esa resta,
+ * empujaba la hoja fuera de la pantalla. Con el mapa a sangre la pantalla es
+ * exactamente la ventana y el mapa toma lo que sobra, mida lo que mida la
+ * cabecera.
+ */
+.apl--a-sangre {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* La cabecera no se encoge ni desborda: el selector cede primero. */
+.apl__encabezado {
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.apl__acciones {
+  min-width: 0;
+}
+
+.apl__estado {
+  display: inline-flex;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+/* En telefonos angostos el nombre cede su lugar; queda el logo. */
+@media (max-width: 400px) {
+  .apl__encabezado {
+    padding-inline: 12px;
+  }
+
+  .apl__acciones {
+    gap: 8px;
+  }
+
+  .apl__nombre {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 
 /* Modo oscuro, artboard M3: la cabecera baja a verde profundo. */

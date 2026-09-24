@@ -102,7 +102,13 @@ export function Mapa() {
 
   const pantalla = useRef<HTMLDivElement>(null);
   const hoja = useRef<HTMLDivElement>(null);
+  const encima = useRef<HTMLDivElement>(null);
   useAltoDeHoja(pantalla, hoja);
+  // El mapa pregunta cuanto tapan los avisos y la hoja justo al moverse.
+  const obtenerMargenes = useCallback(
+    () => ({ arriba: encima.current?.offsetHeight ?? 0, abajo: hoja.current?.offsetHeight ?? 220 }),
+    [],
+  );
 
   // El parametro del QR ya se leyo: se quita para que una recarga no vuelva a
   // elegir esa parada despues de que el pasajero eligio otra.
@@ -323,6 +329,7 @@ export function Mapa() {
         ubicacionPasajero={ubicacion}
         onElegirParada={elegir}
         control={control}
+        obtenerMargenes={obtenerMargenes}
       />
 
       {!enLinea && (
@@ -335,7 +342,7 @@ export function Mapa() {
         />
       )}
 
-      <div className="pantalla-mapa__encima">
+      <div className="pantalla-mapa__encima" ref={encima}>
         {/* "En vivo" es lo normal y el diseno no lo anuncia; solo se avisa la degradacion. */}
         {enLinea && estadoConexion !== 'en-vivo' && <BannerConexion estadoConexion={estadoConexion} />}
 
@@ -425,7 +432,7 @@ export function Mapa() {
           </button>
         </div>
 
-        <div ref={hoja}>
+        <div className="pantalla-mapa__hoja" ref={hoja}>
           <HojaReserva
             fase={fase}
             nombreParada={parada?.nombre ?? ''}

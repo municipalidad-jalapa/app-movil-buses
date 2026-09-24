@@ -8,7 +8,9 @@
   display: inline-flex;
   align-items: center;
   min-width: 0;
-  max-width: 58vw;
+  /* Cede ancho antes que empujar "Acceder" fuera de la pantalla (QA). */
+  flex: 0 1 auto;
+  max-width: min(46vw, 260px);
 }
 
 /* Visible para el lector de pantalla, no en la pantalla. */
