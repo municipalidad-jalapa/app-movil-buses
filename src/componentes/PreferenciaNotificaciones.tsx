@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
+  estadoDelPermiso,
   marcarRechazado,
   sePuedeOfrecerAvisos,
   solicitarPermiso,
@@ -26,6 +27,15 @@ export function PreferenciaNotificaciones() {
   // desapareceria a mitad de la interaccion.
   const [visible] = useState(() => sePuedeOfrecerAvisos());
   const [estado, setEstado] = useState<Estado>('ofreciendo');
+
+  // QA 4.2: con el permiso concedido en una visita anterior la invitacion no
+  // se muestra, y el token no se volvia a registrar nunca. Firebase rota los
+  // tokens y el backend puede haber perdido el de este navegador: con cada
+  // reserva se registra de nuevo, en silencio.
+  useEffect(() => {
+    if (estadoDelPermiso() !== 'concedido') return;
+    void registrarEnSilencio();
+  }, []);
 
   if (!visible || estado === 'descartado') {
     return null;
@@ -94,6 +104,15 @@ export function PreferenciaNotificaciones() {
       </div>
     </section>
   );
+}
+
+async function registrarEnSilencio(): Promise<void> {
+  try {
+    const token = await obtenerTokenNotificacion();
+    if (token) await registrarTokenDelDispositivo(token);
+  } catch {
+    // Igual que al activar: los avisos son un extra y la reserva sigue en pie.
+  }
 }
 
 function IconoCampana() {

@@ -50,6 +50,17 @@ export interface ConfiguracionMensajeria {
 /** Las que necesita la mensajeria ademas de las de Firebase base. */
 const VARIABLES_MENSAJERIA = ['VITE_FIREBASE_MESSAGING_SENDER_ID', 'VITE_FIREBASE_VAPID_KEY'] as const;
 
+/**
+ * El appId web de Firebase lleva el remitente adentro: `1:<remitente>:web:<hash>`.
+ * QA 4.2: el build de QA salio sin VITE_FIREBASE_MESSAGING_SENDER_ID y los
+ * avisos quedaron apagados sin que nadie lo notara. Deducirlo deja una sola
+ * variable propia de la mensajeria: la VAPID key.
+ */
+export function remitenteDelAppId(appId: string): string | null {
+  const coincide = /^\d+:(\d+):web:/.exec(appId.trim());
+  return coincide ? coincide[1] : null;
+}
+
 function tieneValor(valor: unknown): boolean {
   return valor !== undefined && valor !== null && String(valor).trim() !== '';
 }
@@ -64,6 +75,10 @@ function leerMensajeria(
   origen: Record<string, unknown>,
   base: { apiKey: string; authDomain: string; projectId: string; appId: string },
 ): ConfiguracionMensajeria | null {
+  const deducido = tieneValor(origen.VITE_FIREBASE_MESSAGING_SENDER_ID) ? null : remitenteDelAppId(base.appId);
+  if (deducido && tieneValor(origen.VITE_FIREBASE_VAPID_KEY)) {
+    origen = { ...origen, VITE_FIREBASE_MESSAGING_SENDER_ID: deducido };
+  }
   const faltantes = VARIABLES_MENSAJERIA.filter((v) => !tieneValor(origen[v]));
   if (faltantes.length === VARIABLES_MENSAJERIA.length) return null;
   if (faltantes.length > 0) {
