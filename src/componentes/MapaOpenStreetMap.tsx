@@ -446,6 +446,8 @@ export function elementoDeParada(
   const boton = document.createElement('button');
   boton.type = 'button';
   boton.className = 'marcador-parada';
+  // Selector estable para pruebas automatizadas (QA, ronda 2).
+  boton.dataset.testid = `parada-${parada.id}`;
   boton.setAttribute(
     'aria-label',
     `${parada.nombre}, ${esperando} ${esperando === 1 ? 'persona esperando' : 'personas esperando'}`,
@@ -489,6 +491,7 @@ export function elementoDeParada(
 function elementoDelBus(): HTMLElement {
   const nodo = document.createElement('div');
   nodo.className = 'marcador-bus';
+  nodo.dataset.testid = 'bus';
   nodo.setAttribute('role', 'img');
   nodo.setAttribute('aria-label', 'Dónde va el bus');
   nodo.style.cssText =
@@ -506,6 +509,7 @@ function elementoYo(): HTMLElement {
   const nodo = document.createElement('div');
   nodo.setAttribute('role', 'img');
   nodo.setAttribute('aria-label', 'Dónde estás');
+  nodo.dataset.testid = 'yo';
   nodo.style.cssText =
     `width:20px;height:20px;border-radius:999px;background:${ROJO};border:4px solid ${CREMA};box-sizing:border-box`;
   return nodo;

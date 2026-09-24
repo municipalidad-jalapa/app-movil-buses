@@ -103,7 +103,7 @@ export function HojaReserva({
 
   if (minimizada) {
     return (
-      <section className="hoja-reserva hoja-reserva--minimizada" aria-label="Tu parada">
+      <section className="hoja-reserva hoja-reserva--minimizada" aria-label="Tu parada" data-testid="hoja" data-fase={fase}>
         {manija}
         <button type="button" className="hoja-reserva__resumen" onClick={onAlternarTamano}>
           <span className="hoja-reserva__resumen-texto">{resumenDe(fase, nombreParada)}</span>
@@ -121,7 +121,7 @@ export function HojaReserva({
   }
 
   return (
-    <section className="hoja-reserva" aria-label="Tu parada">
+    <section className="hoja-reserva" aria-label="Tu parada" data-testid="hoja" data-fase={fase}>
       {manija}
 
       {contenido && <div className="hoja-reserva__bloque">{contenido}</div>}

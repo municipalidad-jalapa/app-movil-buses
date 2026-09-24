@@ -28,7 +28,7 @@ type Nivel = 1 | 2 | 3;
 export function TarjetaEta({ eta, paradaId }: Props) {
   const lectura = leerEta(eta, paradaId);
   return (
-    <div className="tarjeta-eta" role="status" aria-live="polite">
+    <div className="tarjeta-eta" role="status" aria-live="polite" data-testid="eta" data-nivel={lectura.nivel}>
       <span className="tarjeta-eta__rotulo">{lectura.rotulo}</span>
       <span className={lectura.esNumero ? 'tarjeta-eta__valor tabular' : 'tarjeta-eta__valor tarjeta-eta__valor--texto'}>
         {lectura.valor}
