@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { useSearchParams } from 'react-router-dom';
 import { useAvisosDelBus } from '../hooks/useAvisosDelBus';
 import { useEnLinea } from '../hooks/useEnLinea';
+import { useEtaRuta } from '../hooks/useEtaRuta';
 import { usePosicionBus } from '../hooks/usePosicionBus';
 import { usePrefiereOscuro } from '../hooks/usePrefiereOscuro';
 import { useReserva } from '../hooks/useReserva';
@@ -18,6 +19,7 @@ import { HoraUltimoDato, formatearMomento } from '../componentes/HoraUltimoDato'
 import { MensajeError } from '../componentes/MensajeError';
 import { PreferenciaNotificaciones } from '../componentes/PreferenciaNotificaciones';
 import { TarjetaAbordaje } from '../componentes/TarjetaAbordaje';
+import { TarjetaEta } from '../componentes/TarjetaEta';
 import { metrosEntre, minutosRestantes, paradaMasCercana, textoDistancia } from '../core/distanciaAParada';
 import { ErrorApi } from '../core/errores';
 import { esRancio } from '../core/frescuraDato';
@@ -79,6 +81,8 @@ export function Mapa() {
     rutaActiva ? rutaActiva.id : null,
   );
   const { esperandoPorParada, refrescar } = useResumenRuta(rutaActiva?.id);
+  // QA 5.1: minutos para que el bus llegue a la parada, por el trazado real.
+  const eta = useEtaRuta(rutaActiva?.id, posicion?.timestamp ?? null);
   const { ubicacion, solicitarUbicacion } = useUbicacion();
   const { reserva, guardarReserva, limpiarReserva } = useReserva();
   const { preguntandoAbordaje: avisoDeAbordaje } = useAvisosDelBus();
@@ -518,6 +522,7 @@ export function Mapa() {
             esperando={paradaMostradaId !== null ? (esperandoPorParada.get(paradaMostradaId) ?? 0) : 0}
             minutosDeAviso={minutos}
             ultimoDato={ultimoDato}
+            eta={parada ? <TarjetaEta eta={eta} paradaId={parada.id} /> : null}
             aviso={aviso}
             enviando={enviando}
             preguntarSiSigue={preguntarSiSigue}

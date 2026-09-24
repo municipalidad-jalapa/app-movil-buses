@@ -15,9 +15,8 @@ import './HojaReserva.css';
  *   <li>`confirmada` (R3): la reserva existe en el servidor.</li>
  * </ul>
  *
- * <p>Se omite, a proposito, el bloque "Llega a esta parada en" y su indicador
- * "calculo aproximado": el ETA es SCRUM-167 (sprint 6) y no hay dato real que
- * poner ahi. No se simula.
+ * <p>QA 5.1: el bloque "Llega a tu parada en" con su indicador de confianza
+ * llega por `eta` (ver `TarjetaEta`), con el dato real del backend.
  */
 
 export type FaseHoja = 'vacia' | 'buscando' | 'elegida' | 'confirmada';
@@ -32,6 +31,8 @@ interface Props {
   minutosDeAviso?: number | null;
   /** Hora del ultimo dato del bus (DESIGN.md §7 [DURA]). */
   ultimoDato?: ReactNode;
+  /** "Llega a tu parada en": el ETA con su nivel de confianza (QA 5.1). */
+  eta?: ReactNode;
   /** Mensaje para el pasajero cuando algo no salio. Ya viene traducido. */
   aviso?: string | null;
   enviando?: boolean;
@@ -68,6 +69,7 @@ export function HojaReserva({
   esperando = 0,
   minutosDeAviso = null,
   ultimoDato,
+  eta,
   aviso = null,
   enviando = false,
   preguntarSiSigue = false,
@@ -175,6 +177,7 @@ export function HojaReserva({
               <span className="hoja-reserva__rotulo">esperando</span>
             </div>
           </div>
+          {eta}
           {ultimoDato && <div className="hoja-reserva__ultimo-dato">{ultimoDato}</div>}
           <Aviso texto={aviso} />
           <button
@@ -205,6 +208,7 @@ export function HojaReserva({
               <span className="hoja-reserva__apoyo">{nombreParada}</span>
             </div>
           </div>
+          {eta}
           {/* Mientras pregunta, la cuenta ya esta en el mensaje: se omite el
               bloque de cifras para que la hoja no tape el mapa entero. */}
           {!preguntarSiSigue && (

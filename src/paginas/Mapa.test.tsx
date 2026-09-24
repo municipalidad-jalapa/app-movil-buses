@@ -44,10 +44,11 @@ const RUTA_METROPLAZA: Ruta = {
 const RUTAS = [RUTA, RUTA_METROPLAZA];
 
 const ubicacion = { latitud: 14.6323, longitud: -89.9871 };
-const { solicitarUbicacion, refrescar, bus } = vi.hoisted(() => ({
+const { solicitarUbicacion, refrescar, bus, etaActual } = vi.hoisted(() => ({
   solicitarUbicacion: vi.fn(),
   refrescar: vi.fn(),
   bus: { posicion: null as null | Record<string, unknown>, recibidoEn: null as Date | null },
+  etaActual: { valor: null as null | Record<string, unknown> },
 }));
 
 vi.mock('../hooks/useRutas', () => ({
@@ -63,6 +64,9 @@ vi.mock('../hooks/usePosicionBus', () => ({
 }));
 vi.mock('../hooks/useResumenRuta', () => ({
   useResumenRuta: () => ({ esperandoPorParada: new Map([[2, 4]]), refrescar }),
+}));
+vi.mock('../hooks/useEtaRuta', () => ({
+  useEtaRuta: () => etaActual.valor,
 }));
 vi.mock('../hooks/useUbicacion', () => ({
   useUbicacion: () => ({ ubicacion: null, solicitando: false, error: null, solicitarUbicacion }),
@@ -111,6 +115,7 @@ beforeEach(() => {
   vi.mocked(renovarReserva).mockReset();
   bus.posicion = null;
   bus.recibidoEn = null;
+  etaActual.valor = null;
   Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
   solicitarUbicacion.mockReset().mockResolvedValue(ubicacion);
   refrescar.mockReset();
@@ -262,6 +267,29 @@ describe('Pantalla del pasajero: vigencia de la reserva (HU-52)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sigo esperando' }));
     await screen.findByText(/Tu aviso venció/);
     expect(screen.getByRole('button', { name: 'Estoy esperando aquí' })).toBeTruthy();
+  });
+});
+
+describe('Pantalla del pasajero: minutos para que llegue el bus (QA 5.1)', () => {
+  it('con la parada elegida muestra cuanto falta y si el calculo es confiable', () => {
+    etaActual.valor = {
+      rutaId: 1,
+      vehiculoId: 1,
+      calculadoEn: new Date().toISOString(),
+      estado: 'EN_RUTA',
+      desvio: null,
+      paradas: [{ paradaId: 2, orden: 2, minutos: 7, confiable: false }],
+    };
+    guardarReservaVigente();
+    abrir();
+    expect(screen.getByText('Llega a tu parada en')).toBeTruthy();
+    expect(screen.getByText('≈ 7 min')).toBeTruthy();
+    expect(screen.getByText('cálculo aproximado')).toBeTruthy();
+  });
+
+  it('sin parada elegida no muestra el ETA', () => {
+    abrir();
+    expect(screen.queryByText('Llega a tu parada en')).toBeNull();
   });
 });
 
