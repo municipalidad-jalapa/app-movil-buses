@@ -76,6 +76,8 @@ vi.mock('../core/registroDemanda', async (original) => ({
   registrarDemanda: vi.fn(),
   cancelarReserva: vi.fn(),
   renovarReserva: vi.fn(),
+  // La sincronizacion con el servidor no cambia nada en estas pruebas.
+  consultarReserva: vi.fn(async () => null),
 }));
 
 function DelQr() {
