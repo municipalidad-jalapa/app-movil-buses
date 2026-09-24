@@ -26,6 +26,19 @@ function mensajeErrorUbicacion(codigo: number): string {
 }
 
 /**
+ * Ubicacion fija para pruebas locales (QA, ronda 2): `VITE_UBICACION_SIMULADA`
+ * con "latitud,longitud". Solo en desarrollo: en un build de produccion se
+ * ignora aunque la variable venga puesta, para que nunca reemplace el GPS real.
+ */
+export function ubicacionSimulada(entorno: { DEV?: boolean; VITE_UBICACION_SIMULADA?: string }): Ubicacion | null {
+  if (!entorno.DEV || !entorno.VITE_UBICACION_SIMULADA) return null;
+  const [latitud, longitud] = entorno.VITE_UBICACION_SIMULADA.split(',').map((v) => Number(v.trim()));
+  if (!Number.isFinite(latitud) || !Number.isFinite(longitud)) return null;
+  if (Math.abs(latitud) > 90 || Math.abs(longitud) > 180) return null;
+  return { latitud, longitud };
+}
+
+/**
  * Obtiene la ubicación actual del pasajero mediante navigator.geolocation.
  *
  * La pantalla debe explicar al usuario para qué se necesita la ubicación
@@ -39,6 +52,13 @@ export function useUbicacion(): EstadoUbicacion {
   const solicitarUbicacion = useCallback((): Promise<Ubicacion | null> => {
     setSolicitando(true);
     setError(null);
+
+    const simulada = ubicacionSimulada(import.meta.env);
+    if (simulada) {
+      setUbicacion(simulada);
+      setSolicitando(false);
+      return Promise.resolve(simulada);
+    }
 
     if (!navigator.geolocation) {
       setSolicitando(false);

@@ -11,6 +11,8 @@ interface ImportMetaEnv {
   readonly VITE_MAPA_TESELAS?: string;
   readonly VITE_MAPA_TESELAS_OSCURO?: string;
   readonly VITE_MAPA_ATRIBUCION?: string;
+  /** Solo desarrollo: "latitud,longitud" fija en lugar del GPS (hooks/useUbicacion.ts). */
+  readonly VITE_UBICACION_SIMULADA?: string;
 }
 
 interface ImportMeta {
