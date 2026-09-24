@@ -10,9 +10,9 @@ import './MenuAcceso.css';
  * rol vive en una ruta distinta y no habia forma de llegar a las de conductor
  * o admin sin escribir la URL a mano.
  *
- * Admin todavia no tiene pantalla propia: su unica superficie es la API. Por
- * eso ese enlace abre la documentacion (Swagger) del backend, y se reemplazara
- * por el panel cuando exista. Se deja como enlace externo, en otra pestana.
+ * Administracion abre el panel municipal (/admin). QA 5.6: el enlace apuntaba
+ * a Swagger en el host de la API, que en QA es el mismo del frontend, y
+ * terminaba en "Pagina no encontrada".
  */
 export function MenuAcceso() {
   const [abierto, setAbierto] = useState(false);
@@ -36,11 +36,6 @@ export function MenuAcceso() {
       document.removeEventListener('keydown', alTecla);
     };
   }, [abierto]);
-
-  // La API vive en el mismo host bajo el que se sirve la app; Swagger cuelga de
-  // la raiz del backend. Si no hay base configurada, cae al host actual.
-  const baseApi = import.meta.env.VITE_API_BASE_URL ?? '';
-  const urlAdmin = `${baseApi}/swagger-ui/index.html`;
 
   return (
     <div className="menu-acceso" ref={contenedor}>
@@ -79,17 +74,10 @@ export function MenuAcceso() {
             <span className="menu-acceso__titulo">Conductor</span>
             <span className="menu-acceso__ayuda">Inicia tu jornada</span>
           </Link>
-          <a
-            className="menu-acceso__opcion"
-            role="menuitem"
-            href={urlAdmin}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setAbierto(false)}
-          >
-            <span className="menu-acceso__titulo">Administrador</span>
-            <span className="menu-acceso__ayuda">Documentacion de la API</span>
-          </a>
+          <Link className="menu-acceso__opcion" role="menuitem" to="/admin" onClick={() => setAbierto(false)}>
+            <span className="menu-acceso__titulo">Municipalidad</span>
+            <span className="menu-acceso__ayuda">Panel municipal</span>
+          </Link>
         </div>
       )}
     </div>

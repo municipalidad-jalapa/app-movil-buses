@@ -368,6 +368,38 @@
   color: #fbf7f0;
 }
 
+/* Navegacion entre secciones (QA 5.6): pastillas sobre el verde. */
+.panel-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.panel-nav__enlace {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radio-pastilla);
+  color: var(--verde-jumay-suave);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.panel-nav__enlace:hover {
+  color: #fbf7f0;
+}
+
+.panel-nav__enlace--activo {
+  background: rgba(251, 247, 240, 0.14);
+  color: #fbf7f0;
+}
+
+.panel-nav__enlace:focus-visible {
+  outline: 3px solid var(--amarillo-volcan);
+  outline-offset: 2px;
+}
+
 /* ---------- Panel: contenido ---------- */
 .panel-principal {
   display: flex;

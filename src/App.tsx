@@ -13,6 +13,7 @@ import { RutaProtegidaAdmin } from './componentes/admin/RutaProtegidaAdmin';
 import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
 import { LoginAdmin } from './paginas/admin/LoginAdmin';
 import { PanelAdmin } from './paginas/admin/PanelAdmin';
+import { CorregirRutas } from './paginas/admin/CorregirRutas';
 
 export function App() {
   return (
@@ -61,6 +62,15 @@ export function App() {
                     element={
                       <RutaProtegidaAdmin>
                         <PanelAdmin />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  {/* QA 5.6: corregir el trazado y las paradas de una ruta. */}
+                  <Route
+                    path="rutas"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <CorregirRutas />
                       </RutaProtegidaAdmin>
                     }
                   />
