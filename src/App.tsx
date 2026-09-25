@@ -13,6 +13,7 @@ import { NoEncontrada } from './paginas/NoEncontrada';
 import { Privacidad } from './paginas/Privacidad';
 import { LoginAdmin } from './paginas/admin/LoginAdmin';
 import { PanelAdmin } from './paginas/admin/PanelAdmin';
+import { ExportarDatos } from './paginas/admin/ExportarDatos';
 import { LoginConductor } from './paginas/conductor/LoginConductor';
 import { PanelConductor } from './paginas/conductor/PanelConductor';
 
@@ -87,11 +88,15 @@ export function App() {
                       </RutaProtegidaAdmin>
                     }
                   />
-
                   <Route
-                    path="*"
-                    element={<Navigate to="/admin" replace />}
+                    path="exportar"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <ExportarDatos />
+                      </RutaProtegidaAdmin>
+                    }
                   />
+                  <Route path="*" element={<Navigate to="/admin" replace />} />
                 </Routes>
               </AuthAdminProvider>
             }
