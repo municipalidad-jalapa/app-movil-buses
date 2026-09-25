@@ -7,7 +7,15 @@ import '../../paginas/admin/PanelMunicipal.css';
  * (unico lugar con ornamento, DESIGN.md §6) y el contenido a la derecha.
  * La usan el login y el acceso denegado.
  */
-export function PantallaDeIdentidad({ children, anchoContenido = 400 }: { children: ReactNode; anchoContenido?: number }) {
+export function PantallaDeIdentidad({
+  children,
+  anchoContenido = 400,
+  titulo = 'Panel municipal del servicio',
+}: {
+  children: ReactNode;
+  anchoContenido?: number;
+  titulo?: string;
+}) {
   return (
     <div className="panel-identidad">
       <aside className="panel-identidad__franja">
@@ -21,7 +29,7 @@ export function PantallaDeIdentidad({ children, anchoContenido = 400 }: { childr
         </div>
         <div className="panel-identidad__pie">
           <Volcanes />
-          <p className="panel-identidad__titulo">Panel municipal del servicio</p>
+          <p className="panel-identidad__titulo">{titulo}</p>
           <p className="panel-identidad__municipio">Municipalidad de Jalapa</p>
         </div>
       </aside>

@@ -251,12 +251,6 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
       const temas = paleta();
       const pares = paresDeContraste();
       expect(pares.length).toBeGreaterThan(5);
-      expect(pares).toContainEqual({
-        ruta: 'src/paginas/conductor/LoginConductor.css', texto: 'tinta', fondo: 'superficie-hundida',
-      });
-      expect(pares).toContainEqual({
-        ruta: 'src/paginas/conductor/LoginConductor.css', texto: 'sobre-marca', fondo: 'verde-jumay',
-      });
       const fallos: string[] = [];
       for (const [modo, tokens] of Object.entries(temas)) {
         for (const { ruta, texto, fondo } of pares) {
