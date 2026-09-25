@@ -28,6 +28,8 @@ import { obtenerIdDispositivo } from '../core/identidadDispositivo';
 import { cancelarReserva, registrarDemanda, renovarReserva } from '../core/registroDemanda';
 import type { EstadoReserva, RegistroCreadoResponse, Reserva } from '../core/tipos';
 import { estaVigente } from '../estado/ReservaProvider';
+import { OpinarSobreElServicio } from '../componentes/opiniones/OpinarSobreElServicio';
+import { IconoBus } from '../componentes/IconoBus';
 import './Mapa.css';
 
 const SIN_UBICACION =
@@ -437,11 +439,7 @@ export function Mapa() {
         {/* HU-57: el mismo aviso de aproximacion, dentro de la app. */}
         {enLinea && busCerca && !preguntandoAbordaje && (
           <div className="pantalla-mapa__viene" role="status" aria-live="polite">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-              <rect x="3" y="5" width="18" height="11" rx="2" />
-              <path d="M3 11h18M7 20v-2M17 20v-2" />
-            </svg>
+            <IconoBus tamano={22} grosor={2.2} />
             <span>El bus ya viene para tu parada</span>
           </div>
         )}
@@ -478,6 +476,8 @@ export function Mapa() {
 
       <div className="pantalla-mapa__abajo">
         <div className="pantalla-mapa__flotantes">
+          {/* SCRUM-26: opinar sobre la ruta que se esta mirando. */}
+          <OpinarSobreElServicio redondo />
           <button
             type="button"
             className="pantalla-mapa__redondo"
@@ -486,11 +486,7 @@ export function Mapa() {
             onClick={() => control.current?.verBus()}
             disabled={!posicion}
           >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-              <rect x="3" y="5" width="18" height="11" rx="2" />
-              <path d="M3 11h18M7 20v-2M17 20v-2" />
-            </svg>
+            <IconoBus tamano={26} grosor={2.2} />
           </button>
           <div className="pantalla-mapa__con-pista">
             {ubicacionCentrada && (

@@ -61,7 +61,7 @@ export function MenuAcceso() {
             <span className={conCuenta ? 'menu-acceso__avatar menu-acceso__avatar--cuenta' : 'menu-acceso__avatar'}>
               {conCuenta ? inicial : <IconoPersona tamano={18} />}
             </span>
-            {conCuenta ? 'Cuenta' : 'Invitado'}
+            <span className="menu-acceso__rotulo">{conCuenta ? 'Cuenta' : 'Invitado'}</span>
           </>
         ) : (
           'Acceder'

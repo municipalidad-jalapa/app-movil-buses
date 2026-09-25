@@ -10,7 +10,7 @@
   min-width: 0;
   /* Cede ancho antes que empujar "Acceder" fuera de la pantalla (QA). */
   flex: 0 1 auto;
-  max-width: min(46vw, 260px);
+  max-width: 260px;
 }
 
 /* Visible para el lector de pantalla, no en la pantalla. */

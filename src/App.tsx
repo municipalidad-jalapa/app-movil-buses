@@ -16,7 +16,6 @@ import { PanelAdmin } from './paginas/admin/PanelAdmin';
 import { AbordajesPanel } from './paginas/admin/AbordajesPanel';
 import { OpinionesPanel } from './paginas/admin/OpinionesPanel';
 import { AvisoDeDemora } from './componentes/atrasos/AvisoDeDemora';
-import { OpinarSobreElServicio } from './componentes/opiniones/OpinarSobreElServicio';
 import { PuertaDelPasajero } from './componentes/sesionPasajero/PuertaDelPasajero';
 import { SesionPasajeroProvider } from './core/pasajero/SesionPasajeroProvider';
 import { CorregirRutas } from './paginas/admin/CorregirRutas';
@@ -43,8 +42,6 @@ export function App() {
                 <ReservaProvider>
                   <Layout aSangre estado={<SelectorDeRuta />}>
                     <Mapa />
-                    {/* SCRUM-26: opinar sobre la ruta que se esta mirando. */}
-                    <OpinarSobreElServicio />
                     {/* SCRUM-26, E.3: el atraso que avisó el piloto, junto al ETA. */}
                     <AvisoDeDemora />
                   </Layout>

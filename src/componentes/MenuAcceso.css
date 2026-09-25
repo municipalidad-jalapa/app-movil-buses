@@ -16,15 +16,24 @@
   background: rgba(251, 247, 240, 0.14);
   border: 1px solid rgba(251, 247, 240, 0.35);
   border-radius: 999px;
-  padding: 8px 14px;
+  min-height: var(--tactil-minimo);
+  padding: 0 14px;
   cursor: pointer;
 }
 
-/* Telefonos angostos: la pastilla se ajusta para no salirse de la cabecera. */
-@media (max-width: 400px) {
+/* Telefonos: queda el avatar y la flecha; el rotulo se sigue leyendo en voz. */
+@media (max-width: 420px) {
   .menu-acceso__boton {
-    padding: 8px 10px;
+    padding: 0 10px;
     gap: 4px;
+  }
+
+  .menu-acceso__boton:has(.menu-acceso__avatar) .menu-acceso__rotulo {
+    position: absolute;
+    width: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
 
@@ -88,9 +97,7 @@
 
 /* SCRUM-26, B.1: cuenta opcional del pasajero en el menu. */
 .menu-acceso__boton:has(.menu-acceso__avatar) {
-  min-height: 48px;
-  margin: -8px 0;
-  padding: 6px 12px 6px 6px;
+  padding: 0 12px 0 7px;
 }
 
 .menu-acceso__avatar {

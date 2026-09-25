@@ -14,6 +14,7 @@ import { recorridoDeRuta } from '../core/recorridoDeRuta';
 import { estiloOpenStreetMap, estiloOpenStreetMapOscuro } from '../core/estiloMapa';
 import { soportaMapa } from '../core/soporteDeMapa';
 import type { Parada, Posicion, Ruta } from '../core/tipos';
+import { svgIconoBus } from './IconoBus';
 
 /**
  * El mapa real de OpenStreetMap con la ruta, las paradas y el bus encima.
@@ -498,9 +499,7 @@ function elementoDelBus(): HTMLElement {
     `width:46px;height:46px;border-radius:999px;background:${VERDE};border:4px solid ${CREMA};` +
     'display:flex;align-items:center;justify-content:center;box-sizing:border-box';
   nodo.innerHTML =
-    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${CREMA}" stroke-width="2.2" ` +
-    'stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="11" rx="2"></rect>' +
-    '<path d="M3 11h18M7 20v-2M17 20v-2"></path></svg>';
+    svgIconoBus(CREMA, 22, 2.2);
   return nodo;
 }
 

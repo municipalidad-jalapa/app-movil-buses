@@ -44,7 +44,11 @@ export const MENSAJE_LIMITE = 'Enviaste varias opiniones seguidas. Intenta de nu
  * La ruta sale del contexto: la que el pasajero esta mirando (y que sigue a la
  * parada elegida). No se le pide elegirla. Funciona sin cuenta.
  */
-export function OpinarSobreElServicio() {
+/**
+ * `redondo`: el acceso va como un boton mas de la columna del mapa (QA), para
+ * no tapar la cabecera ni los avisos que flotan arriba.
+ */
+export function OpinarSobreElServicio({ redondo = false }: { redondo?: boolean } = {}) {
   const { rutaActiva } = useRutaElegida();
   const { reserva } = useReserva();
   const sesionPasajero = useSesionPasajero();
@@ -127,12 +131,13 @@ export function OpinarSobreElServicio() {
     <>
       <button
         type="button"
-        className="opinion-acceso"
+        className={redondo ? 'pantalla-mapa__redondo' : 'opinion-acceso'}
         aria-label="Opinar sobre el servicio"
+        title="Opinar sobre el servicio"
         onClick={() => setAbierta(true)}
       >
-        <IconoOpinar />
-        Opinar
+        <IconoOpinar tamano={redondo ? 26 : 20} />
+        {!redondo && 'Opinar'}
       </button>
 
       {abierta && (

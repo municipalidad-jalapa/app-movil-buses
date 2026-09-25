@@ -1,4 +1,5 @@
 import { ANCHO_LIENZO, ALTO_LIENZO, trazoDe, type PuntoLienzo } from '../core/proyeccionMapa';
+import { IconoBus as DibujoBus } from './IconoBus';
 
 /**
  * La ruta, las paradas y el bus sobre el mapa.
@@ -49,10 +50,7 @@ interface Props {
 function IconoBus() {
   return (
     <g transform="translate(-11,-11)">
-      <svg x="0" y="0" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={CONTORNO} strokeWidth="2.2" strokeLinecap="round">
-        <rect x="3" y="5" width="18" height="11" rx="2" />
-        <path d="M3 11h18M7 20v-2M17 20v-2" />
-      </svg>
+      <DibujoBus x={0} y={0} tamano={22} grosor={2.2} color={CONTORNO} />
     </g>
   );
 }
