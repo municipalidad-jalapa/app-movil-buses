@@ -6,7 +6,7 @@ import {
 } from '../core/proyeccionMapa';
 import type { Posicion, Ruta } from '../core/tipos';
 import { FondoCargando, FondoCroquis } from './FondosDeMapa';
-import { MapaOpenStreetMap, type ControlMapa } from './MapaOpenStreetMap';
+import { MapaOpenStreetMap, type ControlMapa, type MargenesMapa } from './MapaOpenStreetMap';
 import { OverlayRuta, type ParadaEnMapa } from './OverlayRuta';
 import './MapaJalapa.css';
 
@@ -43,6 +43,8 @@ interface Props {
   ubicacionPasajero?: { latitud: number; longitud: number } | null;
   onElegirParada?: (id: number) => void;
   control?: RefObject<ControlMapa | null>;
+  /** Cuanto tapan los avisos y la hoja: el mapa lo descuenta al encuadrar. */
+  obtenerMargenes?: () => MargenesMapa;
 }
 
 export function MapaJalapa({
@@ -58,6 +60,7 @@ export function MapaJalapa({
   ubicacionPasajero = null,
   onElegirParada,
   control,
+  obtenerMargenes,
 }: Props) {
   const oscuro = modo === 'oscuro';
 
@@ -110,6 +113,7 @@ export function MapaJalapa({
           ubicacionPasajero={ubicacionPasajero}
           onElegirParada={onElegirParada}
           control={control}
+          obtenerMargenes={obtenerMargenes}
           onNoDisponible={() => setMapaNoDisponible(true)}
         />
       )}

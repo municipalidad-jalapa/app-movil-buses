@@ -13,6 +13,13 @@ import { NoEncontrada } from './paginas/NoEncontrada';
 import { Privacidad } from './paginas/Privacidad';
 import { LoginAdmin } from './paginas/admin/LoginAdmin';
 import { PanelAdmin } from './paginas/admin/PanelAdmin';
+import { AbordajesPanel } from './paginas/admin/AbordajesPanel';
+import { OpinionesPanel } from './paginas/admin/OpinionesPanel';
+import { AvisoDeDemora } from './componentes/atrasos/AvisoDeDemora';
+import { OpinarSobreElServicio } from './componentes/opiniones/OpinarSobreElServicio';
+import { PuertaDelPasajero } from './componentes/sesionPasajero/PuertaDelPasajero';
+import { SesionPasajeroProvider } from './core/pasajero/SesionPasajeroProvider';
+import { CorregirRutas } from './paginas/admin/CorregirRutas';
 import { ExportarDatos } from './paginas/admin/ExportarDatos';
 import { LoginConductor } from './paginas/conductor/LoginConductor';
 import { PanelConductor } from './paginas/conductor/PanelConductor';
@@ -20,6 +27,7 @@ import { PanelConductor } from './paginas/conductor/PanelConductor';
 export function App() {
   return (
     <AuthProvider>
+      <SesionPasajeroProvider>
       <BrowserRouter>
         <Routes>
           <Route
@@ -29,13 +37,20 @@ export function App() {
               // La reserva vive fuera del mapa: la comparten la hoja y los
               // avisos del bus (HU-58).
               // La ruta elegida la comparten el selector de la cabecera y el mapa.
+              // SCRUM-26, B.1: la primera vez se elige invitado o cuenta de Google.
+              <PuertaDelPasajero>
               <RutaElegidaProvider>
                 <ReservaProvider>
                   <Layout aSangre estado={<SelectorDeRuta />}>
                     <Mapa />
+                    {/* SCRUM-26: opinar sobre la ruta que se esta mirando. */}
+                    <OpinarSobreElServicio />
+                    {/* SCRUM-26, E.3: el atraso que avisó el piloto, junto al ETA. */}
+                    <AvisoDeDemora />
                   </Layout>
                 </ReservaProvider>
               </RutaElegidaProvider>
+              </PuertaDelPasajero>
             }
           />
 
@@ -89,6 +104,31 @@ export function App() {
                     }
                   />
                   <Route
+                    path="opiniones"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <OpinionesPanel />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  <Route
+                    path="abordajes"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <AbordajesPanel />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  {/* QA 5.6: corregir el trazado y las paradas de una ruta. */}
+                  <Route
+                    path="rutas"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <CorregirRutas />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  <Route
                     path="exportar"
                     element={
                       <RutaProtegidaAdmin>
@@ -112,6 +152,7 @@ export function App() {
           />
         </Routes>
       </BrowserRouter>
+      </SesionPasajeroProvider>
     </AuthProvider>
   );
 }

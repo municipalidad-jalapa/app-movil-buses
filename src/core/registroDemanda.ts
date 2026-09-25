@@ -1,6 +1,7 @@
 import { apiClient } from './apiClient';
 import type {
   CrearRegistroRequest,
+  EstadoReserva,
   RegistroCreadoResponse,
 } from './tipos';
 
@@ -64,4 +65,25 @@ export async function renovarReserva(
     throw new Error('La renovación no devolvió una respuesta.');
   }
   return respuesta;
+}
+
+/** Lo que devuelve `GET /api/v1/reservas/{id}` (HU-76) y que usa la app. */
+export interface EstadoEnServidor {
+  id: number;
+  paradaId: number;
+  estado: EstadoReserva;
+  expiraEn: string;
+}
+
+/**
+ * La reserva tal como la tiene el servidor. La app la guarda en el telefono y
+ * sin esto no se enteraba de lo que pasa del otro lado: el conductor la marco
+ * abordada, el servidor la expiro o se renovo desde otra pestana (QA, ronda 2).
+ */
+export async function consultarReserva(reservaId: number, dispositivoId: string): Promise<EstadoEnServidor | null> {
+  // Este endpoint (HU-76) recibe el dispositivo por query, no por cabecera.
+  const consulta = new URLSearchParams({ dispositivoId });
+  return apiClient.get<EstadoEnServidor>(`${RUTA_REGISTRO_DEMANDA}/${reservaId}?${consulta.toString()}`, {
+    intentos: 1,
+  });
 }

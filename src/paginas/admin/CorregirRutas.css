@@ -1,0 +1,189 @@
+/* Corregir rutas (QA 5.6): mapa a la izquierda, controles a la derecha. */
+
+.corregir-rutas {
+  max-width: 1440px;
+}
+
+.corregir-rutas__selector {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.corregir-rutas__selector select {
+  min-height: 44px;
+  min-width: 280px;
+  padding: 0 12px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 15px;
+}
+
+.corregir-rutas__cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: var(--esp-6);
+  align-items: start;
+}
+
+.corregir-rutas__mapa {
+  position: sticky;
+  top: 16px;
+  height: calc(100dvh - 180px);
+  min-height: 480px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+  overflow: hidden;
+}
+
+.editor-ruta {
+  width: 100%;
+  height: 100%;
+}
+
+.editor-ruta--sin-mapa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  color: var(--tinta-secundaria);
+}
+
+.corregir-rutas__lateral {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-6);
+}
+
+.corregir-rutas__bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  padding: 20px;
+  background: var(--superficie-suave);
+  border-radius: var(--radio-tarjeta);
+}
+
+.corregir-rutas__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.corregir-rutas__acciones .panel-boton {
+  padding: 0 16px;
+}
+
+.corregir-rutas__paradas {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 280px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.corregir-rutas__parada {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--tinta);
+  font: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.corregir-rutas__parada:hover {
+  background: var(--superficie-tarjeta);
+}
+
+.corregir-rutas__parada--elegida {
+  border-color: var(--amarillo-volcan-tinta);
+  background: var(--amarillo-volcan-superficie);
+  font-weight: 700;
+}
+
+.corregir-rutas__orden {
+  flex: 0 0 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.corregir-rutas__formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  padding-top: var(--esp-3);
+  border-top: 1px solid var(--borde);
+}
+
+/* --- Marcadores del editor ------------------------------------------- */
+
+.editor-vertice {
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  padding: 0;
+  border: 3px solid var(--verde-jumay);
+  border-radius: 999px;
+  background: var(--sobre-marca);
+  cursor: grab;
+}
+
+.editor-vertice--elegido {
+  width: 20px;
+  height: 20px;
+  border-color: var(--amarillo-volcan-tinta);
+  background: var(--amarillo-volcan);
+}
+
+.editor-parada {
+  width: 30px;
+  height: 30px;
+  min-height: 0;
+  padding: 0;
+  border: 3px solid var(--borde-parada);
+  border-radius: 8px 2px 8px 2px;
+  background: var(--color-parada);
+  color: var(--amarillo-volcan-tinta);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: grab;
+  box-shadow: 0 2px 6px rgba(28, 26, 23, 0.25);
+}
+
+.editor-parada--elegida {
+  width: 36px;
+  height: 36px;
+}
+
+@media (max-width: 1024px) {
+  .corregir-rutas__cuerpo {
+    grid-template-columns: 1fr;
+  }
+
+  .corregir-rutas__mapa {
+    position: static;
+    height: 60dvh;
+  }
+}

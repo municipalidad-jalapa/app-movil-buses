@@ -131,3 +131,32 @@ export interface RespuestaAbordaje {
   id: number;
   estado: EstadoReserva;
 }
+
+/**
+ * GET /api/v1/rutas/{rutaId}/eta (SCRUM-166). Minutos por parada pendiente,
+ * medidos siguiendo el trazado de la ruta, no en linea recta.
+ */
+export type EstadoDelBusEta =
+  | 'EN_RUTA'
+  | 'DETENIDO_EN_PARADA'
+  | 'DETENIDO_FUERA_DE_PARADA'
+  | 'EN_DESVIO'
+  | 'SIN_DATOS';
+
+export interface EtaParada {
+  paradaId: number;
+  orden: number;
+  /** null: no hay estimacion. El backend no inventa un numero. */
+  minutos: number | null;
+  /** true solo si salio de la velocidad observada del propio bus. */
+  confiable: boolean;
+}
+
+export interface EtaRuta {
+  rutaId: number;
+  vehiculoId: number | null;
+  calculadoEn: string;
+  estado: EstadoDelBusEta;
+  desvio: unknown | null;
+  paradas: EtaParada[];
+}

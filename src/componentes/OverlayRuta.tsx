@@ -115,6 +115,7 @@ export function OverlayRuta({
           .map((p) => (
             <g
               key={p.id}
+              data-testid={`parada-${p.id}`}
               role={onElegirParada ? 'button' : undefined}
               tabIndex={onElegirParada ? 0 : undefined}
               aria-label={onElegirParada ? p.nombre : undefined}
@@ -139,7 +140,7 @@ export function OverlayRuta({
 
       {/* Tu parada: mas grande y en amarillo. Color + forma + tamano, nunca solo color. */}
       {tuya && (
-        <g transform={`translate(${tuya.punto.x},${tuya.punto.y})`}>
+        <g transform={`translate(${tuya.punto.x},${tuya.punto.y})`} data-testid={`parada-${tuya.id}`}>
           <circle r="21" fill={AMARILLO} stroke={TINTA_AMARILLO} strokeWidth="4" />
           <rect x="-7" y="-7" width="14" height="14" transform="rotate(45)" fill={TINTA_AMARILLO} />
           <title>{tuya.nombre}</title>
@@ -161,7 +162,7 @@ export function OverlayRuta({
       </g>
 
       {bus && (
-        <g opacity={busRancio ? 0.5 : 1}>
+        <g opacity={busRancio ? 0.5 : 1} data-testid="bus">
           <MarcadorDelBus punto={bus} />
         </g>
       )}

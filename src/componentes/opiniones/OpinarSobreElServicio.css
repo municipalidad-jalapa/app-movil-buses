@@ -1,0 +1,390 @@
+/*
+ * Opinar sobre el servicio (SCRUM-26, A.2). Canvas «EcoRuta · Opiniones».
+ * Colores por token para que el modo oscuro funcione igual que la hoja de reserva.
+ */
+
+.opinion-acceso {
+  position: fixed;
+  top: calc(var(--alto-encabezado) + var(--seguro-arriba) + 16px);
+  right: 16px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tactil-minimo);
+  padding: 0 20px 0 16px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pastilla);
+  background: var(--superficie-tarjeta);
+  box-shadow: var(--sombra);
+  color: var(--acento-texto);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.opinion-velo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(28 26 23 / 40%);
+}
+
+.opinion-hoja {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: var(--ancho-maximo);
+  max-height: 92dvh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 8px 18px calc(22px + var(--seguro-abajo));
+  border-top: 2px solid var(--borde-sutil);
+  border-radius: var(--radio-hoja);
+  background: var(--superficie-base);
+  font-family: var(--fuente);
+  color: var(--tinta);
+  animation: opinion-subir 240ms ease both;
+}
+
+.opinion-hoja--gracias {
+  align-items: flex-start;
+}
+
+.opinion-manija {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  align-self: stretch;
+}
+
+.opinion-manija span {
+  width: 56px;
+  height: 5px;
+  border-radius: var(--radio-pastilla);
+  background: var(--borde-manija);
+}
+
+.opinion-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.opinion-titulo {
+  margin: 0;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.opinion-contexto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--tinta-secundaria);
+}
+
+.opinion-cerrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  margin: -8px -12px 0 0;
+  border: 0;
+  border-radius: var(--radio-pastilla);
+  background: transparent;
+  color: var(--tinta-secundaria);
+  cursor: pointer;
+}
+
+.opinion-parrafo {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--tinta-secundaria);
+}
+
+.opinion-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radio-tarjeta-chica);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.opinion-aviso svg {
+  flex: 0 0 20px;
+}
+
+.opinion-aviso strong {
+  font-weight: 500;
+}
+
+.opinion-aviso--error {
+  background: var(--rojo-santa-marta-superficie);
+  color: var(--alerta-texto);
+}
+
+.opinion-aviso--limite {
+  background: var(--amarillo-volcan-superficie);
+  color: var(--amarillo-volcan-superficie-tinta);
+}
+
+.opinion-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.opinion-grupo legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--tinta-secundaria);
+}
+
+.opinion-opcional {
+  color: var(--tinta-tenue);
+}
+
+.opinion-tipos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.opinion-tipo {
+  flex: 1 1 calc(50% - 8px);
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--tactil-minimo);
+  padding: 0 8px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pastilla);
+  background: var(--superficie-base);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.opinion-tipo--elegido {
+  border-color: var(--acento-texto);
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+}
+
+.opinion-estrellas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.opinion-estrellas > div {
+  display: flex;
+  margin-left: -8px;
+}
+
+.opinion-estrella {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radio-pastilla);
+  background: transparent;
+  color: var(--tinta-tenue);
+  cursor: pointer;
+}
+
+.opinion-estrellas__valor {
+  font-size: 13px;
+  color: var(--tinta-secundaria);
+}
+
+.opinion-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--tinta-secundaria);
+}
+
+.opinion-campo textarea {
+  min-height: 108px;
+  padding: 12px 16px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-control);
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  resize: vertical;
+}
+
+.opinion-campo textarea:focus,
+.opinion-tipo:focus-visible,
+.opinion-estrella:focus-visible,
+.opinion-primario:focus-visible,
+.opinion-cerrar:focus-visible,
+.opinion-acceso:focus-visible {
+  outline: 3px solid var(--verde-jumay-superficie);
+  outline-offset: 2px;
+}
+
+.opinion-pie {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: -8px;
+  font-size: 11.5px;
+  line-height: 16px;
+  color: var(--tinta-tenue);
+}
+
+.opinion-primario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  align-self: stretch;
+  min-height: 60px;
+  border: 0;
+  border-radius: var(--radio-pastilla);
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.opinion-primario:disabled {
+  background: var(--superficie-hundida);
+  color: var(--tinta-secundaria);
+  cursor: not-allowed;
+}
+
+.opinion-exito {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radio-tarjeta);
+  background: var(--verde-jumay-superficie);
+  color: var(--acento-texto);
+}
+
+.opinion-girando {
+  display: inline-flex;
+  animation: opinion-girar 900ms linear infinite;
+}
+
+@keyframes opinion-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes opinion-subir {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Mismo criterio que PanelMunicipal.css: tema.css no oscurece la marca. */
+@media (prefers-color-scheme: dark) {
+  .opinion-acceso,
+  .opinion-tipo--elegido,
+  .opinion-exito {
+    color: var(--verde-jumay-suave);
+  }
+
+  .opinion-tipo--elegido,
+  .opinion-primario:not(:disabled) {
+    border-color: var(--verde-jumay-apagado);
+    background: var(--verde-jumay-apagado);
+    color: var(--sobre-marca);
+  }
+
+  .opinion-aviso--error {
+    color: var(--alerta-sobre-oscuro);
+  }
+
+  .opinion-aviso--limite {
+    color: var(--aviso-sobre-oscuro);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opinion-hoja,
+  .opinion-girando {
+    animation: none;
+  }
+}
+
+/*
+ * SCRUM-26, bloque F: las tres valoraciones por dimension. Cada fila es
+ * nombre + estrellas; en telefono el nombre va arriba para que las estrellas
+ * conserven su area tocable.
+ */
+.opinion-dimension {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+}
+
+.opinion-dimension + .opinion-dimension {
+  border-top: 1px solid var(--borde-sutil);
+}
+
+.opinion-dimension__nombre {
+  font-size: 14px;
+  color: var(--tinta-secundaria);
+}
+
+@media (min-width: 420px) {
+  .opinion-dimension {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}

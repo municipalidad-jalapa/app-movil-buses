@@ -1,34 +1,21 @@
-import { useCallback, useEffect, useState } from 'react';
-import { AvisoInactividad } from '../../componentes/admin/AvisoInactividad';
+import { useEffect, useState } from 'react';
 import { ChipEstadoServicio } from '../../componentes/admin/ChipEstadoServicio';
-import { CabeceraPanel } from '../../componentes/admin/CabeceraPanel';
+import { MarcoPanel } from '../../componentes/admin/MarcoPanel';
 import { ErrorApi } from '../../core/errores';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
+import { haceCuanto } from '../../core/panelAdmin/formatoTiempo';
 import { consultarServicio, type EstadoServicio, type RutaEnServicio } from '../../core/panelAdmin/panelAdminApi';
-import { useInactividad } from '../../hooks/useInactividad';
 import './PanelMunicipal.css';
 
 const REFRESCO_MS = 30_000;
 
 const hora = new Intl.DateTimeFormat('es-GT', { hour: '2-digit', minute: '2-digit', hour12: false });
 
-function haceCuanto(iso: string, ahoraMs: number): string {
-  const minutos = Math.max(0, Math.round((ahoraMs - Date.parse(iso)) / 60_000));
-  return minutos === 0 ? 'hace menos de 1 min' : `hace ${minutos} min`;
-}
-
 /** Portada del panel municipal: el servicio completo (SCRUM-173, criterio 6). Canvas: 2 y 3a. */
 export function PanelAdmin() {
-  const { sesion, renovarSesion, cerrarSesion } = useAuthAdmin();
+  const { sesion, cerrarSesion } = useAuthAdmin();
   const [servicio, setServicio] = useState<EstadoServicio | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const alCerrarPorInactividad = useCallback(() => cerrarSesion('inactividad'), [cerrarSesion]);
-  const { segundosRestantes, seguir } = useInactividad({
-    expiraEnMs: sesion?.expiraEnMs ?? 0,
-    alRenovar: () => void renovarSesion(),
-    alCerrar: alCerrarPorInactividad,
-  });
 
   const token = sesion?.token;
   useEffect(() => {
@@ -62,9 +49,7 @@ export function PanelAdmin() {
   const ahoraMs = servicio ? Date.parse(servicio.consultadoEn) : Date.now();
 
   return (
-    <div className="panel-escritorio">
-      <CabeceraPanel />
-
+    <MarcoPanel>
       <main className="panel-principal">
         <div className="panel-principal__encabezado">
           <div>
@@ -116,11 +101,7 @@ export function PanelAdmin() {
 
         <p className="panel-ayuda">«Sin datos recientes»: el bus no envía su posición desde hace más de 2 minutos.</p>
       </main>
-
-      {segundosRestantes !== null && (
-        <AvisoInactividad segundos={segundosRestantes} onSeguir={seguir} onCerrarSesion={() => cerrarSesion()} />
-      )}
-    </div>
+    </MarcoPanel>
   );
 }
 

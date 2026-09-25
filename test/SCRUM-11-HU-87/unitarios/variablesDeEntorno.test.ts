@@ -79,10 +79,21 @@ describe('HU-87 - La configuración de producción arranca bien', () => {
     expect(cfg.mensajeria?.messagingSenderId).toBe('123456');
   });
 
+  // QA 4.2: si el appId trae el remitente (`1:<remitente>:web:<hash>`), se
+  // deduce y basta la VAPID key. Sin forma de deducirlo, sigue fallando.
   it('con una sola variable de mensajería la app no arranca (mejor fallar que quedar a medias)', () => {
-    expect(() => leerConfiguracion({ ...entornoProduccion, VITE_FIREBASE_VAPID_KEY: 'solo-esta' })).toThrow(
-      /VITE_FIREBASE_MESSAGING_SENDER_ID/,
-    );
+    expect(() =>
+      leerConfiguracion({
+        ...entornoProduccion,
+        VITE_FIREBASE_APP_ID: 'app-sin-remitente',
+        VITE_FIREBASE_VAPID_KEY: 'solo-esta',
+      }),
+    ).toThrow(/VITE_FIREBASE_MESSAGING_SENDER_ID/);
+  });
+
+  it('con la VAPID key y un appId con remitente, el remitente se deduce', () => {
+    const cfg = leerConfiguracion({ ...entornoProduccion, VITE_FIREBASE_VAPID_KEY: 'solo-esta' });
+    expect(cfg.mensajeria?.messagingSenderId).toBe('123');
   });
 });
 

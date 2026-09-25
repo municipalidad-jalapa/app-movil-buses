@@ -41,7 +41,7 @@
 
 .pie-legal__municipalidad {
   margin: 0;
-  color: var(--texto-secundario);
+  color: var(--tinta-secundaria);
 }
 
 @media (max-width: 600px) {
@@ -62,6 +62,6 @@
   }
 
   .pie-legal__enlaces a {
-    color: #f4eee2;
+    color: var(--tinta);
   }
 }

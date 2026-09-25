@@ -54,7 +54,7 @@ export function Layout({
     .join(' ');
 
   return (
-    <div className="apl">
+    <div className={aSangre ? 'apl apl--a-sangre' : 'apl'}>
       <header className="apl__encabezado">
         <Link to="/" className="apl__marca" aria-label="EcoRuta, volver al mapa">
           <svg
@@ -79,8 +79,7 @@ export function Layout({
               strokeLinecap="round"
             />
           </svg>
-
-          EcoRuta
+          <span className="apl__nombre">EcoRuta</span>
         </Link>
 
         <span className="apl__acciones">
