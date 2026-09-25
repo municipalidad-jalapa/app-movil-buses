@@ -59,6 +59,35 @@ export async function consultarServicio(token: string, signal?: AbortSignal): Pr
   return respuesta ?? { consultadoEn: new Date().toISOString(), rutas: [] };
 }
 
+export interface PosicionPanel {
+  latitud: number;
+  longitud: number;
+  registradaEn: string;
+}
+
+export interface ReservaPorParada {
+  paradaId: number;
+  activas: number;
+}
+
+export interface PanelRuta {
+  rutaId: number;
+  nombre: string;
+  vehiculoId: number | null;
+  posicion: PosicionPanel | null;
+  transmitiendo: boolean;
+  reservasPorParada: ReservaPorParada[];
+}
+
+export interface PanelRutas {
+  rutas: PanelRuta[];
+}
+
+export async function consultarPanel(token: string, signal?: AbortSignal): Promise<PanelRutas> {
+  const respuesta = await apiClient.get<PanelRutas>('/api/v1/panel/rutas', { token, signal });
+  return respuesta ?? { rutas: [] };
+}
+
 // ---------------------------------------------------------------------------
 // Pasajeros subidos (SCRUM-26, bloque F)
 // ---------------------------------------------------------------------------
