@@ -63,6 +63,13 @@
   --conductor-tarjeta: #12362a;
   --conductor-tinta: #f7f3ea;
   --conductor-tinta-suave: #c9d6cd;
+  /* Panel en ruta: "Bajó" se distingue de "Subió" (amarillo) por color,
+     flecha y palabra; las lineas separan sin competir con los numeros. */
+  --conductor-baja: #8fcaf0;
+  --conductor-baja-tinta: #0b1f16;
+  --conductor-linea: #4e6b5a;
+  --conductor-linea-suave: #1f4a38;
+  --conductor-en-vivo: #7fd49a;
 
   /* ---- Tipografia (autoalojada, DESIGN.md §13) ---------------------------- */
   --fuente: 'Public Sans Variable', 'Public Sans', system-ui, -apple-system,

@@ -27,6 +27,17 @@ export interface PanelConductor {
   estadoBus: EstadoDelBusEta;
   calculadoEn: string;
   paradas: ParadaDelPanel[];
+  /** Lo que conto el piloto al cerrar paradas hoy (botones Subió y Bajó). */
+  subieronHoy?: number;
+  bajaronHoy?: number;
+  /** Subieron menos bajaron hoy; nunca negativo. */
+  aBordo?: number;
+}
+
+/** Lo que el piloto conto en la parada, incluidos los que no avisaron por la app. */
+export interface ConteoDeParada {
+  subieron: number;
+  bajaron: number;
 }
 
 export interface RespuestaAtencion {
@@ -40,9 +51,14 @@ export function obtenerPanelConductor(signal?: AbortSignal) {
   return apiClient.get<PanelConductor>(RUTA_PANEL_CONDUCTOR, { signal, intentos: 1 });
 }
 
-/** HU-76: cierra las reservas de la parada como abordadas. */
-export function marcarParadaAtendida(rutaId: number, paradaId: number) {
-  return apiClient.post<RespuestaAtencion>(`/api/v1/rutas/${rutaId}/paradas/${paradaId}/atendida`);
+/**
+ * HU-76: cierra las reservas de la parada como abordadas. Con el conteo del
+ * panel en ruta guarda tambien cuantos subieron y bajaron.
+ */
+export function marcarParadaAtendida(rutaId: number, paradaId: number, conteo?: ConteoDeParada) {
+  return apiClient.post<RespuestaAtencion>(`/api/v1/rutas/${rutaId}/paradas/${paradaId}/atendida`, conteo, {
+    intentos: 1,
+  });
 }
 
 const hora = new Intl.DateTimeFormat('es-GT', { hour: '2-digit', minute: '2-digit', hour12: false });

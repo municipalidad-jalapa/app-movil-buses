@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ErrorApi } from '../core/errores';
-import { marcarParadaAtendida, obtenerPanelConductor, type PanelConductor } from '../core/panelConductor';
+import {
+  marcarParadaAtendida,
+  obtenerPanelConductor,
+  type ConteoDeParada,
+  type PanelConductor,
+} from '../core/panelConductor';
 
 /**
  * Cada cuanto se actualiza el panel solo (QA 4.3: "actualizandose solo"). El
@@ -15,9 +20,12 @@ export interface EstadoPanelConductor {
   /** Cuando llego el ultimo panel valido. */
   actualizadoEn: Date | null;
   marcando: number | null;
-  marcarAtendida: (paradaId: number) => Promise<string | null>;
+  /** Cierra la parada con lo que conto el piloto. */
+  cerrarParada: (paradaId: number, conteo: ConteoDeParada) => Promise<ResultadoDeCierre>;
   reintentar: () => void;
 }
+
+export type ResultadoDeCierre = { ok: true; reservasCerradas: number } | { ok: false; mensaje: string };
 
 export function usePanelConductor(): EstadoPanelConductor {
   const [panel, setPanel] = useState<PanelConductor | null>(null);
@@ -54,23 +62,25 @@ export function usePanelConductor(): EstadoPanelConductor {
 
   const reintentar = useCallback(() => setPedido((n) => n + 1), []);
 
-  /** Devuelve un mensaje para mostrar, o null si salio bien. */
-  const marcarAtendida = useCallback(
-    async (paradaId: number): Promise<string | null> => {
-      if (!panel) return null;
+  const cerrarParada = useCallback(
+    async (paradaId: number, conteo: ConteoDeParada): Promise<ResultadoDeCierre> => {
+      if (!panel) return { ok: false, mensaje: 'Todavía no cargó tu ruta. Probá de nuevo.' };
       setMarcando(paradaId);
       try {
-        const respuesta = await marcarParadaAtendida(panel.rutaId, paradaId);
+        const respuesta = await marcarParadaAtendida(panel.rutaId, paradaId, conteo);
         reintentar();
-        const cerradas = respuesta?.reservasCerradas ?? 0;
-        return cerradas === 1 ? 'Listo: 1 pasajero abordó.' : `Listo: ${cerradas} pasajeros abordaron.`;
+        return { ok: true, reservasCerradas: respuesta?.reservasCerradas ?? 0 };
       } catch (causa) {
-        // 409: ya estaba atendida (otro toque, otra pestana). Se refresca y listo.
+        // 409: ya estaba cerrada hoy (otro toque, otra pestana). El conteo no entra.
         if (causa instanceof ErrorApi && causa.status === 409) {
           reintentar();
-          return 'Esta parada ya estaba marcada como atendida.';
+          return { ok: false, mensaje: 'Esta parada ya estaba cerrada hoy: este conteo no se guardó.' };
         }
-        return causa instanceof ErrorApi ? causa.mensajeParaUsuario() : 'No pudimos marcar la parada. Probá de nuevo.';
+        return {
+          ok: false,
+          mensaje:
+            causa instanceof ErrorApi ? causa.mensajeParaUsuario() : 'No pudimos cerrar la parada. Probá de nuevo.',
+        };
       } finally {
         setMarcando(null);
       }
@@ -78,5 +88,5 @@ export function usePanelConductor(): EstadoPanelConductor {
     [panel, reintentar],
   );
 
-  return { panel, cargando: !cargaLista, error, actualizadoEn, marcando, marcarAtendida, reintentar };
+  return { panel, cargando: !cargaLista, error, actualizadoEn, marcando, cerrarParada, reintentar };
 }
