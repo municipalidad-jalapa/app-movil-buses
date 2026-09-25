@@ -12,6 +12,7 @@ import type { Ruta } from '../../core/tipos';
 import { ErrorApi } from '../../core/errores';
 import { cancelarReserva } from '../../core/registroDemanda';
 import { ReservaProvider } from '../../estado/ReservaProvider';
+import { RutaElegidaProvider } from '../../estado/RutaElegidaProvider';
 import { Mapa } from '../../paginas/Mapa';
 
 /**
@@ -38,10 +39,13 @@ const RUTA: Ruta = {
   trazado: [],
 };
 
+/** Fuera del mock para que la referencia sea estable entre renders. */
+const RUTAS = [RUTA];
+
 const { refrescar } = vi.hoisted(() => ({ refrescar: vi.fn() }));
 
 vi.mock('../../hooks/useRutas', () => ({
-  useRutas: () => ({ rutaActiva: RUTA, cargando: false, error: null, reintentar: () => {} }),
+  useRutas: () => ({ rutas: RUTAS, rutaActiva: RUTA, cargando: false, error: null, reintentar: () => {} }),
 }));
 vi.mock('../../hooks/usePosicionBus', () => ({
   usePosicionBus: () => ({
@@ -83,13 +87,15 @@ function sembrarReserva() {
 
 function montarMapa() {
   return render(
-    <ReservaProvider>
-      <MemoryRouter initialEntries={['/']}>
-        <Routes>
-          <Route path="/" element={<Mapa />} />
-        </Routes>
-      </MemoryRouter>
-    </ReservaProvider>,
+    <RutaElegidaProvider>
+      <ReservaProvider>
+        <MemoryRouter initialEntries={['/']}>
+          <Routes>
+            <Route path="/" element={<Mapa />} />
+          </Routes>
+        </MemoryRouter>
+      </ReservaProvider>
+    </RutaElegidaProvider>,
   );
 }
 

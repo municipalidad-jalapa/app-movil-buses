@@ -1,0 +1,67 @@
+:root {
+  --alto-pie-legal: 54px;
+}
+
+.pie-legal {
+  flex: 0 0 var(--alto-pie-legal);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 18px;
+
+  width: 100%;
+  min-height: var(--alto-pie-legal);
+  padding: 8px 18px;
+
+  border-top: 1px solid rgba(16, 64, 42, 0.14);
+  background: var(--superficie-base);
+
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.pie-legal__enlaces {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pie-legal__enlaces a {
+  color: var(--verde-jumay);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.pie-legal__enlaces a:hover,
+.pie-legal__enlaces a:focus-visible {
+  text-decoration: underline;
+}
+
+.pie-legal__municipalidad {
+  margin: 0;
+  color: var(--texto-secundario);
+}
+
+@media (max-width: 600px) {
+  :root {
+    --alto-pie-legal: 64px;
+  }
+
+  .pie-legal {
+    flex-direction: column;
+    gap: 3px;
+    padding-block: 7px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .pie-legal {
+    border-top-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .pie-legal__enlaces a {
+    color: #f4eee2;
+  }
+}
