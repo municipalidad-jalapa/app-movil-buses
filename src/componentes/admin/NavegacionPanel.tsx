@@ -22,6 +22,10 @@ export function NavegacionPanel() {
       <NavLink to="/admin/rutas" className={claseEnlace}>
         Corregir rutas
       </NavLink>
+      {/* HU-86: descarga de demanda y recorridos. */}
+      <NavLink to="/admin/exportar" className={claseEnlace}>
+        Exportar datos
+      </NavLink>
     </nav>
   );
 }

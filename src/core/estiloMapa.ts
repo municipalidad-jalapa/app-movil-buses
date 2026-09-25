@@ -1,4 +1,5 @@
 import type { StyleSpecification } from 'maplibre-gl';
+import { variableOpcional } from './config';
 
 /**
  * Estilo base del mapa: teselas raster hechas con los datos de OpenStreetMap.
@@ -52,13 +53,13 @@ function estiloRaster(urls: string[], atribucion: string): StyleSpecification {
 }
 
 function atribucion(): string {
-  const propia = import.meta.env.VITE_MAPA_ATRIBUCION;
+  const propia = variableOpcional('VITE_MAPA_ATRIBUCION');
   return typeof propia === 'string' && propia.trim() ? propia.trim() : ATRIBUCION_POR_DEFECTO;
 }
 
 /** El mapa claro. */
 export function estiloOpenStreetMap(): StyleSpecification {
-  return estiloRaster(urlsDe(import.meta.env.VITE_MAPA_TESELAS, OSM_ESTANDAR), atribucion());
+  return estiloRaster(urlsDe(variableOpcional('VITE_MAPA_TESELAS'), OSM_ESTANDAR), atribucion());
 }
 
 /**
@@ -69,7 +70,7 @@ export function estiloOpenStreetMap(): StyleSpecification {
  * invertirlo, asi que se baja el brillo sin perder la lectura de las calles.
  */
 export function estiloOpenStreetMapOscuro(): StyleSpecification {
-  const propias = urlsDe(import.meta.env.VITE_MAPA_TESELAS_OSCURO, []);
+  const propias = urlsDe(variableOpcional('VITE_MAPA_TESELAS_OSCURO'), []);
   if (propias.length > 0) return estiloRaster(propias, atribucion());
   const estilo = estiloOpenStreetMap();
   estilo.layers[0].paint = {

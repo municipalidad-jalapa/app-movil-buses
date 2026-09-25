@@ -1,0 +1,288 @@
+================================================================================
+RESULTADOS DE PRUEBAS -- SCRUM-11 / HU-87: Build de produccion de la aplicacion web
+================================================================================
+Fecha   : 2026-09-23 19:16
+Node    : v22.14.0
+Vitest  : 3.2.7
+Rama    : develop
+Commit  : 747f7bd (con cambios locales sin commit de la HU-87)
+
+Alcance (parte de Desarrollo / Frontend):
+  A1  Build optimizado de React generado con npm run build.
+  A2  Empaquetado como imagen Docker.
+  A3  Icono del sitio definitivo.
+  A4  Titulo del sitio definitivo.
+  A5  Pantalla de carga definitiva.
+  A6  Variables de entorno apuntando al backend de produccion (no a direcciones locales).
+
+--------------------------------------------------------------------------------
+RESUMEN
+--------------------------------------------------------------------------------
+  Pruebas de la HU-87 ........ 136 / 136  PASARON  (5 archivos, 0 fallos, 0 omitidas)
+  Resto del proyecto ......... 289 / 290  PASARON  (37 archivos, 1 fallos, 0 omitidas)
+                               (fallos AJENOS a la HU-87: ver seccion "FALLOS FUERA DE LA HU-87")
+
+  ESTADO DE LA HU-87: VERDE
+
+--------------------------------------------------------------------------------
+FALLOS FUERA DE LA HU-87 (pruebas de otras historias)
+--------------------------------------------------------------------------------
+  [FALLO] test/sin-conexion/unitarios/AvisoSinConexion.test.tsx
+          AvisoSinConexion > con un dato previo, muestra la hora de lo ultimo que se supo
+          TestingLibraryElementError: Unable to find an element with the text: /Esto es lo último que sabemos, de las 7:16 p. m./ (normalized from '/Esto es lo último que sabemos, de las 7:16 p. m./'). This could be because the te
+
+--------------------------------------------------------------------------------
+A. PRUEBAS UNITARIAS (archivos: index.html, public/, dockerfile, nginx.conf, config.ts)
+--------------------------------------------------------------------------------
+  [PASO ]  iconoYTitulo.test.ts .......................................... 22 / 22
+    HU-87 - Título del sitio
+      [PASO ]  el documento declara español
+      [PASO ]  el título es el definitivo de EcoRuta
+      [PASO ]  el título no es el de una plantilla
+      [PASO ]  hay una descripción con acentos, sin errores de escritura evidentes
+      [PASO ]  el color de la barra del navegador es el verde Jumay del tema
+    HU-87 - Ícono del sitio
+      [PASO ]  index.html enlaza el favicon SVG y el archivo existe en public/
+      [PASO ]  index.html enlaza el ícono de iOS y el archivo existe
+      [PASO ]  index.html enlaza el manifest y el archivo existe
+      [PASO ]  no queda el ícono por defecto de Vite
+      [PASO ]  el favicon es un SVG válido, autocontenido y sin scripts ni imágenes raster
+      [PASO ]  el favicon usa solo colores del sistema de diseño
+      [PASO ]  icon-192.png es un PNG real de 192 x %i px
+      [PASO ]  icon-512.png es un PNG real de 512 x %i px
+      [PASO ]  icon-maskable-512.png es un PNG real de 512 x %i px
+      [PASO ]  apple-touch-icon.png es un PNG real de 180 x %i px
+      [PASO ]  los PNG pesan poco (presupuesto de peso, DESIGN.md §13)
+    HU-87 - Manifest de la aplicación
+      [PASO ]  nombre, idioma y arranque
+      [PASO ]  el nombre del manifest coincide con el título del sitio
+      [PASO ]  los colores son los del tema
+      [PASO ]  cada ícono declarado existe en public/
+      [PASO ]  el tamaño declarado de cada PNG coincide con el real
+      [PASO ]  cumple lo que pide Android para poder instalarse: 192, 512 y uno maskable
+
+  [PASO ]  imagenDocker.test.ts .......................................... 28 / 28
+    HU-87 - Dockerfile de producción
+      [PASO ]  es de dos etapas: compila con Node y sirve con Nginx
+      [PASO ]  la imagen final no arrastra Node ni el código fuente
+      [PASO ]  usa la misma versión mayor de Node que el CI
+      [PASO ]  instala con npm ci (reproducible, respeta package-lock.json)
+      [PASO ]  copia package*.json antes del código para aprovechar la caché de capas
+      [PASO ]  genera el build con npm run build
+      [PASO ]  sirve dist/ desde la raíz de Nginx
+      [PASO ]  instala la configuración propia de Nginx
+      [PASO ]  expone el puerto 80 y arranca Nginx en primer plano
+    HU-87 - Contexto de build
+      [PASO ]  .dockerignore excluye node_modules
+      [PASO ]  .dockerignore excluye dist
+      [PASO ]  .dockerignore excluye .git
+      [PASO ]  .dockerignore excluye .env
+      [PASO ]  .dockerignore excluye .env.local
+      [PASO ]  el package-lock.json existe (lo necesita npm ci)
+    HU-87 - Scripts del proyecto
+      [PASO ]  npm run build revisa los tipos y luego empaqueta con Vite
+      [PASO ]  existe npm run preview para probar el build local
+      [PASO ]  vite.config.ts copia el worker de MapLibre al build (si no, ruta y paradas no se dibujan)
+    HU-87 - Nginx sirve la aplicación bien
+      [PASO ]  escucha en el puerto 80
+      [PASO ]  devuelve index.html en cualquier ruta del SPA (recargar /mapa no da 404)
+      [PASO ]  expone /health con 200 para las sondas del despliegue
+      [PASO ]  sirve los .mjs (worker de MapLibre) como JavaScript
+      [PASO ]  sirve el manifest como application/manifest+json (nginx no lo conoce y lo daría como octet-stream)
+      [PASO ]  el service worker de avisos no se cachea y se sirve desde la raíz
+    HU-87 - Pipeline de imagen
+      [PASO ]  se dispara con push a develop y a main
+      [PASO ]  develop construye la imagen de QA
+      [PASO ]  main construye la imagen de producción con el mismo nombre de imagen
+      [PASO ]  el CI compila y corre las pruebas en cada push y pull request
+
+  [PASO ]  pantallaDeCarga.test.ts ....................................... 21 / 21
+    HU-87 - La pantalla de carga existe antes de que arranque React
+      [PASO ]  está dentro de #raiz, el elemento donde monta la app
+      [PASO ]  muestra el nombre, el lema y el estado
+      [PASO ]  el módulo de la app se carga después del contenedor
+      [PASO ]  el símbolo y los volcanes son decorativos: no los lee el lector de pantalla
+    HU-87 - Accesibilidad de la pantalla de carga
+      [PASO ]  anuncia el estado a los lectores de pantalla (role=status, aria-live=polite)
+      [PASO ]  el texto principal cumple AAA sobre el verde de fondo (contador y ETA piden AAA)
+      [PASO ]  el texto de apoyo y el lema cumplen AA sobre el verde de fondo
+      [PASO ]  ningún texto baja de 11.5 px (DESIGN.md §4 [DURA])
+      [PASO ]  respeta prefers-reduced-motion: apaga la animación
+      [PASO ]  la animación solo mueve opacity o transform (DESIGN.md §12 [DURA])
+    HU-87 - Identidad y peso de la pantalla de carga
+      [PASO ]  el fondo y los colores salen de tema.css, no se inventan
+      [PASO ]  el fondo de la pantalla es el verde Jumay
+      [PASO ]  nunca negro puro ni blanco puro (DESIGN.md §3.3 [DURA])
+      [PASO ]  no pide nada a otros servidores: sin fuentes ni imágenes externas
+      [PASO ]  todo el índice pesa poco (llega antes que cualquier otro archivo)
+      [PASO ]  el texto respeta el microcopy: sin "Error", sin "por favor", sin admiración
+    HU-87 - Sin JavaScript
+      [PASO ]  avisa con un mensaje claro y oculta el "Cargando…"
+      [PASO ]  el aviso no usa la clase que oculta el noscript (si no, nunca se vería)
+    HU-87 - Si la app no llega a montar
+      [PASO ]  el script de demora existe y programa un aviso a los 20 segundos
+      [PASO ]  pasados 20 segundos cambia "Cargando…" por qué pasa y qué hacer
+      [PASO ]  si React ya montó (la pantalla ya no existe) no hace nada ni falla
+
+  [PASO ]  variablesDeEntorno.test.ts .................................... 41 / 41
+    HU-87 - La configuración de producción arranca bien
+      [PASO ]  acepta la URL https del backend y la deja sin barra final
+      [PASO ]  la configuración queda congelada: nadie la cambia en runtime
+      [PASO ]  el simulador de login del conductor queda apagado si el pipeline no lo define
+      [PASO ]  el simulador sigue apagado con el valor "false"
+      [PASO ]  el simulador sigue apagado con el valor "FALSE"
+      [PASO ]  el simulador sigue apagado con el valor "1"
+      [PASO ]  el simulador sigue apagado con el valor "si"
+      [PASO ]  el simulador sigue apagado con el valor ""
+      [PASO ]  los avisos quedan apagados (sin romper la app) si no hay variables de mensajería
+      [PASO ]  los avisos se encienden cuando están las dos variables de mensajería
+      [PASO ]  con una sola variable de mensajería la app no arranca (mejor fallar que quedar a medias)
+    HU-87 - Un build mal configurado se detecta, no se despliega a ciegas
+      [PASO ]  rechaza VITE_API_BASE_URL sin la variable (docker build sin --build-arg)
+      [PASO ]  rechaza VITE_API_BASE_URL vacía
+      [PASO ]  rechaza VITE_API_BASE_URL solo espacios
+      [PASO ]  rechaza VITE_API_BASE_URL sin protocolo
+      [PASO ]  rechaza VITE_API_BASE_URL con el texto "undefined"
+      [PASO ]  el mensaje dice qué variable falta
+      [PASO ]  las variables obligatorias leídas de config.ts son las esperadas
+      [PASO ]  rechaza el build si falta VITE_API_BASE_URL
+      [PASO ]  rechaza el build si falta VITE_FIREBASE_API_KEY
+      [PASO ]  rechaza el build si falta VITE_FIREBASE_AUTH_DOMAIN
+      [PASO ]  rechaza el build si falta VITE_FIREBASE_PROJECT_ID
+      [PASO ]  rechaza el build si falta VITE_FIREBASE_APP_ID
+    HU-87 - El Dockerfile pasa las variables al build
+      [PASO ]  declara ARG y ENV para VITE_API_BASE_URL
+      [PASO ]  declara ARG y ENV para VITE_FIREBASE_API_KEY
+      [PASO ]  declara ARG y ENV para VITE_FIREBASE_AUTH_DOMAIN
+      [PASO ]  declara ARG y ENV para VITE_FIREBASE_PROJECT_ID
+      [PASO ]  declara ARG y ENV para VITE_FIREBASE_APP_ID
+      [PASO ]  los ARG no traen valor por defecto: si falta la variable el build falla, no usa una dirección local
+      [PASO ]  el Dockerfile no fija ninguna dirección local
+      [PASO ]  el Dockerfile no enciende el simulador del conductor
+      [PASO ]  las variables se declaran ANTES de npm run build (Vite las hornea al compilar)
+    HU-87 - Secretos y direcciones locales fuera del repositorio
+      [PASO ]  .dockerignore deja fuera los .env: no se hornean en la imagen
+      [PASO ]  .gitignore ignora los .env pero versiona .env.example
+      [PASO ]  .env.example solo trae placeholders, no llaves reales
+      [PASO ]  .env.example ya no describe un config.js que la app no lee
+      [PASO ]  ningún archivo de despliegue trae una llave de Firebase real
+      [PASO ]  el código de la app no tiene direcciones locales escritas a mano
+      [PASO ]  solo config.ts lee import.meta.env (un único punto de acceso a las variables)
+    HU-87 - El pipeline arma las variables desde una sola fuente
+      [PASO ]  QA y producción leen la lista de variables obligatorias de la misma variable del repo
+      [PASO ]  el pipeline no escribe URLs ni llaves en el YAML
+
+  Comando: npx vitest run test/SCRUM-11-HU-87/unitarios
+
+--------------------------------------------------------------------------------
+B. PRUEBAS DE INTEGRACION (build de produccion real, tarda ~20 s)
+--------------------------------------------------------------------------------
+  [PASO ]  buildProduccion.test.ts ....................................... 24 / 24
+    HU-87 - npm run build
+      [PASO ]  la verificación de tipos (tsc --noEmit) termina sin errores
+      [PASO ]  vite build termina con código 0
+      [PASO ]  genera index.html con el título definitivo
+    HU-87 - El build trae ícono, manifest y pantalla de carga
+      [PASO ]  dist/favicon.svg existe
+      [PASO ]  dist/apple-touch-icon.png existe
+      [PASO ]  dist/icon-192.png existe
+      [PASO ]  dist/icon-512.png existe
+      [PASO ]  dist/icon-maskable-512.png existe
+      [PASO ]  dist/manifest.webmanifest existe
+      [PASO ]  dist/firebase-messaging-sw.js existe
+      [PASO ]  index.html conserva la pantalla de carga dentro de #raiz
+      [PASO ]  index.html enlaza el ícono, el ícono de iOS y el manifest
+      [PASO ]  el JavaScript de la app se inyecta como módulo con nombre con hash
+    HU-87 - El build está optimizado
+      [PASO ]  los archivos de assets llevan hash en el nombre (caché segura entre versiones)
+      [PASO ]  no se publican mapas de código fuente
+      [PASO ]  el JavaScript está minificado (líneas larguísimas: sin formato legible)
+      [PASO ]  presupuesto de peso: todo el JavaScript pesa menos de 500 kB comprimido (gzip)
+      [PASO ]  el CSS está incluido en un único archivo
+      [PASO ]  las fuentes salen de nuestro dominio: no hay referencias a Google Fonts
+      [PASO ]  el worker de MapLibre y su fragmento compartido van junto al bundle
+    HU-87 - El build apunta al backend de producción
+      [PASO ]  la URL del backend de producción quedó horneada en el bundle
+      [PASO ]  no quedó ninguna dirección local del backend en el bundle
+      [PASO ]  el simulador del conductor no quedó encendido
+      [PASO ]  no se coló ningún archivo .env ni el .env.example en la salida
+
+  Comando: npx vitest run test/SCRUM-11-HU-87/integracion
+
+--------------------------------------------------------------------------------
+C. VERIFICACION DE UNA IMAGEN EN MARCHA (http://localhost:8087)
+--------------------------------------------------------------------------------
+  Verificando http://localhost:8087  (backend esperado: https://api.produccion.ejemplo.test)
+  
+  [PASO ] GET /health responde 200 "healthy"
+  [PASO ] GET / devuelve HTML 200
+  [PASO ] El título es el definitivo
+  [PASO ] index.html trae ícono, ícono de iOS y manifest
+  [PASO ] index.html trae la pantalla de carga dentro de #raiz
+  [PASO ] Ya no queda el ícono ni el título de una plantilla
+  [PASO ] GET /favicon.svg responde 200 como image/svg+xml
+  [PASO ] GET /apple-touch-icon.png responde 200 como image/png
+  [PASO ] GET /icon-192.png responde 200 como image/png
+  [PASO ] GET /icon-512.png responde 200 como image/png
+  [PASO ] GET /icon-maskable-512.png responde 200 como image/png
+  [PASO ] GET /manifest.webmanifest es un JSON válido con nombre e íconos
+  [PASO ] Una ruta del SPA (/ruta/que/no/existe) devuelve index.html, no 404
+  [PASO ] El service worker de avisos se sirve como JavaScript y sin caché
+  [PASO ] El bundle JavaScript se sirve como JavaScript
+  [PASO ] El worker de MapLibre (.mjs) se sirve como JavaScript, no como octet-stream
+  [PASO ] El bundle apunta al backend esperado (variables de producción)
+  
+  Resultado: 17 pasaron, 0 fallaron.
+
+
+--------------------------------------------------------------------------------
+C2. VERIFICACION DE LA IMAGEN CONSTRUIDA CONTRA EL BACKEND SIMULADO (http://localhost:8088, --api http://localhost:8090)
+--------------------------------------------------------------------------------
+  Verificando http://localhost:8088  (backend esperado: http://localhost:8090)
+  
+  [PASO ] GET /health responde 200 "healthy"
+  [PASO ] GET / devuelve HTML 200
+  [PASO ] El título es el definitivo
+  [PASO ] index.html trae ícono, ícono de iOS y manifest
+  [PASO ] index.html trae la pantalla de carga dentro de #raiz
+  [PASO ] Ya no queda el ícono ni el título de una plantilla
+  [PASO ] GET /favicon.svg responde 200 como image/svg+xml
+  [PASO ] GET /apple-touch-icon.png responde 200 como image/png
+  [PASO ] GET /icon-192.png responde 200 como image/png
+  [PASO ] GET /icon-512.png responde 200 como image/png
+  [PASO ] GET /icon-maskable-512.png responde 200 como image/png
+  [PASO ] GET /manifest.webmanifest es un JSON válido con nombre e íconos
+  [PASO ] Una ruta del SPA (/ruta/que/no/existe) devuelve index.html, no 404
+  [PASO ] El service worker de avisos se sirve como JavaScript y sin caché
+  [PASO ] El bundle JavaScript se sirve como JavaScript
+  [PASO ] El worker de MapLibre (.mjs) se sirve como JavaScript, no como octet-stream
+  [PASO ] El bundle apunta al backend esperado (variables de producción)
+  
+  Resultado: 17 pasaron, 0 fallaron.
+
+--------------------------------------------------------------------------------
+D. NAVEGADOR REAL (Microsoft Edge via Playwright: herramientas/verificar-navegador.mjs)
+--------------------------------------------------------------------------------
+  [PASO ] La pantalla de carga estaba visible antes de montar la app
+  [PASO ] React reemplazó la pantalla de carga al montar
+  [PASO ] El título de la pestaña es el definitivo
+  [PASO ] El ícono declarado es /favicon.svg
+  [PASO ] El color de tema es el verde Jumay
+  [PASO ] La app pide las rutas al backend configurado
+  [PASO ] La app NO pide nada a localhost:8080
+  [PASO ] No hay errores de JavaScript en la página
+  [PASO ] Con el bundle bloqueado, la pantalla dice "Cargando…" -> Cargando…
+  [PASO ] A los 20 s cambia al mensaje de demora -> Está tardando más de lo normal: revisa tu conexión y vuelve a abrir la página.
+  [PASO ] Sin JavaScript se muestra el aviso claro
+  [PASO ] Sin JavaScript no queda un "Cargando…" engañoso
+
+  Capturas: test/SCRUM-11-HU-87/evidencias/ (01 pantalla de carga, 02 app montada, 03 tras 20 s, 04 sin JavaScript)
+  M15: docker exec ... grep localhost:8080 en /assets -> sin-localhost-8080
+
+--------------------------------------------------------------------------------
+PRUEBAS QUE NO ESTAN EN ESTE REPORTE AUTOMATICO
+--------------------------------------------------------------------------------
+  Las pruebas manuales, con datos reales y en dispositivo real estan en manual.md
+  (secciones 3 a 6). Se anotan a mano en la tabla del manual, seccion 7.
+
+================================================================================

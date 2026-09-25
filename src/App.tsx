@@ -20,6 +20,7 @@ import { OpinarSobreElServicio } from './componentes/opiniones/OpinarSobreElServ
 import { PuertaDelPasajero } from './componentes/sesionPasajero/PuertaDelPasajero';
 import { SesionPasajeroProvider } from './core/pasajero/SesionPasajeroProvider';
 import { CorregirRutas } from './paginas/admin/CorregirRutas';
+import { ExportarDatos } from './paginas/admin/ExportarDatos';
 import { LoginConductor } from './paginas/conductor/LoginConductor';
 import { PanelConductor } from './paginas/conductor/PanelConductor';
 
@@ -124,6 +125,14 @@ export function App() {
                     element={
                       <RutaProtegidaAdmin>
                         <CorregirRutas />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  <Route
+                    path="exportar"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <ExportarDatos />
                       </RutaProtegidaAdmin>
                     }
                   />

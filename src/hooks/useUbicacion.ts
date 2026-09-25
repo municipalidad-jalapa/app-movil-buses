@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { variableOpcional } from '../core/config';
 
 export interface Ubicacion {
   latitud: number;
@@ -53,7 +54,10 @@ export function useUbicacion(): EstadoUbicacion {
     setSolicitando(true);
     setError(null);
 
-    const simulada = ubicacionSimulada(import.meta.env);
+    const simulada = ubicacionSimulada({
+      DEV: import.meta.env.DEV,
+      VITE_UBICACION_SIMULADA: variableOpcional('VITE_UBICACION_SIMULADA'),
+    });
     if (simulada) {
       setUbicacion(simulada);
       setSolicitando(false);

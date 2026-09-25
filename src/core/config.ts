@@ -177,5 +177,16 @@ export function leerConfiguracion(
   });
 }
 
+/**
+ * Variables opcionales que no forman parte de la configuracion validada (el
+ * proveedor de teselas del mapa, la ubicacion simulada de desarrollo). Se leen
+ * en cada llamada, y desde aqui, para que este modulo siga siendo el unico
+ * punto de acceso a `import.meta.env` (HU-87).
+ */
+export function variableOpcional(nombre: string): string | undefined {
+  const valor = (import.meta.env as unknown as Record<string, unknown>)[nombre];
+  return typeof valor === 'string' && valor.trim() ? valor.trim() : undefined;
+}
+
 /** Configuracion validada al cargar el modulo. Fail-fast. */
 export const config: ConfiguracionEcoRuta = leerConfiguracion();
