@@ -1,0 +1,17 @@
+{
+  "name": "EcoRuta — Bus eléctrico de Jalapa",
+  "short_name": "EcoRuta",
+  "description": "Mira dónde viene el bus eléctrico de Jalapa y cuántos faltan para que salga.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#10402a",
+  "theme_color": "#10402a",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

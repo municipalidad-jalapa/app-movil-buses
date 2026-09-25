@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { config } from '../core/config';
 import './MenuAcceso.css';
 
 /**
@@ -37,10 +38,9 @@ export function MenuAcceso() {
     };
   }, [abierto]);
 
-  // La API vive en el mismo host bajo el que se sirve la app; Swagger cuelga de
-  // la raiz del backend. Si no hay base configurada, cae al host actual.
-  const baseApi = import.meta.env.VITE_API_BASE_URL ?? '';
-  const urlAdmin = `${baseApi}/swagger-ui/index.html`;
+  // Swagger cuelga de la raiz del backend. La base sale de `config` (unico punto
+  // de acceso a las variables de entorno, ya validada y sin barra final).
+  const urlAdmin = `${config.apiBaseUrl}/swagger-ui/index.html`;
 
   return (
     <div className="menu-acceso" ref={contenedor}>

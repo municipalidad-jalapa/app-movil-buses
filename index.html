@@ -10,12 +10,159 @@
     <meta name="theme-color" content="#10402a" />
     <meta
       name="description"
-      content="Mira donde viene el bus electrico de Jalapa y cuantos faltan para que salga."
+      content="Mira dónde viene el bus eléctrico de Jalapa y cuántos faltan para que salga."
     />
-    <title>EcoRuta — Bus electrico de Jalapa</title>
+    <title>EcoRuta — Bus eléctrico de Jalapa</title>
+
+    <!-- Icono del sitio (HU-87). El SVG cubre pestañas y accesos directos; los
+         PNG salen del mismo simbolo para Android (manifest) y para iOS. -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!--
+      Pantalla de carga (HU-87). Vive dentro de #raiz: el navegador la pinta
+      apenas llega el HTML, antes de que baje el JavaScript, y React la
+      reemplaza al montar. Estilos en linea a proposito: no dependen de ningun
+      archivo que todavia este en camino ni de fuentes externas. Colores del
+      canvas de diseño (tema.css). Solo animan opacity (DESIGN.md §12).
+    -->
+    <style>
+      body {
+        margin: 0;
+        background: #10402a;
+      }
+      .pantalla-de-carga {
+        position: relative;
+        min-height: 100vh;
+        min-height: 100dvh;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 24px 24px 96px;
+        background: #10402a;
+        color: #fbf7f0;
+        text-align: center;
+        font-family: 'Public Sans Variable', 'Public Sans', system-ui, -apple-system,
+          'Segoe UI', Roboto, sans-serif;
+      }
+      .pantalla-de-carga__simbolo {
+        width: 88px;
+        height: 88px;
+        margin-bottom: 12px;
+      }
+      .pantalla-de-carga__nombre {
+        margin: 0;
+        font-family: 'Archivo Variable', Archivo, system-ui, -apple-system, 'Segoe UI',
+          Roboto, sans-serif;
+        font-size: 40px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .pantalla-de-carga__lema {
+        margin: 0;
+        font-size: 15px;
+        line-height: 22px;
+        color: #f2b705;
+      }
+      .pantalla-de-carga__estado,
+      .pantalla-de-carga__aviso {
+        margin: 24px 0 0;
+        max-width: 280px;
+        font-size: 15px;
+        line-height: 22px;
+        color: #cbded1;
+      }
+      .pantalla-de-carga__estado {
+        animation: pantalla-de-carga-latido 1.6s ease-in-out infinite;
+      }
+      .pantalla-de-carga__volcanes {
+        position: absolute;
+        left: 50%;
+        bottom: 32px;
+        width: 210px;
+        height: 58px;
+        transform: translateX(-50%);
+      }
+      @keyframes pantalla-de-carga-latido {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.45;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .pantalla-de-carga__estado {
+          animation: none;
+        }
+      }
+    </style>
+    <noscript>
+      <style>
+        .pantalla-de-carga__estado {
+          display: none;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
-    <div id="raiz"></div>
+    <div id="raiz">
+      <div class="pantalla-de-carga" role="status" aria-live="polite">
+        <svg
+          class="pantalla-de-carga__simbolo"
+          viewBox="0 0 64 64"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <circle cx="32" cy="32" r="31" fill="#fbf7f0" />
+          <path
+            d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8"
+            fill="none"
+            stroke="#10402a"
+            stroke-width="5"
+            stroke-linecap="round"
+          />
+          <circle cx="14" cy="48" r="6" fill="#8c2b22" />
+          <circle cx="37" cy="43" r="5" fill="#f2b705" />
+        </svg>
+        <p class="pantalla-de-carga__nombre">EcoRuta</p>
+        <p class="pantalla-de-carga__lema">Bus eléctrico · Jalapa</p>
+        <p class="pantalla-de-carga__estado">Cargando…</p>
+        <noscript>
+          <p class="pantalla-de-carga__aviso">
+            EcoRuta necesita JavaScript para mostrar dónde va el bus. Actívalo e intenta de
+            nuevo.
+          </p>
+        </noscript>
+        <svg
+          class="pantalla-de-carga__volcanes"
+          viewBox="0 0 210 58"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M0 58 L46 12 L74 40 L102 16 L132 46 L160 18 L210 58 Z" fill="#f2b705" opacity=".92" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Si la app no llega a montar (red muy lenta, JavaScript bloqueado), la
+         pantalla no se queda diciendo "Cargando…" para siempre. Cuando React
+         monta, ".pantalla-de-carga__estado" ya no existe y esto no hace nada. -->
+    <script>
+      window.setTimeout(function () {
+        var estado = document.querySelector('.pantalla-de-carga__estado');
+        if (estado) {
+          estado.textContent =
+            'Está tardando más de lo normal: revisa tu conexión y vuelve a abrir la página.';
+        }
+      }, 20000);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
