@@ -32,6 +32,21 @@
   font-weight: 800;
 }
 
+/* Bloque derecho de la cabecera: estado del servicio (si lo hay) y el menu
+   de acceso por rol, alineados a la derecha. */
+.apl__acciones {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* El estado del servicio se empuja a la derecha del encabezado. */
+.apl__estado {
+  margin-left: auto;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .apl__contenido {
   flex: 1;
   width: 100%;
@@ -42,12 +57,21 @@
 }
 
 /*
+ * Contenido amplio para paginas que necesitan aprovechar mejor
+ * el espacio disponible en escritorio, como privacidad y aviso legal.
+ */
+.apl__contenido--amplio {
+  max-width: 1320px;
+}
+
+/*
  * El mapa llega a los bordes: es la vista principal del pasajero y cada pixel
  * de margen le quita mapa. La informacion va flotando encima.
  */
 .apl__contenido--a-sangre {
   max-width: none;
   padding: 0;
+
   /* min-height: 0 deja que el hijo de 100dvh no desborde el flex. */
   min-height: 0;
 }

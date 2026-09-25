@@ -5,9 +5,18 @@
 
 .pantalla-mapa {
   position: relative;
-  /* Lo que queda de ventana bajo el encabezado. dvh y no vh: en moviles la
-     barra del navegador se come la diferencia. */
-  height: calc(100dvh - var(--alto-encabezado));
+
+  /*
+   * HU-89:
+   * El mapa ocupa la ventana disponible dejando visible
+   * el pie con la política de privacidad y el aviso legal.
+   */
+  height: calc(
+    100dvh
+    - var(--alto-encabezado)
+    - var(--alto-pie-legal)
+  );
+
   min-height: 480px;
   width: 100%;
   overflow: hidden;

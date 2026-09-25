@@ -1,16 +1,21 @@
 import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { Layout } from './componentes/Layout';
+import { SelectorDeRuta } from './componentes/SelectorDeRuta';
 import { RutaProtegida } from './componentes/RutaProtegida';
+import { RutaProtegidaAdmin } from './componentes/admin/RutaProtegidaAdmin';
 import { AuthProvider } from './core/autenticacion/AuthProvider';
+import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
 import { ReservaProvider } from './estado/ReservaProvider';
+import { RutaElegidaProvider } from './estado/RutaElegidaProvider';
+import { AvisoLegal } from './paginas/AvisoLegal';
 import { Mapa } from './paginas/Mapa';
 import { NoEncontrada } from './paginas/NoEncontrada';
-import { LoginConductor } from './paginas/conductor/LoginConductor';
-import { PanelConductor } from './paginas/conductor/PanelConductor';
-import { RutaProtegidaAdmin } from './componentes/admin/RutaProtegidaAdmin';
-import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
+import { Privacidad } from './paginas/Privacidad';
 import { LoginAdmin } from './paginas/admin/LoginAdmin';
 import { PanelAdmin } from './paginas/admin/PanelAdmin';
+import { ExportarDatos } from './paginas/admin/ExportarDatos';
+import { LoginConductor } from './paginas/conductor/LoginConductor';
+import { PanelConductor } from './paginas/conductor/PanelConductor';
 
 export function App() {
   return (
@@ -23,18 +28,41 @@ export function App() {
               // El mapa a sangre: es la vista principal (DESIGN.md seccion 11).
               // La reserva vive fuera del mapa: la comparten la hoja y los
               // avisos del bus (HU-58).
-              <ReservaProvider>
-                <Layout aSangre>
-                  <Mapa />
-                </Layout>
-              </ReservaProvider>
+              // La ruta elegida la comparten el selector de la cabecera y el mapa.
+              <RutaElegidaProvider>
+                <ReservaProvider>
+                  <Layout aSangre estado={<SelectorDeRuta />}>
+                    <Mapa />
+                  </Layout>
+                </ReservaProvider>
+              </RutaElegidaProvider>
             }
           />
 
           {/* El QR de cada parada apunta aqui: abre el mapa con esa parada elegida (R2). */}
           <Route path="/registro/:paradaId" element={<DelQrAlMapa />} />
 
+          {/* HU-89: paginas publicas de informacion legal. */}
+          <Route
+            path="/privacidad"
+            element={
+              <Layout anchoAmplio>
+                <Privacidad />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/aviso-legal"
+            element={
+              <Layout anchoAmplio>
+                <AvisoLegal />
+              </Layout>
+            }
+          />
+
           <Route path="/conductor/login" element={<LoginConductor />} />
+
           <Route
             path="/conductor"
             element={
@@ -51,11 +79,20 @@ export function App() {
               <AuthAdminProvider>
                 <Routes>
                   <Route path="login" element={<LoginAdmin />} />
+
                   <Route
                     index
                     element={
                       <RutaProtegidaAdmin>
                         <PanelAdmin />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  <Route
+                    path="exportar"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <ExportarDatos />
                       </RutaProtegidaAdmin>
                     }
                   />
@@ -79,8 +116,17 @@ export function App() {
   );
 }
 
-/** `/registro/4` -> `/?parada=4`. La reserva vive en la hoja del mapa. */
+/**
+ * `/registro/4` -> `/?parada=4`.
+ * La reserva vive en la hoja del mapa.
+ */
 function DelQrAlMapa() {
   const { paradaId } = useParams();
-  return <Navigate to={`/?parada=${encodeURIComponent(paradaId ?? '')}`} replace />;
+
+  return (
+    <Navigate
+      to={`/?parada=${encodeURIComponent(paradaId ?? '')}`}
+      replace
+    />
+  );
 }

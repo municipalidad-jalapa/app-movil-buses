@@ -1,5 +1,7 @@
 import { apiClient } from '../apiClient';
-import type { Posicion } from '../tipos';
+import { config } from '../config';
+import { ErrorApi } from '../errores';
+import type { ApiError, Posicion } from '../tipos';
 import { aMilisegundos, type SesionAdmin } from './sesionAdmin';
 
 interface RespuestaSesionAdmin {
@@ -84,4 +86,78 @@ export interface PanelRutas {
 export async function consultarPanel(token: string, signal?: AbortSignal): Promise<PanelRutas> {
   const respuesta = await apiClient.get<PanelRutas>('/api/v1/panel/rutas', { token, signal });
   return respuesta ?? { rutas: [] };
+}
+
+/** Maximo de dias que acepta el backend en una exportacion. */
+export const MAXIMO_DIAS_EXPORTACION = 366;
+
+export interface ArchivoExportado {
+  blob: Blob;
+  nombre: string;
+}
+
+const TIMEOUT_EXPORTACION_MS = 60_000;
+const DIA_MS = 86_400_000;
+
+/** Dias del rango, ambos extremos inclusivos, para fechas `AAAA-MM-DD`. */
+export function diasDelRango(desde: string, hasta: string): number {
+  return Math.round((Date.parse(hasta) - Date.parse(desde)) / DIA_MS) + 1;
+}
+
+function nombreDeContentDisposition(cabecera: string | null, respaldo: string): string {
+  const coincidencia = cabecera?.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+  if (!coincidencia) return respaldo;
+  try {
+    return decodeURIComponent(coincidencia[1]);
+  } catch {
+    return coincidencia[1];
+  }
+}
+
+/**
+ * HU-86: descarga el `.xlsx` de demanda y recorridos. Va con `fetch` y Bearer (no `<a href>`)
+ * porque el token no viaja en un enlace. 400 formato, 401 sesion, 403 rol, 422 rango invalido.
+ */
+export async function exportarDatosDelServicio(
+  token: string,
+  desde: string,
+  hasta: string,
+  signal?: AbortSignal,
+): Promise<ArchivoExportado> {
+  const control = new AbortController();
+  const temporizador = setTimeout(() => control.abort(), TIMEOUT_EXPORTACION_MS);
+  signal?.addEventListener('abort', () => control.abort(), { once: true });
+
+  const consulta = new URLSearchParams({ desde, hasta });
+  let respuesta: Response;
+  try {
+    respuesta = await fetch(`${config.apiBaseUrl}/api/v1/admin/exportaciones/servicio?${consulta}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: control.signal,
+    });
+  } catch (causa) {
+    if (signal?.aborted) throw new ErrorApi(0, 'Peticion cancelada');
+    throw new ErrorApi(0, control.signal.aborted ? 'Tiempo de espera agotado' : `Fallo de red: ${String(causa)}`);
+  } finally {
+    clearTimeout(temporizador);
+  }
+
+  if (!respuesta.ok) {
+    let detalle: ApiError | null = null;
+    try {
+      const cuerpo = (await respuesta.json()) as ApiError;
+      if (cuerpo && typeof cuerpo.message === 'string') detalle = cuerpo;
+    } catch {
+      /* cuerpo sin formato ApiError */
+    }
+    throw new ErrorApi(respuesta.status, detalle?.message ?? `${respuesta.status} ${respuesta.statusText}`, detalle);
+  }
+
+  return {
+    blob: await respuesta.blob(),
+    nombre: nombreDeContentDisposition(
+      respuesta.headers.get('Content-Disposition'),
+      `exportacion-servicio_${desde}_${hasta}.xlsx`,
+    ),
+  };
 }

@@ -6,6 +6,8 @@ import type { Ruta } from '../core/tipos';
 import { ErrorApi } from '../core/errores';
 import { cancelarReserva, registrarDemanda, renovarReserva } from '../core/registroDemanda';
 import { ReservaProvider } from '../estado/ReservaProvider';
+import { RutaElegidaProvider } from '../estado/RutaElegidaProvider';
+import { SelectorDeRuta } from '../componentes/SelectorDeRuta';
 import { Mapa } from './Mapa';
 
 /*
@@ -26,6 +28,21 @@ const RUTA: Ruta = {
   trazado: [],
 };
 
+/** La ruta de prueba de V12, con ids de parada propios. */
+const RUTA_METROPLAZA: Ruta = {
+  id: 2,
+  nombre: 'Ruta de prueba - Parque Central a Metroplaza',
+  activa: true,
+  paradas: [
+    { id: 21, nombre: 'Parque Central (Metroplaza)', latitud: 14.634878, longitud: -89.981202, orden: 1 },
+    { id: 25, nombre: 'Metroplaza', latitud: 14.660728, longitud: -90.001026, orden: 2 },
+  ],
+  trazado: [],
+};
+
+/** Fuera del mock para que la referencia sea estable entre renders. */
+const RUTAS = [RUTA, RUTA_METROPLAZA];
+
 const ubicacion = { latitud: 14.6323, longitud: -89.9871 };
 const { solicitarUbicacion, refrescar, bus } = vi.hoisted(() => ({
   solicitarUbicacion: vi.fn(),
@@ -34,7 +51,7 @@ const { solicitarUbicacion, refrescar, bus } = vi.hoisted(() => ({
 }));
 
 vi.mock('../hooks/useRutas', () => ({
-  useRutas: () => ({ rutaActiva: RUTA, cargando: false, error: null, reintentar: () => {} }),
+  useRutas: () => ({ rutas: RUTAS, rutaActiva: RUTA, cargando: false, error: null, reintentar: () => {} }),
 }));
 vi.mock('../hooks/usePosicionBus', () => ({
   usePosicionBus: () => ({
@@ -64,14 +81,17 @@ function DelQr() {
 
 function abrir(ruta = '/') {
   render(
-    <ReservaProvider>
-      <MemoryRouter initialEntries={[ruta]}>
-        <Routes>
-          <Route path="/" element={<Mapa />} />
-          <Route path="/registro/:paradaId" element={<DelQr />} />
-        </Routes>
-      </MemoryRouter>
-    </ReservaProvider>,
+    <RutaElegidaProvider>
+      <ReservaProvider>
+        <SelectorDeRuta />
+        <MemoryRouter initialEntries={[ruta]}>
+          <Routes>
+            <Route path="/" element={<Mapa />} />
+            <Route path="/registro/:paradaId" element={<DelQr />} />
+          </Routes>
+        </MemoryRouter>
+      </ReservaProvider>
+    </RutaElegidaProvider>,
   );
 }
 
@@ -313,3 +333,59 @@ describe('Pantalla del pasajero: el bus llega a tu parada (HU-57/HU-58 sin push)
   });
 });
 
+describe('Pantalla del pasajero: selector de rutas', () => {
+  const selector = () => screen.getByRole('combobox', { name: 'Ruta' }) as HTMLSelectElement;
+
+  it('ofrece las rutas activas con su nombre corto', () => {
+    abrir();
+    const opciones = Array.from(selector().options).map((o) => o.textContent);
+    expect(opciones).toEqual(['Ruta de ejemplo', 'Parque Central a Metroplaza']);
+    expect(selector().value).toBe('1');
+  });
+
+  it('al elegir otra ruta muestra sus paradas y lo recuerda', () => {
+    abrir();
+    fireEvent.change(selector(), { target: { value: '2' } });
+
+    expect(screen.getByRole('button', { name: 'Metroplaza' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: '1a Calle - Mercado' })).toBeNull();
+    expect(localStorage.getItem('ecoruta_ruta_elegida')).toBe('2');
+  });
+
+  it('cambiar de ruta suelta la parada elegida en la otra', () => {
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: '1a Calle - Mercado' }));
+    expect(screen.getByText('Parada elegida')).toBeTruthy();
+
+    fireEvent.change(selector(), { target: { value: '2' } });
+
+    expect(screen.getByText('¿En qué parada vas a esperar?')).toBeTruthy();
+  });
+
+  it('el QR de una parada de la otra ruta abre esa ruta con la parada elegida', async () => {
+    abrir('/registro/25');
+    await waitFor(() => expect(selector().value).toBe('2'));
+    expect(screen.getByRole('heading', { name: 'Metroplaza' })).toBeTruthy();
+  });
+
+  it('con un aviso vigente el selector queda fijo en la ruta de la reserva', async () => {
+    localStorage.setItem(
+      'ecoruta_reserva',
+      JSON.stringify({ id: 9, paradaId: 25, estado: 'ACTIVA', expiraEn: enMs(5 * 60_000) }),
+    );
+    abrir();
+    await waitFor(() => expect(selector().value).toBe('2'));
+    expect(selector().disabled).toBe(true);
+    expect(screen.getByText('Ya avisamos que estás esperando')).toBeTruthy();
+  });
+
+  it('con una sola ruta activa no se muestra el selector', () => {
+    RUTAS.splice(1, 1);
+    try {
+      abrir();
+      expect(screen.queryByRole('combobox', { name: 'Ruta' })).toBeNull();
+    } finally {
+      RUTAS.push(RUTA_METROPLAZA);
+    }
+  });
+});
