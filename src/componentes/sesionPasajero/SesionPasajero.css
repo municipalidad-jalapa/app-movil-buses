@@ -1,0 +1,294 @@
+/* Sesión opcional del pasajero (SCRUM-26, B.1). Canvas «EcoRuta · Sesión del pasajero». */
+
+.entrada {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--superficie-base);
+  font-family: var(--fuente);
+}
+
+/* Superficie de identidad: aqui si va el ornamento (DESIGN.md §6). */
+.entrada__identidad {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+  padding: calc(64px + var(--seguro-arriba)) 24px 0;
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+}
+
+.entrada__voluta {
+  position: absolute;
+  top: 40px;
+  right: -40px;
+  opacity: 0.16;
+}
+
+.entrada__marca {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--fuente-titulos);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--sobre-marca);
+}
+
+.entrada__titulo {
+  position: relative;
+  max-width: 300px;
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 500;
+  color: var(--sobre-marca);
+}
+
+.entrada__bajada {
+  position: relative;
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--verde-jumay-suave);
+}
+
+.entrada__volcanes {
+  display: block;
+  width: calc(100% + 48px);
+  height: 150px;
+  margin: 0 -24px;
+}
+
+.entrada__hoja {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+  width: 100%;
+  max-width: var(--ancho-maximo);
+  margin: -28px auto 0;
+  padding: 24px 24px calc(32px + var(--seguro-abajo));
+  border-radius: var(--radio-hoja);
+  background: var(--superficie-base);
+}
+
+/* Los dos botones son identicos a proposito: ninguno es "el secundario". */
+.entrada__opcion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  border: 2px solid var(--verde-jumay);
+  border-radius: var(--radio-pastilla);
+  background: var(--superficie-base);
+  color: var(--acento-texto);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.entrada__opcion:active:not(:disabled),
+.entrada__opcion[aria-busy='true'] {
+  background: var(--verde-jumay-superficie);
+}
+
+.entrada__opcion:disabled {
+  cursor: progress;
+}
+
+.entrada__opcion:focus-visible,
+.vinculado-entendido:focus-visible {
+  outline: 3px solid var(--verde-jumay-superficie);
+  outline-offset: 2px;
+}
+
+.entrada__estado {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--tinta-secundaria);
+}
+
+.entrada__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: var(--esp-4);
+  border-radius: var(--radio-tarjeta);
+  background: var(--rojo-santa-marta-superficie);
+  color: var(--alerta-texto);
+}
+
+.entrada__error svg {
+  flex: 0 0 22px;
+}
+
+.entrada__error p {
+  margin: 0;
+}
+
+.entrada__error-titulo {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+}
+
+.entrada__error-texto {
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.entrada__beneficios {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--tinta-secundaria);
+}
+
+.entrada__beneficios strong {
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.entrada__privacidad {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--tinta-tenue);
+}
+
+.sesion-girando {
+  animation: sesion-girar 900ms linear infinite;
+}
+
+@keyframes sesion-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Confirmacion de datos vinculados (pantalla 6). */
+.vinculado-velo {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(28 26 23 / 40%);
+}
+
+.vinculado-hoja {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+  width: 100%;
+  max-width: var(--ancho-maximo);
+  padding: 8px 18px calc(22px + var(--seguro-abajo));
+  border-radius: var(--radio-hoja);
+  background: var(--superficie-base);
+  font-family: var(--fuente);
+}
+
+.vinculado-manija {
+  display: flex;
+  justify-content: center;
+  min-height: 18px;
+  align-items: center;
+}
+
+.vinculado-manija span {
+  width: 40px;
+  height: 4px;
+  border-radius: var(--radio-pastilla);
+  background: var(--borde-manija);
+}
+
+.vinculado-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: var(--esp-4);
+  border-radius: var(--radio-tarjeta);
+  background: var(--verde-jumay-superficie);
+  color: var(--acento-texto);
+}
+
+.vinculado-aviso svg {
+  flex: 0 0 22px;
+}
+
+.vinculado-aviso p {
+  margin: 0;
+}
+
+.vinculado-titulo {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+}
+
+.vinculado-texto {
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--tinta-cuerpo);
+  font-variant-numeric: tabular-nums;
+}
+
+.vinculado-entendido {
+  min-height: 56px;
+  border: 0;
+  border-radius: var(--radio-pastilla);
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* tema.css no oscurece la marca: mismo criterio que el panel y las opiniones. */
+@media (prefers-color-scheme: dark) {
+  .entrada__identidad {
+    background: var(--verde-jumay-fuerte);
+  }
+
+  .entrada__opcion {
+    border-color: var(--verde-jumay-suave);
+    color: var(--verde-jumay-suave);
+  }
+
+  .entrada__error {
+    color: var(--alerta-sobre-oscuro);
+  }
+
+  .vinculado-aviso {
+    color: var(--verde-jumay-suave);
+  }
+
+  .vinculado-entendido {
+    background: var(--verde-jumay-apagado);
+    color: var(--sobre-marca);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sesion-girando {
+    animation: none;
+  }
+}

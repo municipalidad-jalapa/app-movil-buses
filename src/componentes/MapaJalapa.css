@@ -52,9 +52,23 @@
   height: 100%;
 }
 
-/* El tono calido del raster en modo claro, tal cual MapaOSM.dc.html. */
+/* El tono calido del raster en modo claro (MapaOSM.dc.html), rebajado: con
+   el filtro completo las calles y sus nombres perdian contraste (QA). */
 .mapa-jalapa__capa--calida {
-  filter: sepia(0.18) saturate(0.68) brightness(1.06) hue-rotate(-6deg);
+  filter: sepia(0.08) saturate(0.92);
+}
+
+/* Lejos (zoom < 14.5) las paradas se achican y esconden el contador: si no, se
+   pisan entre si y tapan la ruta. La elegida no cambia. Los estilos de los
+   marcadores van en linea, de ahi el !important. */
+.mapa-jalapa__capa--lejos .marcador-parada__nodo:not(.marcador-parada__nodo--elegida) {
+  width: 18px !important;
+  height: 18px !important;
+  border-width: 4px !important;
+}
+
+.mapa-jalapa__capa--lejos .marcador-parada:not([aria-pressed='true']) .marcador-parada__numero {
+  display: none;
 }
 
 .mapa-jalapa__rotulo {

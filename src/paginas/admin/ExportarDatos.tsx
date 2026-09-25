@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
-import { AvisoInactividad } from '../../componentes/admin/AvisoInactividad';
-import { CabeceraPanel } from '../../componentes/admin/CabeceraPanel';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { MarcoPanel } from '../../componentes/admin/MarcoPanel';
 import { ErrorApi } from '../../core/errores';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
 import {
@@ -8,7 +7,6 @@ import {
   exportarDatosDelServicio,
   MAXIMO_DIAS_EXPORTACION,
 } from '../../core/panelAdmin/panelAdminApi';
-import { useInactividad } from '../../hooks/useInactividad';
 import './PanelMunicipal.css';
 
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
@@ -42,7 +40,7 @@ function guardarArchivo(blob: Blob, nombre: string) {
 
 /** HU-86: descarga de demanda y recorridos en hoja de calculo, por rango de fechas. */
 export function ExportarDatos() {
-  const { sesion, renovarSesion, cerrarSesion } = useAuthAdmin();
+  const { sesion, cerrarSesion } = useAuthAdmin();
   const hoy = hoyEnGuatemala();
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState(hoy);
@@ -52,13 +50,6 @@ export function ExportarDatos() {
   const control = useRef<AbortController | null>(null);
 
   useEffect(() => () => control.current?.abort(), []);
-
-  const alCerrarPorInactividad = useCallback(() => cerrarSesion('inactividad'), [cerrarSesion]);
-  const { segundosRestantes, seguir } = useInactividad({
-    expiraEnMs: sesion?.expiraEnMs ?? 0,
-    alRenovar: () => void renovarSesion(),
-    alCerrar: alCerrarPorInactividad,
-  });
 
   async function alEnviar(evento: FormEvent) {
     evento.preventDefault();
@@ -90,9 +81,7 @@ export function ExportarDatos() {
   }
 
   return (
-    <div className="panel-escritorio">
-      <CabeceraPanel />
-
+    <MarcoPanel>
       <main className="panel-principal">
         <div>
           <h1 className="panel-h1">Exportar datos del servicio</h1>
@@ -143,10 +132,6 @@ export function ExportarDatos() {
           </p>
         </div>
       </main>
-
-      {segundosRestantes !== null && (
-        <AvisoInactividad segundos={segundosRestantes} onSeguir={seguir} onCerrarSesion={() => cerrarSesion()} />
-      )}
-    </div>
+    </MarcoPanel>
   );
 }

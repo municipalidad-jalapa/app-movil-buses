@@ -13,11 +13,12 @@
   min-height: var(--alto-encabezado);
   padding: calc(12px + var(--seguro-arriba)) 18px 14px;
   background: var(--verde-jumay);
-  color: var(--superficie-base);
+  color: var(--sobre-marca);
 }
 
 .apl__marca {
   display: inline-flex;
+  text-decoration: none;
   align-items: center;
   gap: 10px;
   font-family: var(--fuente-titulos);
@@ -38,6 +39,26 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
+}
+
+@media (max-width: 420px) {
+  .apl__encabezado {
+    flex-wrap: wrap;
+    padding-inline: 16px;
+  }
+
+  .apl__acciones {
+    flex: 1 1 100%;
+    justify-content: space-between;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .apl__estado {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-left: 0;
+  }
 }
 
 /* El estado del servicio se empuja a la derecha del encabezado. */
@@ -74,6 +95,57 @@
 
   /* min-height: 0 deja que el hijo de 100dvh no desborde el flex. */
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * QA (pantallas pequenas): la cabecera real mide mas que --alto-encabezado en
+ * cuanto aparece el selector de ruta, y el mapa, calculado con esa resta,
+ * empujaba la hoja fuera de la pantalla. Con el mapa a sangre la pantalla es
+ * exactamente la ventana y el mapa toma lo que sobra, mida lo que mida la
+ * cabecera.
+ */
+.apl--a-sangre {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* La cabecera no se encoge ni desborda: el selector cede primero. */
+.apl__encabezado {
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.apl__acciones {
+  min-width: 0;
+}
+
+.apl__estado {
+  display: inline-flex;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+/* En telefonos angostos el nombre cede su lugar; queda el logo. */
+@media (max-width: 400px) {
+  .apl__encabezado {
+    padding-inline: 12px;
+  }
+
+  .apl__acciones {
+    gap: 8px;
+  }
+
+  .apl__nombre {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 
 /* Modo oscuro, artboard M3: la cabecera baja a verde profundo. */

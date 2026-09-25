@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
-import { AvisoInactividad } from '../../componentes/admin/AvisoInactividad';
+import { useEffect, useState } from 'react';
 import { ChipTransmitiendo } from '../../componentes/admin/ChipTransmitiendo';
-import { CabeceraPanel } from '../../componentes/admin/CabeceraPanel';
+import { MarcoPanel } from '../../componentes/admin/MarcoPanel';
 import { ErrorApi } from '../../core/errores';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
+import { haceCuanto } from '../../core/panelAdmin/formatoTiempo';
 import {
   consultarPanel,
   type PanelRuta,
@@ -11,17 +11,11 @@ import {
   type PosicionPanel,
   type ReservaPorParada,
 } from '../../core/panelAdmin/panelAdminApi';
-import { useInactividad } from '../../hooks/useInactividad';
 import './PanelMunicipal.css';
 
 const REFRESCO_MS = 30_000;
 
 const hora = new Intl.DateTimeFormat('es-GT', { hour: '2-digit', minute: '2-digit', hour12: false });
-
-function haceCuanto(iso: string, ahoraMs: number): string {
-  const minutos = Math.max(0, Math.round((ahoraMs - Date.parse(iso)) / 60_000));
-  return minutos === 0 ? 'hace menos de 1 min' : `hace ${minutos} min`;
-}
 
 function totalReservasActivas(reservas: ReservaPorParada[]): number {
   return reservas.reduce((acumulado, reserva) => acumulado + reserva.activas, 0);
@@ -33,17 +27,10 @@ function paradasConReservas(reservas: ReservaPorParada[]): ReservaPorParada[] {
 
 /** Portada del panel municipal: rutas con transmisión y reservas (HU-79). Canvas: 2 y 3a. */
 export function PanelAdmin() {
-  const { sesion, renovarSesion, cerrarSesion } = useAuthAdmin();
+  const { sesion, cerrarSesion } = useAuthAdmin();
   const [panel, setPanel] = useState<PanelRutas | null>(null);
   const [consultadoEn, setConsultadoEn] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const alCerrarPorInactividad = useCallback(() => cerrarSesion('inactividad'), [cerrarSesion]);
-  const { segundosRestantes, seguir } = useInactividad({
-    expiraEnMs: sesion?.expiraEnMs ?? 0,
-    alRenovar: () => void renovarSesion(),
-    alCerrar: alCerrarPorInactividad,
-  });
 
   const token = sesion?.token;
   useEffect(() => {
@@ -77,9 +64,7 @@ export function PanelAdmin() {
   const ahoraMs = consultadoEn ? Date.parse(consultadoEn) : Date.now();
 
   return (
-    <div className="panel-escritorio">
-      <CabeceraPanel />
-
+    <MarcoPanel>
       <main className="panel-principal">
         <div className="panel-principal__encabezado">
           <div>
@@ -131,11 +116,7 @@ export function PanelAdmin() {
 
         <p className="panel-ayuda">«Sin transmitir»: el bus no envía posición, o la ruta no tiene vehículo asignado.</p>
       </main>
-
-      {segundosRestantes !== null && (
-        <AvisoInactividad segundos={segundosRestantes} onSeguir={seguir} onCerrarSesion={() => cerrarSesion()} />
-      )}
-    </div>
+    </MarcoPanel>
   );
 }
 

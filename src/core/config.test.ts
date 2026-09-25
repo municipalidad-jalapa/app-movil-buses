@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { config, leerConfiguracion } from './config';
+import { config, leerConfiguracion, remitenteDelAppId } from './config';
 
 const entornoValido = {
   VITE_API_BASE_URL: 'https://api.ejemplo.com',
@@ -111,6 +111,21 @@ describe('configuracion de avisos (HU-58)', () => {
     expect(() =>
       leerConfiguracion({ ...entornoValido, VITE_FIREBASE_MESSAGING_SENDER_ID: '123456' }),
     ).toThrow(/VITE_FIREBASE_VAPID_KEY/);
+  });
+
+  it('QA 4.2: con solo la VAPID key deduce el remitente del appId', () => {
+    const resultado = leerConfiguracion({
+      ...entornoValido,
+      VITE_FIREBASE_APP_ID: '1:848636628612:web:abc123',
+      VITE_FIREBASE_VAPID_KEY: 'vapid',
+    });
+    expect(resultado.mensajeria?.messagingSenderId).toBe('848636628612');
+  });
+
+  it('lee el remitente de un appId web y nada de uno que no lo es', () => {
+    expect(remitenteDelAppId('1:848636628612:web:abc')).toBe('848636628612');
+    expect(remitenteDelAppId('1:123:web:abc')).toBe('123');
+    expect(remitenteDelAppId('app-sin-formato')).toBeNull();
   });
 
   it('trata una variable vacia como ausente', () => {

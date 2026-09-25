@@ -55,6 +55,8 @@ vi.mock('../../core/notificaciones/permisoNotificaciones', () => ({
   solicitarPermiso: vi.fn(),
   marcarRechazado: vi.fn(),
   yaFueRechazado: vi.fn(),
+  // Sin permiso previo: la invitacion se ofrece como siempre.
+  estadoDelPermiso: vi.fn(() => 'sin-responder'),
 }));
 
 vi.mock('../../core/notificaciones/registroDeToken', () => ({

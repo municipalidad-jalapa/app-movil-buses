@@ -8,7 +8,7 @@
 
 .login-conductor__etiqueta {
   margin: 0;
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
   font-size: 13px;
   line-height: 18px;
   font-weight: 500;
@@ -35,7 +35,7 @@
   padding: var(--esp-4);
   border-radius: 12px;
   background: var(--amarillo-volcan-superficie);
-  color: var(--amarillo-volcan-tinta);
+  color: var(--amarillo-volcan-superficie-tinta);
   font-size: 15px;
   line-height: 22px;
 }
@@ -69,7 +69,7 @@
 
 .login-conductor__campo input:focus {
   outline: 3px solid var(--verde-jumay-superficie);
-  border-color: var(--verde-jumay);
+  border-color: var(--acento-texto);
 }
 
 .login-conductor__enviar {
@@ -80,7 +80,7 @@
   border: 0;
   border-radius: 8px;
   background: var(--verde-jumay);
-  color: var(--superficie-base);
+  color: var(--sobre-marca);
   font: inherit;
   font-size: 15px;
   font-weight: 500;
@@ -99,11 +99,12 @@
 
 .login-conductor__enviar:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  background: var(--superficie-hundida);
+  color: var(--tinta);
 }
 
 .login-conductor__enviar:focus-visible {
-  outline: 3px solid var(--verde-jumay-superficie);
+  outline: 3px solid var(--acento-texto);
   outline-offset: 2px;
 }
 
