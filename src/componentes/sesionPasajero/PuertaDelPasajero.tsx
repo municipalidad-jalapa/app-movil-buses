@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useSesionPasajero } from '../../core/pasajero/SesionPasajeroContext';
+import { useDeslizarHoja } from '../../hooks/useDeslizarHoja';
 import { EntradaPasajero } from './EntradaPasajero';
 import { IconoVinculado } from './IconosSesion';
 import './SesionPasajero.css';
@@ -10,6 +11,7 @@ import './SesionPasajero.css';
  */
 export function PuertaDelPasajero({ children }: { children: ReactNode }) {
   const sesion = useSesionPasajero();
+  const deslizable = useDeslizarHoja({ alBajar: () => sesion?.descartarVinculacion() });
   if (!sesion) return children;
   if (sesion.modo === null) return <EntradaPasajero sesion={sesion} />;
 
@@ -19,7 +21,7 @@ export function PuertaDelPasajero({ children }: { children: ReactNode }) {
       {children}
       {vinculacion && (
         <div className="vinculado-velo">
-          <section className="vinculado-hoja" aria-labelledby="vinculado-titulo">
+          <section ref={deslizable} className="vinculado-hoja" aria-labelledby="vinculado-titulo">
             <div className="vinculado-manija" aria-hidden="true">
               <span />
             </div>

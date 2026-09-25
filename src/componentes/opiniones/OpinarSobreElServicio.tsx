@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { estaVigente } from '../../estado/ReservaProvider';
+import { useDeslizarHoja } from '../../hooks/useDeslizarHoja';
 import { useReserva } from '../../hooks/useReserva';
 import { useRutaElegida } from '../../hooks/useRutaElegida';
 import { useSesionPasajero } from '../../core/pasajero/SesionPasajeroContext';
@@ -65,6 +66,8 @@ export function OpinarSobreElServicio({ redondo = false }: { redondo?: boolean }
   const [estado, setEstado] = useState<Estado>('editando');
   const [detalleError, setDetalleError] = useState<string | null>(null);
   const enviandoRef = useRef(false);
+  // Deslizar hacia abajo cierra la hoja, salvo mientras se envia.
+  const deslizable = useDeslizarHoja({ alBajar: () => !enviandoRef.current && cerrar() });
 
   useEffect(() => {
     if (!abierta) return;
@@ -143,7 +146,7 @@ export function OpinarSobreElServicio({ redondo = false }: { redondo?: boolean }
       {abierta && (
         <div className="opinion-velo" onClick={(e) => e.target === e.currentTarget && !enviandoRef.current && cerrar()}>
           {estado === 'enviada' ? (
-            <section className="opinion-hoja opinion-hoja--gracias" role="status">
+            <section ref={deslizable} className="opinion-hoja opinion-hoja--gracias" role="status">
               <Manija />
               <span className="opinion-exito">
                 <IconoCheck tamano={32} />
@@ -156,6 +159,7 @@ export function OpinarSobreElServicio({ redondo = false }: { redondo?: boolean }
             </section>
           ) : (
             <form
+              ref={deslizable}
               className="opinion-hoja"
               role="dialog"
               aria-modal="true"

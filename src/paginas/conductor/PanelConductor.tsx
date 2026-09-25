@@ -4,6 +4,7 @@ import { Cargando } from '../../componentes/Cargando';
 import { MensajeError } from '../../componentes/MensajeError';
 import { useAuth } from '../../core/autenticacion/useAuth';
 import { proximaPendiente, textoLlegada, type ParadaDelPanel } from '../../core/panelConductor';
+import { useDeslizarHoja } from '../../hooks/useDeslizarHoja';
 import { usePanelConductor } from '../../hooks/usePanelConductor';
 import './PanelConductor.css';
 
@@ -381,6 +382,7 @@ function Hoja({
   clara?: boolean;
   children: ReactNode;
 }) {
+  const deslizable = useDeslizarHoja({ alBajar: onCerrar });
   useEffect(() => {
     const alTecla = (e: KeyboardEvent) => e.key === 'Escape' && onCerrar();
     document.addEventListener('keydown', alTecla);
@@ -390,6 +392,7 @@ function Hoja({
   return (
     <div className="conductor__velo" onClick={(e) => e.target === e.currentTarget && onCerrar()}>
       <section
+        ref={deslizable}
         className={clara ? 'conductor__hoja conductor__hoja--clara' : 'conductor__hoja'}
         role="dialog"
         aria-modal="true"

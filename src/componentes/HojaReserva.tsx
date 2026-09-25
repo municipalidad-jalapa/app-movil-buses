@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useDeslizarHoja } from '../hooks/useDeslizarHoja';
 import './HojaReserva.css';
 
 /**
@@ -84,6 +85,12 @@ export function HojaReserva({
   onCancelar,
   onRenovar,
 }: Props) {
+  // Deslizar: abajo la achica para ver el mapa, arriba la vuelve a abrir.
+  const deslizable = useDeslizarHoja({
+    alSubir: minimizada ? onAlternarTamano : undefined,
+    alBajar: minimizada ? undefined : onAlternarTamano,
+  });
+
   const manija = onAlternarTamano ? (
     <button
       type="button"
@@ -103,7 +110,7 @@ export function HojaReserva({
 
   if (minimizada) {
     return (
-      <section className="hoja-reserva hoja-reserva--minimizada" aria-label="Tu parada" data-testid="hoja" data-fase={fase}>
+      <section ref={deslizable} className="hoja-reserva hoja-reserva--minimizada" aria-label="Tu parada" data-testid="hoja" data-fase={fase}>
         {manija}
         <button type="button" className="hoja-reserva__resumen" onClick={onAlternarTamano}>
           <span className="hoja-reserva__resumen-texto">{resumenDe(fase, nombreParada)}</span>
@@ -121,7 +128,7 @@ export function HojaReserva({
   }
 
   return (
-    <section className="hoja-reserva" aria-label="Tu parada" data-testid="hoja" data-fase={fase}>
+    <section ref={deslizable} className="hoja-reserva" aria-label="Tu parada" data-testid="hoja" data-fase={fase}>
       {manija}
 
       {contenido && <div className="hoja-reserva__bloque">{contenido}</div>}
