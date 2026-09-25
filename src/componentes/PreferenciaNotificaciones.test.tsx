@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 
 import { PreferenciaNotificaciones } from './PreferenciaNotificaciones';
 import {
+  estadoDelPermiso,
   marcarRechazado,
   sePuedeOfrecerAvisos,
   solicitarPermiso,
@@ -17,6 +18,8 @@ vi.mock('../core/notificaciones/permisoNotificaciones', () => ({
   solicitarPermiso: vi.fn(),
   marcarRechazado: vi.fn(),
   yaFueRechazado: vi.fn(),
+  // Sin permiso previo: la invitacion se ofrece como siempre.
+  estadoDelPermiso: vi.fn(() => 'sin-responder'),
 }));
 
 vi.mock('../core/notificaciones/mensajeria', () => ({
@@ -112,5 +115,15 @@ describe('PreferenciaNotificaciones', () => {
       expect(screen.queryByRole('alert')).not.toBeTruthy();
     });
     expect(registrarTokenDelDispositivo).not.toHaveBeenCalled();
+  });
+
+  it('QA 4.2: con el permiso ya concedido registra el token en silencio', async () => {
+    vi.mocked(sePuedeOfrecerAvisos).mockReturnValue(false);
+    vi.mocked(estadoDelPermiso).mockReturnValue('concedido');
+
+    const { container } = render(<PreferenciaNotificaciones />);
+
+    await waitFor(() => expect(registrarTokenDelDispositivo).toHaveBeenCalledWith('token-fcm'));
+    expect(container.textContent).toBe('');
   });
 });

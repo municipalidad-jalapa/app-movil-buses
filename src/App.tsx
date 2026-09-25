@@ -19,6 +19,7 @@ import { AvisoDeDemora } from './componentes/atrasos/AvisoDeDemora';
 import { OpinarSobreElServicio } from './componentes/opiniones/OpinarSobreElServicio';
 import { PuertaDelPasajero } from './componentes/sesionPasajero/PuertaDelPasajero';
 import { SesionPasajeroProvider } from './core/pasajero/SesionPasajeroProvider';
+import { CorregirRutas } from './paginas/admin/CorregirRutas';
 
 export function App() {
   return (
@@ -91,6 +92,15 @@ export function App() {
                     element={
                       <RutaProtegidaAdmin>
                         <AbordajesPanel />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  {/* QA 5.6: corregir el trazado y las paradas de una ruta. */}
+                  <Route
+                    path="rutas"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <CorregirRutas />
                       </RutaProtegidaAdmin>
                     }
                   />

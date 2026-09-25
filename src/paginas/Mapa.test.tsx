@@ -44,10 +44,11 @@ const RUTA_METROPLAZA: Ruta = {
 const RUTAS = [RUTA, RUTA_METROPLAZA];
 
 const ubicacion = { latitud: 14.6323, longitud: -89.9871 };
-const { solicitarUbicacion, refrescar, bus } = vi.hoisted(() => ({
+const { solicitarUbicacion, refrescar, bus, etaActual } = vi.hoisted(() => ({
   solicitarUbicacion: vi.fn(),
   refrescar: vi.fn(),
   bus: { posicion: null as null | Record<string, unknown>, recibidoEn: null as Date | null },
+  etaActual: { valor: null as null | Record<string, unknown> },
 }));
 
 vi.mock('../hooks/useRutas', () => ({
@@ -64,6 +65,9 @@ vi.mock('../hooks/usePosicionBus', () => ({
 vi.mock('../hooks/useResumenRuta', () => ({
   useResumenRuta: () => ({ esperandoPorParada: new Map([[2, 4]]), refrescar }),
 }));
+vi.mock('../hooks/useEtaRuta', () => ({
+  useEtaRuta: () => etaActual.valor,
+}));
 vi.mock('../hooks/useUbicacion', () => ({
   useUbicacion: () => ({ ubicacion: null, solicitando: false, error: null, solicitarUbicacion }),
 }));
@@ -72,6 +76,8 @@ vi.mock('../core/registroDemanda', async (original) => ({
   registrarDemanda: vi.fn(),
   cancelarReserva: vi.fn(),
   renovarReserva: vi.fn(),
+  // La sincronizacion con el servidor no cambia nada en estas pruebas.
+  consultarReserva: vi.fn(async () => null),
 }));
 
 function DelQr() {
@@ -111,6 +117,7 @@ beforeEach(() => {
   vi.mocked(renovarReserva).mockReset();
   bus.posicion = null;
   bus.recibidoEn = null;
+  etaActual.valor = null;
   Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
   solicitarUbicacion.mockReset().mockResolvedValue(ubicacion);
   refrescar.mockReset();
@@ -262,6 +269,75 @@ describe('Pantalla del pasajero: vigencia de la reserva (HU-52)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sigo esperando' }));
     await screen.findByText(/Tu aviso venció/);
     expect(screen.getByRole('button', { name: 'Estoy esperando aquí' })).toBeTruthy();
+  });
+});
+
+describe('Pantalla del pasajero: minutos para que llegue el bus (QA 5.1)', () => {
+  it('con la parada elegida muestra cuanto falta y si el calculo es confiable', () => {
+    etaActual.valor = {
+      rutaId: 1,
+      vehiculoId: 1,
+      calculadoEn: new Date().toISOString(),
+      estado: 'EN_RUTA',
+      desvio: null,
+      paradas: [{ paradaId: 2, orden: 2, minutos: 7, confiable: false }],
+    };
+    guardarReservaVigente();
+    abrir();
+    expect(screen.getByText('Llega a tu parada en')).toBeTruthy();
+    expect(screen.getByText('≈ 7 min')).toBeTruthy();
+    expect(screen.getByText('cálculo aproximado')).toBeTruthy();
+  });
+
+  it('sin parada elegida no muestra el ETA', () => {
+    abrir();
+    expect(screen.queryByText('Llega a tu parada en')).toBeNull();
+  });
+});
+
+describe('Pantalla del pasajero: correcciones de QA 4.1', () => {
+  it('el boton de ubicacion va en dos toques: primero donde estoy, despues la parada mas cercana', async () => {
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: 'Ver mi ubicación' }));
+    // Primer toque: solo te ubica. No elige parada.
+    await screen.findByText('Tocá otra vez: parada más cercana');
+    expect(solicitarUbicacion).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('Parada elegida')).toBeNull();
+
+    // Segundo toque: la parada mas cercana a (14.6323, -89.9871) es el Mercado.
+    fireEvent.click(screen.getByRole('button', { name: 'Ir a la parada más cercana' }));
+    await screen.findByText('Parada elegida');
+    expect(screen.getByRole('heading', { name: '1a Calle - Mercado' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Ver mi ubicación' })).toBeTruthy();
+  });
+
+  it('la hoja se achica a una linea y se vuelve a abrir', () => {
+    guardarReservaVigente();
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: 'Achicar para ver el mapa' }));
+    expect(screen.queryByRole('button', { name: 'Ya no voy a esperar' })).toBeNull();
+    const resumen = screen.getByRole('button', { name: /Esperando en 1a Calle - Mercado\s*5 min/ });
+    fireEvent.click(resumen);
+    expect(screen.getByRole('button', { name: 'Ya no voy a esperar' })).toBeTruthy();
+  });
+
+  it('con la hoja achicada, el aviso por vencer la vuelve a abrir', () => {
+    guardarReservaVigente(enMs(90_000));
+    abrir();
+    // Quedan menos de dos minutos: ya esta preguntando, aunque se intente achicar.
+    expect(screen.getByText('¿Seguís esperando?')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Achicar para ver el mapa' }));
+    expect(screen.getByRole('button', { name: 'Sigo esperando' })).toBeTruthy();
+    expect(screen.getByText(/Tu aviso vence en 1 min/)).toBeTruthy();
+  });
+
+  it('avisa por vencer con dos minutos de margen y vibra una sola vez', () => {
+    const vibrate = vi.fn();
+    Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+    guardarReservaVigente(enMs(110_000));
+    abrir();
+    expect(screen.getByText('¿Seguís esperando?')).toBeTruthy();
+    expect(vibrate).toHaveBeenCalledTimes(1);
   });
 });
 

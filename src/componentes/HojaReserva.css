@@ -21,7 +21,26 @@
   justify-content: center;
 }
 
-.hoja-reserva__manija span {
+/* La manija es boton cuando la hoja se puede achicar: area tocable minima.
+   Los margenes negativos conservan el alto visual de la manija de adorno. */
+.hoja-reserva__manija-boton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--tactil-minimo);
+  padding: 0;
+  margin: -13px 0 -13px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.hoja-reserva__manija-boton:hover .hoja-reserva__raya {
+  background: var(--tinta-apagada);
+}
+
+.hoja-reserva__raya {
   width: 56px;
   height: 5px;
   background: var(--borde-manija);
@@ -68,6 +87,48 @@
   font-size: 15px;
   line-height: 1.4;
   color: var(--tinta-secundaria);
+}
+
+/* --- Minimizada (QA 4.1) ------------------------------------------------ */
+
+.hoja-reserva--minimizada {
+  gap: 2px;
+  padding-bottom: calc(10px + var(--seguro-abajo));
+}
+
+.hoja-reserva__resumen {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 4px;
+  background: transparent;
+  border: none;
+  color: var(--tinta);
+  text-align: left;
+  cursor: pointer;
+}
+
+.hoja-reserva__resumen-texto {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hoja-reserva__resumen-cifra {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+  border-radius: var(--radio-pastilla);
+  font-size: 15px;
+  font-weight: 800;
 }
 
 /* --- Botones ------------------------------------------------------------ */
@@ -321,7 +382,7 @@
     border-top-color: #3b352b;
   }
 
-  .hoja-reserva__manija span {
+  .hoja-reserva__raya {
     background: #6b6357;
   }
 

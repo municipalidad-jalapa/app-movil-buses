@@ -1,6 +1,9 @@
-import { createContext, useCallback, useMemo, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
+import { ErrorApi } from '../core/errores';
+import { obtenerIdDispositivo } from '../core/identidadDispositivo';
+import { consultarReserva } from '../core/registroDemanda';
 import { confirmarAbordaje } from '../core/reservas';
 import type { EstadoReserva, Reserva } from '../core/tipos';
 
@@ -16,6 +19,9 @@ import type { EstadoReserva, Reserva } from '../core/tipos';
  */
 
 const CLAVE_RESERVA = 'ecoruta_reserva';
+
+/** Cada cuanto se compara la reserva vigente con la del servidor. */
+export const SINCRONIZAR_RESERVA_MS = 20_000;
 
 const ESTADOS: readonly EstadoReserva[] = ['ACTIVA', 'RENOVADA', 'ABORDO', 'CANCELADA', 'EXPIRADA'];
 
@@ -111,6 +117,50 @@ export function ReservaProvider({ children }: { children: ReactNode }) {
     setReserva(null);
     escribirReserva(null);
   }, []);
+
+  // Mientras la reserva esta vigente se compara con la del servidor: el
+  // conductor pudo marcar la parada atendida (ABORDO), el servidor pudo
+  // expirarla o renovarla otra pestana. Solo se toca si algo cambio.
+  const idVigente = reserva && (reserva.estado === 'ACTIVA' || reserva.estado === 'RENOVADA') ? reserva.id : null;
+  useEffect(() => {
+    if (idVigente === null) return;
+    let vivo = true;
+    const sincronizar = async () => {
+      try {
+        const servidor = await consultarReserva(idVigente, obtenerIdDispositivo());
+        if (!vivo || !servidor) return;
+        setReserva((actual) => {
+          if (!actual || actual.id !== servidor.id) return actual;
+          if (actual.estado === servidor.estado && actual.expiraEn === servidor.expiraEn) return actual;
+          const actualizada: Reserva = { ...actual, estado: servidor.estado, expiraEn: servidor.expiraEn };
+          escribirReserva(actualizada);
+          return actualizada;
+        });
+      } catch (causa) {
+        // 404: el servidor ya no la tiene para este telefono. Se da por vencida.
+        if (vivo && causa instanceof ErrorApi && causa.status === 404) {
+          setReserva((actual) => {
+            if (!actual || actual.id !== idVigente) return actual;
+            const vencida: Reserva = { ...actual, estado: 'EXPIRADA' };
+            escribirReserva(vencida);
+            return vencida;
+          });
+        }
+        // Sin red u otro error: se sigue con lo guardado y se reintenta luego.
+      }
+    };
+    void sincronizar();
+    const temporizador = setInterval(() => void sincronizar(), SINCRONIZAR_RESERVA_MS);
+    const alVolver = () => {
+      if (document.visibilityState === 'visible') void sincronizar();
+    };
+    document.addEventListener('visibilitychange', alVolver);
+    return () => {
+      vivo = false;
+      clearInterval(temporizador);
+      document.removeEventListener('visibilitychange', alVolver);
+    };
+  }, [idVigente]);
 
   const responderAbordaje = useCallback(
     async (subio: boolean) => {

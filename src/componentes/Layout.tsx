@@ -28,7 +28,7 @@ interface Props {
  */
 export function Layout({ children, aSangre = false, estado }: Props) {
   return (
-    <div className="apl">
+    <div className={aSangre ? 'apl apl--a-sangre' : 'apl'}>
       <header className="apl__encabezado">
         <span className="apl__marca">
           <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
@@ -41,7 +41,7 @@ export function Layout({ children, aSangre = false, estado }: Props) {
               strokeLinecap="round"
             />
           </svg>
-          EcoRuta
+          <span className="apl__nombre">EcoRuta</span>
         </span>
         <span className="apl__acciones">
           {estado && <span className="apl__estado">{estado}</span>}

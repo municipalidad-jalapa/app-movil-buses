@@ -18,6 +18,10 @@ export function NavegacionPanel() {
       <NavLink to="/admin/abordajes" className={claseEnlace}>
         Pasajeros subidos
       </NavLink>
+      {/* QA 5.6: corregir el trazado y las paradas de una ruta. */}
+      <NavLink to="/admin/rutas" className={claseEnlace}>
+        Corregir rutas
+      </NavLink>
     </nav>
   );
 }

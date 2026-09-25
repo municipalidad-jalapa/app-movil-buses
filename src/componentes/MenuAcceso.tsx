@@ -14,6 +14,9 @@ import './MenuAcceso.css';
  *
  * Administrador abre el panel municipal (SCRUM-173). En la app del pasajero el
  * menu muestra ademas su cuenta opcional o el modo invitado (SCRUM-26, B.1).
+ * QA 5.6: el enlace de administracion apuntaba
+ * a Swagger en el host de la API, que en QA es el mismo del frontend, y
+ * terminaba en "Pagina no encontrada".
  */
 export function MenuAcceso() {
   const [abierto, setAbierto] = useState(false);

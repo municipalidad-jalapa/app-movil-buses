@@ -40,21 +40,38 @@ async function avisarALaAplicacion(datos) {
   pestanas.forEach((pestana) => pestana.postMessage(datos));
 }
 
-function construirNotificacion(datos) {
+/** Nombres viejos del backend (antes de QA 4.2) -> los de la web. */
+const TIPOS_VIEJOS = { APROXIMACION: 'bus-cerca', LLEGADA: 'confirmar-abordaje', POR_VENCER: 'reserva-por-vencer' };
+
+/** Titulos por si el aviso llega sin texto. DESIGN.md §10: lenguaje llano. */
+const TITULOS = {
+  'bus-cerca': 'El bus está por llegar',
+  'confirmar-abordaje': '¿Lograste subir al bus?',
+  'reserva-por-vencer': 'Tu aviso está por vencer',
+};
+
+function construirNotificacion(crudos) {
+  const datos = { ...crudos, tipo: TIPOS_VIEJOS[crudos.tipo] || crudos.tipo };
   const esAbordaje = datos.tipo === 'confirmar-abordaje';
+  const esVencimiento = datos.tipo === 'reserva-por-vencer';
 
   return {
-    titulo: datos.titulo || TITULO_POR_DEFECTO,
+    titulo: datos.titulo || TITULOS[datos.tipo] || TITULO_POR_DEFECTO,
     opciones: {
       body: datos.cuerpo || '',
       // TODO(HU-PWA): agregar icon y badge cuando exista el manifest con los
       // iconos de la aplicacion. Apuntar a un archivo inexistente deja la
       // notificacion sin icono y sin aviso de error.
-      tag: esAbordaje ? `abordaje-${datos.reservaId ?? 'sin-reserva'}` : 'bus-cerca',
-      // Renotificar en el aviso de abordaje: es una pregunta, y si se pierde la
-      // reserva queda colgada.
-      renotify: esAbordaje,
-      requireInteraction: esAbordaje,
+      tag: esAbordaje
+        ? `abordaje-${datos.reservaId ?? 'sin-reserva'}`
+        : esVencimiento
+          ? `vence-${datos.reservaId ?? 'sin-reserva'}`
+          : 'bus-cerca',
+      // Renotificar y no cerrarse sola en las dos preguntas: si se pierden, la
+      // reserva queda colgada o vence sin que el pasajero se entere.
+      renotify: esAbordaje || esVencimiento,
+      requireInteraction: esAbordaje || esVencimiento,
+      vibrate: [220, 120, 220],
       data: datos,
       actions: esAbordaje
         ? [
