@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { InstalarApp } from './componentes/InstalarApp';
 import { Layout } from './componentes/Layout';
 import { SelectorDeRuta } from './componentes/SelectorDeRuta';
 import { RutaProtegida } from './componentes/RutaProtegida';
@@ -44,6 +45,8 @@ export function App() {
                     <Mapa />
                     {/* SCRUM-26, E.3: el atraso que avisó el piloto, junto al ETA. */}
                     <AvisoDeDemora />
+                    {/* En el navegador del telefono: recomendar instalar la app. */}
+                    <InstalarApp />
                   </Layout>
                 </ReservaProvider>
               </RutaElegidaProvider>
