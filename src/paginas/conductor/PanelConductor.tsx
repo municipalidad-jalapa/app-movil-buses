@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { ReportarAtraso } from '../../componentes/atrasos/ReportarAtraso';
 import { Cargando } from '../../componentes/Cargando';
 import { MensajeError } from '../../componentes/MensajeError';
@@ -99,6 +100,9 @@ export function PanelConductor() {
         ) : (
           cargando && <Cargando texto="Cargando tu ruta…" />
         )}
+        <Link to="/" className="conductor__chico">
+          Ver el mapa
+        </Link>
         <button type="button" className="conductor__chico" onClick={() => void cerrarSesion()}>
           Cerrar sesión
         </button>
@@ -121,6 +125,9 @@ export function PanelConductor() {
       </span>
       {error && <span className="conductor__sin-conexion">Sin conexión: reintentando</span>}
       <span className="conductor__acciones">
+        <Link to="/" className="conductor__chico">
+          Ver el mapa
+        </Link>
         <button type="button" className="conductor__chico" onClick={() => setHoja('paradas')}>
           Paradas
         </button>

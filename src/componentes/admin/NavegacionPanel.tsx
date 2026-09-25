@@ -26,6 +26,10 @@ export function NavegacionPanel() {
       <NavLink to="/admin/exportar" className={claseEnlace}>
         Exportar datos
       </NavLink>
+      {/* Volver a lo que ve el pasajero: el mapa del bus. */}
+      <NavLink to="/" end className={claseEnlace}>
+        Ver el mapa
+      </NavLink>
     </nav>
   );
 }

@@ -111,8 +111,13 @@
 }
 
 .conductor__chico {
+  display: inline-flex;
   flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
   min-height: var(--tactil-minimo);
+  box-sizing: border-box;
+  text-decoration: none;
   padding: 0 14px;
   border: 2px solid var(--conductor-linea);
   border-radius: 14px;
@@ -539,7 +544,7 @@
 
   .conductor__acciones {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     width: 100%;
     margin-left: 0;
   }
