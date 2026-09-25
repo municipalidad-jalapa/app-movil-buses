@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
 import { IconoSalir, SimboloEcoRuta } from './IconosPanel';
 
@@ -8,8 +8,10 @@ export function CabeceraPanel() {
   return (
     <header className="panel-cabecera">
       <div className="panel-cabecera__marca">
-        <SimboloEcoRuta tamano={30} />
-        <span className="panel-cabecera__ecoruta">EcoRuta</span>
+        <Link to="/" className="panel-cabecera__inicio" aria-label="EcoRuta, volver al mapa">
+          <SimboloEcoRuta tamano={30} />
+          <span className="panel-cabecera__ecoruta">EcoRuta</span>
+        </Link>
         <span className="panel-cabecera__separador" aria-hidden="true" />
         <span className="panel-cabecera__seccion">Panel municipal</span>
         <nav className="panel-cabecera__nav" aria-label="Secciones del panel">

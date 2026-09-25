@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { MenuAcceso } from './MenuAcceso';
 import { PieLegal } from './PieLegal';
 import './Layout.css';
@@ -55,7 +56,7 @@ export function Layout({
   return (
     <div className="apl">
       <header className="apl__encabezado">
-        <span className="apl__marca">
+        <Link to="/" className="apl__marca" aria-label="EcoRuta, volver al mapa">
           <svg
             width="30"
             height="30"
@@ -80,7 +81,7 @@ export function Layout({
           </svg>
 
           EcoRuta
-        </span>
+        </Link>
 
         <span className="apl__acciones">
           {estado && (
