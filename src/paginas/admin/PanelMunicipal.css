@@ -343,6 +343,13 @@
   gap: 12px;
 }
 
+.panel-cabecera__inicio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
 .panel-cabecera__ecoruta {
   font-family: var(--fuente-titulos);
   font-size: 20px;

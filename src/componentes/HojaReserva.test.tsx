@@ -88,7 +88,23 @@ describe('HojaReserva (MapaOSM, R1–R3)', () => {
     expect(screen.getByText('4')).toBeTruthy();
     expect(screen.getByText('5')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Ya no voy a esperar' }));
-    expect(onCancelar).toHaveBeenCalled();
+    expect(onCancelar).toHaveBeenCalledTimes(1);
+  });
+
+  it('el botón de cancelar solo aparece en fase confirmada', () => {
+    for (const fase of ['vacia', 'buscando', 'elegida'] as const) {
+      cleanup();
+      pintar(fase);
+      expect(screen.queryByRole('button', { name: 'Ya no voy a esperar' })).toBeNull();
+    }
+    cleanup();
+    pintar('confirmada');
+    expect(screen.getByRole('button', { name: 'Ya no voy a esperar' })).toBeTruthy();
+  });
+
+  it('R3: mientras se envía, el botón de cancelar queda deshabilitado', () => {
+    pintar('confirmada', { enviando: true });
+    expect((screen.getByRole('button', { name: 'Avisando…' }) as HTMLButtonElement).disabled).toBe(true);
   });
 
   it('un aviso se anuncia al lector de pantalla', () => {

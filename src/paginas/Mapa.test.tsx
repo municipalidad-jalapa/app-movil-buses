@@ -217,8 +217,102 @@ describe('Pantalla del pasajero: reservar desde el mapa (HU-53)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Ya no voy a esperar' }));
 
     await screen.findByText('¿En qué parada vas a esperar?');
+    expect(cancelarReserva).toHaveBeenCalledTimes(1);
     expect(cancelarReserva).toHaveBeenCalledWith(9, expect.any(String));
     expect(localStorage.getItem('ecoruta_reserva')).toBeNull();
+    expect(refrescar).toHaveBeenCalled();
+  });
+
+  it('mientras el DELETE está pendiente, un toque repetido no genera dos peticiones', async () => {
+    guardarReservaVigente();
+    let liberar!: () => void;
+    vi.mocked(cancelarReserva).mockImplementation(
+      () =>
+        new Promise((resolver) => {
+          liberar = () => resolver();
+        }),
+    );
+    abrir();
+    const boton = screen.getByRole('button', { name: 'Ya no voy a esperar' });
+    fireEvent.click(boton);
+    fireEvent.click(boton);
+    fireEvent.click(screen.getByRole('button', { name: 'Avisando…' }));
+
+    expect(cancelarReserva).toHaveBeenCalledTimes(1);
+    liberar();
+    await screen.findByText('¿En qué parada vas a esperar?');
+  });
+
+  it('ante 422/ABORDO no elimina la reserva y muestra un aviso accesible', async () => {
+    guardarReservaVigente();
+    vi.mocked(cancelarReserva).mockRejectedValue(
+      new ErrorApi(422, 'Esta reserva ya fue marcada como abordada.'),
+    );
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: 'Ya no voy a esperar' }));
+
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(screen.getByText('Ya avisamos que estás esperando')).toBeTruthy();
+    expect(localStorage.getItem('ecoruta_reserva')).not.toBeNull();
+    expect(screen.queryByText('¿En qué parada vas a esperar?')).toBeNull();
+    expect(
+      (screen.getByRole('button', { name: 'Ya no voy a esperar' }) as HTMLButtonElement).disabled,
+    ).toBe(false);
+  });
+
+  it('ante 403 conserva la reserva y permite reintentar', async () => {
+    guardarReservaVigente();
+    vi.mocked(cancelarReserva).mockRejectedValue(new ErrorApi(403, 'Forbidden'));
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: 'Ya no voy a esperar' }));
+
+    const aviso = await screen.findByRole('alert');
+    expect(aviso.textContent).not.toMatch(/ApiError|403|Forbidden/i);
+    expect(localStorage.getItem('ecoruta_reserva')).not.toBeNull();
+    expect(
+      (screen.getByRole('button', { name: 'Ya no voy a esperar' }) as HTMLButtonElement).disabled,
+    ).toBe(false);
+  });
+
+  it('ante falla de red conserva la reserva y muestra un mensaje claro', async () => {
+    guardarReservaVigente();
+    vi.mocked(cancelarReserva).mockRejectedValue(new ErrorApi(0, 'Failed to fetch'));
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: 'Ya no voy a esperar' }));
+
+    const aviso = await screen.findByRole('alert');
+    expect(aviso.textContent).toMatch(/conexion|conexión|datos nuevos/i);
+    expect(localStorage.getItem('ecoruta_reserva')).not.toBeNull();
+    expect(
+      (screen.getByRole('button', { name: 'Ya no voy a esperar' }) as HTMLButtonElement).disabled,
+    ).toBe(false);
+  });
+
+  it('ante 5xx conserva la reserva y no muestra códigos técnicos', async () => {
+    guardarReservaVigente();
+    vi.mocked(cancelarReserva).mockRejectedValue(new ErrorApi(503, 'Service Unavailable'));
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: 'Ya no voy a esperar' }));
+
+    const aviso = await screen.findByRole('alert');
+    expect(aviso.textContent).not.toMatch(/ApiError|503|Service Unavailable/i);
+    expect(localStorage.getItem('ecoruta_reserva')).not.toBeNull();
+    expect(
+      (screen.getByRole('button', { name: 'Ya no voy a esperar' }) as HTMLButtonElement).disabled,
+    ).toBe(false);
+  });
+
+  it('ante 404 limpia la copia local obsoleta, refresca y no afirma éxito', async () => {
+    guardarReservaVigente();
+    vi.mocked(cancelarReserva).mockRejectedValue(new ErrorApi(404, 'Not Found'));
+    abrir();
+    fireEvent.click(screen.getByRole('button', { name: 'Ya no voy a esperar' }));
+
+    await screen.findByText('¿En qué parada vas a esperar?');
+    expect(localStorage.getItem('ecoruta_reserva')).toBeNull();
+    expect(refrescar).toHaveBeenCalled();
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.queryByText(/cancelaci[oó]n realizada/i)).toBeNull();
   });
 
   it('con la reserva hecha, tocar otra parada no la cambia', () => {

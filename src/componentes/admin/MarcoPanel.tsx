@@ -1,4 +1,5 @@
 import { useCallback, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
 import { useInactividad } from '../../hooks/useInactividad';
 import { AvisoInactividad } from './AvisoInactividad';
@@ -26,8 +27,10 @@ export function MarcoPanel({ children }: { children: ReactNode }) {
     <div className="panel-escritorio">
       <header className="panel-cabecera">
         <div className="panel-cabecera__marca">
-          <SimboloEcoRuta tamano={30} />
-          <span className="panel-cabecera__ecoruta">EcoRuta</span>
+          <Link to="/" className="panel-cabecera__inicio" aria-label="EcoRuta, volver al mapa">
+            <SimboloEcoRuta tamano={30} />
+            <span className="panel-cabecera__ecoruta">EcoRuta</span>
+          </Link>
           <span className="panel-cabecera__separador" aria-hidden="true" />
           <span className="panel-cabecera__seccion">Panel municipal</span>
           <NavegacionPanel />

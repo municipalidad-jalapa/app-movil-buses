@@ -108,6 +108,8 @@ export function Mapa() {
   const [ubicacionCentrada, setUbicacionCentrada] = useState(false);
   // QA 4.1: la hoja se puede achicar a una linea para ver el mapa.
   const [hojaMinimizada, setHojaMinimizada] = useState(false);
+  /** Evita un segundo DELETE si el toque se repite antes de que el botón se deshabilite. */
+  const cancelando = useRef(false);
   // La parada del QR se aplica una sola vez: despues, el pasajero puede cambiar
   // de ruta sin que el QR lo vuelva a arrastrar.
   const paradaDelQr = useRef<number | null>(!reserva ? paradaId : null);
@@ -320,22 +322,31 @@ export function Mapa() {
   }
 
   async function cancelar() {
-    if (!reserva) return;
+    if (!reserva || cancelando.current) return;
+    cancelando.current = true;
     setEnviando(true);
     setAviso(null);
     try {
       await cancelarReserva(reserva.id, obtenerIdDispositivo());
     } catch (causa) {
-      // 404 o 422: en el servidor ya no esta vigente, que es lo que se pedia.
-      const yaNoVigente = causa instanceof ErrorApi && (causa.status === 404 || causa.status === 422);
-      if (!yaNoVigente) {
-        setAviso(mensajeDe(causa));
+      // 404: la copia local ya no existe en el servidor → se limpia sin fingir éxito.
+      if (causa instanceof ErrorApi && causa.status === 404) {
+        limpiarReserva();
         setEnviando(false);
+        cancelando.current = false;
+        elegirOtra();
+        refrescar();
         return;
       }
+      // 403, 422 (p. ej. ABORDO), red o 5xx: se conserva la reserva y se puede reintentar.
+      setAviso(mensajeDe(causa));
+      setEnviando(false);
+      cancelando.current = false;
+      return;
     }
     limpiarReserva();
     setEnviando(false);
+    cancelando.current = false;
     elegirOtra();
     refrescar();
   }

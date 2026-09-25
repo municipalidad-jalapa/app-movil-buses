@@ -18,6 +18,7 @@
 
 .apl__marca {
   display: inline-flex;
+  text-decoration: none;
   align-items: center;
   gap: 10px;
   font-family: var(--fuente-titulos);
