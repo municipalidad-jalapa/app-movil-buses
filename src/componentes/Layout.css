@@ -57,12 +57,21 @@
 }
 
 /*
+ * Contenido amplio para paginas que necesitan aprovechar mejor
+ * el espacio disponible en escritorio, como privacidad y aviso legal.
+ */
+.apl__contenido--amplio {
+  max-width: 1320px;
+}
+
+/*
  * El mapa llega a los bordes: es la vista principal del pasajero y cada pixel
  * de margen le quita mapa. La informacion va flotando encima.
  */
 .apl__contenido--a-sangre {
   max-width: none;
   padding: 0;
+
   /* min-height: 0 deja que el hijo de 100dvh no desborde el flex. */
   min-height: 0;
 }
