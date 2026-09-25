@@ -4,10 +4,14 @@ import { MarcoPanel } from '../../componentes/admin/MarcoPanel';
 import { ErrorApi } from '../../core/errores';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
 import {
+  agregarParada,
+  crearRuta,
   guardarParada,
   guardarTrazado,
   indiceDeInsercion,
   listarRutasAdmin,
+  publicarRuta,
+  puntoParaParadaNueva,
   type PuntoGeo,
 } from '../../core/panelAdmin/rutasAdminApi';
 import type { Parada, Ruta } from '../../core/tipos';
@@ -35,6 +39,7 @@ export function CorregirRutas() {
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
   const [cargando, setCargando] = useState(true);
+  const [nombreNueva, setNombreNueva] = useState('');
 
   // Por ref: la carga de rutas no tiene que repetirse si cambia la funcion.
   const cerrar = useRef(cerrarSesion);
@@ -121,6 +126,70 @@ export function CorregirRutas() {
     }
   }
 
+  async function crearLaRuta() {
+    if (!token) return;
+    const nombre = nombreNueva.trim();
+    if (!nombre) {
+      setMensaje({ tipo: 'error', texto: 'La ruta necesita un nombre.' });
+      return;
+    }
+    setGuardando(true);
+    setMensaje(null);
+    try {
+      const nueva = await crearRuta(token, nombre);
+      if (nueva) {
+        setRutas((lista) => [...lista, nueva]);
+        setRutaId(nueva.id);
+        setNombreNueva('');
+        setMensaje({
+          tipo: 'ok',
+          texto: `Ruta «${nueva.nombre}» creada como borrador. Agregá sus paradas y dibujá el recorrido; después publicala.`,
+        });
+      }
+    } catch (causa) {
+      manejarError(causa, 'No pudimos crear la ruta.');
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  async function agregarLaParada() {
+    if (!token || !ruta) return;
+    setGuardando(true);
+    setMensaje(null);
+    try {
+      const actualizada = await agregarParada(token, ruta.id, {
+        nombre: `Parada ${paradas.length + 1}`,
+        ...puntoParaParadaNueva(paradas, trazado),
+      });
+      reemplazarRuta(actualizada);
+      const nueva = actualizada?.paradas.at(-1);
+      if (nueva) setParadaElegida(nueva.id);
+      setMensaje({ tipo: 'ok', texto: 'Parada agregada. Arrastrala a su lugar y cambiale el nombre.' });
+    } catch (causa) {
+      manejarError(causa, 'No pudimos agregar la parada.');
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  async function cambiarPublicacion(activa: boolean) {
+    if (!token || !ruta) return;
+    setGuardando(true);
+    setMensaje(null);
+    try {
+      reemplazarRuta(await publicarRuta(token, ruta.id, activa));
+      setMensaje({
+        tipo: 'ok',
+        texto: activa ? 'Ruta publicada: los pasajeros ya la ven.' : 'Ruta oculta: vuelve a borrador.',
+      });
+    } catch (causa) {
+      manejarError(causa, 'No pudimos cambiar la publicación.');
+    } finally {
+      setGuardando(false);
+    }
+  }
+
   function cambiarParada(id: number, cambios: Partial<Parada>) {
     setParadas((lista) => lista.map((p) => (p.id === id ? { ...p, ...cambios } : p)));
   }
@@ -130,7 +199,7 @@ export function CorregirRutas() {
       <main className="panel-principal corregir-rutas">
         <div className="panel-principal__encabezado">
           <div>
-            <h1 className="panel-h1">Corregir rutas</h1>
+            <h1 className="panel-h1">Rutas</h1>
             <p className="panel-apoyo">
               Arrastrá los puntos verdes para ajustar el recorrido a las calles; tocá el mapa para agregar un punto.
               Arrastrá una parada para corregir su ubicación.
@@ -150,6 +219,27 @@ export function CorregirRutas() {
             </label>
           )}
         </div>
+
+        <form
+          className="corregir-rutas__nueva"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void crearLaRuta();
+          }}
+        >
+          <label className="panel-campo">
+            <span>Nueva ruta</span>
+            <input
+              value={nombreNueva}
+              maxLength={100}
+              placeholder="Nombre, por ejemplo RUTA NORTE"
+              onChange={(e) => setNombreNueva(e.target.value)}
+            />
+          </label>
+          <button type="submit" className="panel-boton panel-boton--primario" disabled={guardando}>
+            Crear ruta
+          </button>
+        </form>
 
         {mensaje && (
           <p
@@ -188,6 +278,27 @@ export function CorregirRutas() {
             </div>
 
             <aside className="corregir-rutas__lateral">
+              <section className="corregir-rutas__bloque" aria-labelledby="titulo-publicacion">
+                <h2 id="titulo-publicacion" className="panel-h2">
+                  {ruta.activa ? 'Publicada' : 'Borrador'}
+                </h2>
+                <p className="panel-ayuda">
+                  {ruta.activa
+                    ? 'Los pasajeros la ven en el selector de rutas.'
+                    : 'Los pasajeros todavía no la ven. Para publicarla necesita al menos 2 paradas y el recorrido guardado.'}
+                </p>
+                <div className="corregir-rutas__acciones">
+                  <button
+                    type="button"
+                    className={ruta.activa ? 'panel-boton panel-boton--secundario' : 'panel-boton panel-boton--primario'}
+                    disabled={guardando}
+                    onClick={() => void cambiarPublicacion(!ruta.activa)}
+                  >
+                    {ruta.activa ? 'Ocultar a los pasajeros' : 'Publicar ruta'}
+                  </button>
+                </div>
+              </section>
+
               <section className="corregir-rutas__bloque" aria-labelledby="titulo-trazado">
                 <h2 id="titulo-trazado" className="panel-h2">
                   Recorrido
@@ -257,6 +368,16 @@ export function CorregirRutas() {
                     </li>
                   ))}
                 </ol>
+                <div className="corregir-rutas__acciones">
+                  <button
+                    type="button"
+                    className="panel-boton panel-boton--secundario"
+                    disabled={guardando}
+                    onClick={() => void agregarLaParada()}
+                  >
+                    Agregar parada
+                  </button>
+                </div>
 
                 {parada && (
                   <div className="corregir-rutas__formulario">

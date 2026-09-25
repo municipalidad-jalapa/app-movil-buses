@@ -57,3 +57,32 @@ function distanciaASegmento(p: PuntoGeo, a: PuntoGeo, b: PuntoGeo): number {
   const y = a.latitud + t * dy - p.latitud;
   return x * x + y * y;
 }
+
+/** Ruta nueva: nace en borrador, el pasajero no la ve hasta publicarla. */
+export async function crearRuta(token: string, nombre: string): Promise<Ruta | null> {
+  return apiClient.post<Ruta>('/api/v1/admin/rutas', { nombre }, { token, intentos: 1 });
+}
+
+/** Parada nueva al final del recorrido; despues se arrastra a su lugar. */
+export async function agregarParada(
+  token: string,
+  rutaId: number,
+  datos: { nombre: string } & PuntoGeo,
+): Promise<Ruta | null> {
+  return apiClient.post<Ruta>(`/api/v1/admin/rutas/${rutaId}/paradas`, datos, { token, intentos: 1 });
+}
+
+/** Publicar pide al menos 2 paradas y el trazado. */
+export async function publicarRuta(token: string, rutaId: number, activa: boolean): Promise<Ruta | null> {
+  return apiClient.put<Ruta>(`/api/v1/admin/rutas/${rutaId}/publicacion`, { activa }, { token, intentos: 1 });
+}
+
+/** Centro de Jalapa: donde cae la primera parada de una ruta sin nada. */
+export const CENTRO_JALAPA: PuntoGeo = { latitud: 14.6355, longitud: -89.9885 };
+
+/** Donde poner una parada nueva: un poco mas alla de la ultima, o en el centro. */
+export function puntoParaParadaNueva(paradas: PuntoGeo[], trazado: PuntoGeo[]): PuntoGeo {
+  const ultima = paradas.at(-1) ?? trazado.at(-1);
+  if (!ultima) return CENTRO_JALAPA;
+  return { latitud: ultima.latitud + 0.0008, longitud: ultima.longitud + 0.0008 };
+}

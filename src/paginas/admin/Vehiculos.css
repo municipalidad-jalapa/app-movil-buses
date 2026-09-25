@@ -1,0 +1,58 @@
+/* Vehiculos del panel municipal: alta y asignacion de ruta y capacidad. */
+.vehiculos__alta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-tarjeta);
+}
+
+.vehiculos__alta .panel-h2 {
+  margin: 0;
+}
+
+.vehiculos__alta > .panel-boton {
+  align-self: flex-start;
+}
+
+.vehiculos__campos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.vehiculos__titulo-tabla {
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.vehiculos__capacidad {
+  width: 7rem;
+}
+
+.vehiculos select,
+.vehiculos__capacidad {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-control);
+  background: var(--superficie-base);
+  color: var(--tinta);
+  font: inherit;
+}
+
+.vehiculos__oculto {
+  position: absolute;
+  width: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .vehiculos__campos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

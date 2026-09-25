@@ -20,6 +20,7 @@ import { AvisoDeDemora } from './componentes/atrasos/AvisoDeDemora';
 import { PuertaDelPasajero } from './componentes/sesionPasajero/PuertaDelPasajero';
 import { SesionPasajeroProvider } from './core/pasajero/SesionPasajeroProvider';
 import { CorregirRutas } from './paginas/admin/CorregirRutas';
+import { Vehiculos } from './paginas/admin/Vehiculos';
 import { ExportarDatos } from './paginas/admin/ExportarDatos';
 import { LoginConductor } from './paginas/conductor/LoginConductor';
 import { PanelConductor } from './paginas/conductor/PanelConductor';
@@ -125,6 +126,14 @@ export function App() {
                     element={
                       <RutaProtegidaAdmin>
                         <CorregirRutas />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  <Route
+                    path="vehiculos"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <Vehiculos />
                       </RutaProtegidaAdmin>
                     }
                   />

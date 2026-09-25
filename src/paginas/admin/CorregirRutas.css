@@ -187,3 +187,15 @@
     height: 60dvh;
   }
 }
+
+/* Crear una ruta nueva: nombre y boton en una fila. */
+.corregir-rutas__nueva {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.corregir-rutas__nueva .panel-campo {
+  flex: 1 1 280px;
+}

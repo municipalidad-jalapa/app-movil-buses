@@ -49,8 +49,8 @@ afterEach(cleanup);
 describe('Corregir rutas en el panel municipal (QA 5.6)', () => {
   it('se llega desde la navegacion del panel y muestra la ruta con sus paradas', async () => {
     abrir();
-    expect(await screen.findByRole('heading', { name: 'Corregir rutas' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Corregir rutas' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Rutas' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Rutas' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Estado del servicio' })).toBeTruthy();
     expect(await screen.findByRole('button', { name: /Parque Central/ })).toBeTruthy();
   });
