@@ -61,6 +61,18 @@ function urlDelServiceWorker(): string {
 
 let registroPrometido: Promise<ServiceWorkerRegistration> | null = null;
 
+/**
+ * Registra el worker apenas carga la pagina, sin esperar a los avisos: con el
+ * worker activo Chrome ofrece instalar la app. Es el mismo registro que usan
+ * los avisos despues. Si el navegador no tiene workers, no pasa nada.
+ */
+export function registrarAlCargar(ventana: Window = window): void {
+  if (!('serviceWorker' in ventana.navigator)) return;
+  const registrar = () => void registrarServiceWorker().catch(() => {});
+  if (ventana.document.readyState === 'complete') registrar();
+  else ventana.addEventListener('load', registrar, { once: true });
+}
+
 /** Registra el worker una sola vez por carga de pagina. */
 export function registrarServiceWorker(): Promise<ServiceWorkerRegistration> {
   registroPrometido ??= navigator.serviceWorker.register(urlDelServiceWorker(), {

@@ -26,6 +26,7 @@ const PANEL: Panel = {
   subieronHoy: 21,
   bajaronHoy: 9,
   aBordo: 12,
+  vuelta: 2,
   paradas: [
     { paradaId: 1, nombre: 'Parque Central', orden: 1, reservasActivas: 3, minutos: 8, confiable: true, atendidaEn: null },
     { paradaId: 2, nombre: 'Mercado', orden: 2, reservasActivas: 2, minutos: 2, confiable: true, atendidaEn: null },
@@ -57,6 +58,7 @@ describe('Panel del conductor en ruta', () => {
     expect(screen.getByText('12')).toBeTruthy();
     expect(screen.getByText('21')).toBeTruthy();
     expect(screen.getByRole('button', { name: /Llegué/ })).toBeTruthy();
+    expect(screen.getByText('Vuelta 2')).toBeTruthy();
   });
 
   it('en la parada cuenta con Subió y Bajó, deshace y guarda el conteo al salir', async () => {
@@ -105,7 +107,7 @@ describe('Panel del conductor en ruta', () => {
     fireEvent.click(await screen.findByRole('button', { name: /Llegué/ }));
     fireEvent.click(screen.getByRole('button', { name: /Salir de la parada/ }));
 
-    expect((await screen.findByRole('alert')).textContent).toMatch(/ya estaba cerrada hoy/);
+    expect((await screen.findByRole('alert')).textContent).toMatch(/la cerraste hace un momento/);
     expect(screen.getByRole('button', { name: /Subió/ })).toBeTruthy();
   });
 

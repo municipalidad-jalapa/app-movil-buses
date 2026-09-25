@@ -32,6 +32,8 @@ export interface PanelConductor {
   bajaronHoy?: number;
   /** Subieron menos bajaron hoy; nunca negativo. */
   aBordo?: number;
+  /** Vuelta del dia que se muestra (1, 2, ...): atendidaEn es de esta vuelta. */
+  vuelta?: number;
 }
 
 /** Lo que el piloto conto en la parada, incluidos los que no avisaron por la app. */
@@ -43,6 +45,8 @@ export interface ConteoDeParada {
 export interface RespuestaAtencion {
   reservasCerradas: number;
   marcadaEn: string;
+  /** En que vuelta del dia quedo cerrada. */
+  vuelta?: number;
 }
 
 export const RUTA_PANEL_CONDUCTOR = '/api/v1/conductor/panel';

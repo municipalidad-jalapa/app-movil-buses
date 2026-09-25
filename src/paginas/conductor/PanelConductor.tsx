@@ -109,6 +109,7 @@ export function PanelConductor() {
   const barra = (
     <header className="conductor__barra">
       <span className="conductor__ruta">{panel.rutaNombre}</span>
+      {panel.vuelta !== undefined && <span className="conductor__vuelta">Vuelta {panel.vuelta}</span>}
       <span className="conductor__gps">
         <span
           className={
@@ -173,7 +174,7 @@ export function PanelConductor() {
                 <h1 id="conductor-proxima" className="conductor__titulo">
                   Recorrido completo
                 </h1>
-                <p className="conductor__apoyo">Ya cerraste todas las paradas de hoy.</p>
+                <p className="conductor__apoyo">Ya cerraste todas las paradas de esta vuelta.</p>
                 <div className="conductor__espacio" />
                 <div className="conductor__pie">
                   <Cifra valor={aBordo} rotulo="a bordo" />

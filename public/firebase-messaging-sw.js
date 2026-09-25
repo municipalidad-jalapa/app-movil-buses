@@ -134,3 +134,25 @@ self.addEventListener('notificationclick', (evento) => {
 // pestanas, y el pasajero sigue con la version vieja.
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (evento) => evento.waitUntil(clients.claim()));
+
+// Instalar la app (PWA): Chrome ofrece "Instalar" cuando el worker atiende las
+// navegaciones. Siempre va a la red; sin senal muestra un aviso en vez de la
+// pantalla de error del navegador. No se guarda nada en cache: los datos del
+// bus tienen que ser los de ahora.
+const SIN_CONEXION = `<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EcoRuta</title><meta name="theme-color" content="#10402a"></head>
+<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#10402a;color:#fbf7f0;font-family:system-ui,sans-serif;text-align:center">
+<main style="padding:24px;max-width:22rem"><h1 style="font-size:22px">Sin conexión</h1>
+<p style="font-size:16px;line-height:1.5">EcoRuta necesita internet para mostrar dónde viene el bus. Volvé a intentar cuando tengas señal.</p>
+<button onclick="location.reload()" style="min-height:48px;padding:0 24px;border:0;border-radius:999px;background:#f2b705;color:#241c00;font-size:16px;font-weight:800">Reintentar</button></main>
+</body></html>`;
+
+self.addEventListener('fetch', (evento) => {
+  if (evento.request.mode !== 'navigate') return;
+  evento.respondWith(
+    fetch(evento.request).catch(
+      () => new Response(SIN_CONEXION, { headers: { 'Content-Type': 'text/html; charset=utf-8' } }),
+    ),
+  );
+});

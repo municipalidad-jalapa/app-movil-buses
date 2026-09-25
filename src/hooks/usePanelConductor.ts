@@ -71,10 +71,11 @@ export function usePanelConductor(): EstadoPanelConductor {
         reintentar();
         return { ok: true, reservasCerradas: respuesta?.reservasCerradas ?? 0 };
       } catch (causa) {
-        // 409: ya estaba cerrada hoy (otro toque, otra pestana). El conteo no entra.
+        // 409: la misma parada se cerro hace un momento (doble toque, otra
+        // pestana). Una vuelta nueva no da 409: empieza sola en el backend.
         if (causa instanceof ErrorApi && causa.status === 409) {
           reintentar();
-          return { ok: false, mensaje: 'Esta parada ya estaba cerrada hoy: este conteo no se guardó.' };
+          return { ok: false, mensaje: 'Esta parada ya la cerraste hace un momento: este conteo no se guardó.' };
         }
         return {
           ok: false,

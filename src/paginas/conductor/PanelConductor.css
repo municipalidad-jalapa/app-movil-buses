@@ -66,6 +66,16 @@
   white-space: nowrap;
 }
 
+.conductor__vuelta {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  border-radius: var(--radio-pastilla);
+  background: var(--conductor-tarjeta);
+  color: var(--conductor-tinta);
+  font-size: 14px;
+  font-weight: 800;
+}
+
 .conductor__gps {
   display: inline-flex;
   flex-shrink: 0;
