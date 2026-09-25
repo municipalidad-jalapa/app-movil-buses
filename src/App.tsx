@@ -2,15 +2,15 @@ import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-
 import { Layout } from './componentes/Layout';
 import { SelectorDeRuta } from './componentes/SelectorDeRuta';
 import { RutaProtegida } from './componentes/RutaProtegida';
+import { RutaProtegidaAdmin } from './componentes/admin/RutaProtegidaAdmin';
 import { AuthProvider } from './core/autenticacion/AuthProvider';
+import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
 import { ReservaProvider } from './estado/ReservaProvider';
 import { RutaElegidaProvider } from './estado/RutaElegidaProvider';
+import { AvisoLegal } from './paginas/AvisoLegal';
 import { Mapa } from './paginas/Mapa';
 import { NoEncontrada } from './paginas/NoEncontrada';
-import { LoginConductor } from './paginas/conductor/LoginConductor';
-import { PanelConductor } from './paginas/conductor/PanelConductor';
-import { RutaProtegidaAdmin } from './componentes/admin/RutaProtegidaAdmin';
-import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
+import { Privacidad } from './paginas/Privacidad';
 import { LoginAdmin } from './paginas/admin/LoginAdmin';
 import { PanelAdmin } from './paginas/admin/PanelAdmin';
 import { AbordajesPanel } from './paginas/admin/AbordajesPanel';
@@ -20,6 +20,8 @@ import { OpinarSobreElServicio } from './componentes/opiniones/OpinarSobreElServ
 import { PuertaDelPasajero } from './componentes/sesionPasajero/PuertaDelPasajero';
 import { SesionPasajeroProvider } from './core/pasajero/SesionPasajeroProvider';
 import { CorregirRutas } from './paginas/admin/CorregirRutas';
+import { LoginConductor } from './paginas/conductor/LoginConductor';
+import { PanelConductor } from './paginas/conductor/PanelConductor';
 
 export function App() {
   return (
@@ -54,7 +56,27 @@ export function App() {
           {/* El QR de cada parada apunta aqui: abre el mapa con esa parada elegida (R2). */}
           <Route path="/registro/:paradaId" element={<DelQrAlMapa />} />
 
+          {/* HU-89: paginas publicas de informacion legal. */}
+          <Route
+            path="/privacidad"
+            element={
+              <Layout anchoAmplio>
+                <Privacidad />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/aviso-legal"
+            element={
+              <Layout anchoAmplio>
+                <AvisoLegal />
+              </Layout>
+            }
+          />
+
           <Route path="/conductor/login" element={<LoginConductor />} />
+
           <Route
             path="/conductor"
             element={
@@ -71,6 +93,7 @@ export function App() {
               <AuthAdminProvider>
                 <Routes>
                   <Route path="login" element={<LoginAdmin />} />
+
                   <Route
                     index
                     element={
@@ -125,8 +148,17 @@ export function App() {
   );
 }
 
-/** `/registro/4` -> `/?parada=4`. La reserva vive en la hoja del mapa. */
+/**
+ * `/registro/4` -> `/?parada=4`.
+ * La reserva vive en la hoja del mapa.
+ */
 function DelQrAlMapa() {
   const { paradaId } = useParams();
-  return <Navigate to={`/?parada=${encodeURIComponent(paradaId ?? '')}`} replace />;
+
+  return (
+    <Navigate
+      to={`/?parada=${encodeURIComponent(paradaId ?? '')}`}
+      replace
+    />
+  );
 }
