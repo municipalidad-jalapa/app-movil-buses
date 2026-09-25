@@ -1,4 +1,4 @@
-/* Vehiculos del panel municipal: alta y asignacion de ruta y capacidad. */
+/* Vehiculos del panel municipal: alta y asignacion de ruta, capacidad y GPS. */
 .vehiculos__alta {
   display: flex;
   flex-direction: column;
@@ -19,7 +19,7 @@
 
 .vehiculos__campos {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -32,8 +32,14 @@
   width: 7rem;
 }
 
+.vehiculos__gps {
+  width: 11rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .vehiculos select,
-.vehiculos__capacidad {
+.vehiculos__capacidad,
+.vehiculos__gps {
   min-height: 44px;
   padding: 0 10px;
   border: 1px solid var(--borde);

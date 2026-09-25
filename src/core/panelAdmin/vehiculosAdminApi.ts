@@ -10,6 +10,8 @@ export interface Vehiculo {
   rutaId: number | null;
   /** Personas que caben; da el nivel de ocupacion que ve el pasajero. */
   capacidad: number | null;
+  /** uniqueId del GPS en Traccar (normalmente el IMEI), o null si el bus no tiene. */
+  gps: string | null;
 }
 
 export interface DatosVehiculo {
@@ -17,6 +19,7 @@ export interface DatosVehiculo {
   placa: string;
   rutaId: number | null;
   capacidad: number | null;
+  gps: string | null;
 }
 
 export async function listarVehiculos(token: string, signal?: AbortSignal): Promise<Vehiculo[]> {
@@ -37,4 +40,13 @@ export async function asignarVehiculo(
     token,
     intentos: 1,
   });
+}
+
+/** Pone o cambia el GPS del bus. Si el bus no tiene equipo a bordo, el backend lo emite. */
+export async function vincularGps(token: string, vehiculoId: number, gps: string): Promise<Vehiculo | null> {
+  return apiClient.put<Vehiculo>(`/api/v1/admin/vehiculos/${vehiculoId}/gps`, { gps }, { token, intentos: 1 });
+}
+
+export async function quitarGps(token: string, vehiculoId: number): Promise<Vehiculo | null> {
+  return apiClient.delete<Vehiculo>(`/api/v1/admin/vehiculos/${vehiculoId}/gps`, { token, intentos: 1 });
 }
