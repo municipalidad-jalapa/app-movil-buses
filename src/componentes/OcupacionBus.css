@@ -1,0 +1,108 @@
+/*
+ * Pastilla de ocupacion bajo el marcador del bus (diseño "Badge de ocupación
+ * del bus"). Cantidad y nivel juntos; el nivel nunca va solo por color: lleva
+ * su palabra. Borde crema como el del marcador, para despegarse del mapa.
+ */
+
+.marcador-bus__ocupacion {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ocupacion-bus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border: 2px solid var(--sobre-marca);
+  border-radius: var(--radio-pastilla);
+  box-shadow: var(--sombra);
+  font-family: var(--fuente);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.ocupacion-bus svg {
+  flex-shrink: 0;
+}
+
+.ocupacion-bus__cantidad {
+  font-family: var(--fuente-titulos);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.ocupacion-bus__separador {
+  width: 1px;
+  height: 14px;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+.ocupacion-bus--lugar {
+  background: var(--verde-jumay-superficie);
+  color: var(--acento-texto);
+}
+
+.ocupacion-bus--casi {
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+}
+
+.ocupacion-bus--lleno {
+  background: var(--rojo-santa-marta);
+  color: var(--sobre-marca);
+}
+
+.ocupacion-bus--sin {
+  background: var(--superficie-hundida);
+  color: var(--tinta-secundaria);
+}
+
+.ocupacion-bus--neutro {
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+}
+
+/* Linea de la hoja: la misma informacion, en texto y con su origen. */
+.ocupacion-linea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radio-tarjeta-chica);
+  background: var(--superficie-suave);
+  color: var(--tinta);
+}
+
+.ocupacion-linea--lugar {
+  background: var(--verde-jumay-superficie);
+  color: var(--acento-texto);
+}
+
+.ocupacion-linea__textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ocupacion-linea__frase {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ocupacion-linea__detalle {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* En el croquis la pastilla va dentro de un foreignObject centrado bajo el bus. */
+.mapa-jalapa__ocupacion {
+  display: flex;
+  justify-content: center;
+}

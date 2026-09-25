@@ -15,6 +15,8 @@ import { estiloOpenStreetMap, estiloOpenStreetMapOscuro } from '../core/estiloMa
 import { soportaMapa } from '../core/soporteDeMapa';
 import type { Parada, Posicion, Ruta } from '../core/tipos';
 import { svgIconoBus } from './IconoBus';
+import { htmlPildoraOcupacion } from './OcupacionBus';
+import type { VistaOcupacion } from '../core/ocupacion';
 
 /**
  * El mapa real de OpenStreetMap con la ruta, las paradas y el bus encima.
@@ -73,6 +75,8 @@ interface Props {
   paradaElegidaId?: number | null;
   /** paradaId -> personas esperando. La que falte se muestra en 0. */
   esperandoPorParada?: ReadonlyMap<number, number>;
+  /** Cuanta gente lleva el bus: pastilla bajo el marcador. null: sin pastilla. */
+  ocupacion?: VistaOcupacion | null;
   /** El punto rojo "yo". Solo si el pasajero compartio su ubicacion. */
   ubicacionPasajero?: { latitud: number; longitud: number } | null;
   onElegirParada?: (id: number) => void;
@@ -94,6 +98,7 @@ export function MapaOpenStreetMap({
   oscuro,
   paradaElegidaId = null,
   esperandoPorParada,
+  ocupacion = null,
   ubicacionPasajero = null,
   onElegirParada,
   control,
@@ -300,6 +305,26 @@ export function MapaOpenStreetMap({
     const nodo = marcadorBus.current?.getElement();
     if (nodo) nodo.style.opacity = busRancio ? '0.5' : '1';
   }, [busRancio, posicionBus]);
+
+  // La pastilla de ocupacion viaja dentro del marcador: se mueve con el bus.
+  useEffect(() => {
+    const nodo = marcadorBus.current?.getElement();
+    if (!nodo) return;
+    let pastilla = nodo.querySelector<HTMLElement>('.marcador-bus__ocupacion');
+    if (!ocupacion) {
+      pastilla?.remove();
+      nodo.setAttribute('aria-label', 'Dónde va el bus');
+      return;
+    }
+    if (!pastilla) {
+      pastilla = document.createElement('div');
+      pastilla.className = 'marcador-bus__ocupacion';
+      pastilla.setAttribute('aria-hidden', 'true');
+      nodo.appendChild(pastilla);
+    }
+    pastilla.innerHTML = htmlPildoraOcupacion(ocupacion);
+    nodo.setAttribute('aria-label', `Dónde va el bus. ${ocupacion.frase}`);
+  }, [ocupacion, posicionBus, listo]);
 
   // --- El pasajero ---------------------------------------------------------
   useEffect(() => {

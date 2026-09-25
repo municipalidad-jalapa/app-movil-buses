@@ -96,6 +96,8 @@ export interface ResumenRuta {
     porParada: { paradaId: number; reservasActivas: number }[];
     calculadoEn: string;
   };
+  /** Cuanta gente lleva el bus segun el conductor; null sin conteo hoy. */
+  ocupacion?: import('./ocupacion').Ocupacion | null;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAvisosDelBus } from '../hooks/useAvisosDelBus';
 import { useEnLinea } from '../hooks/useEnLinea';
@@ -7,6 +7,8 @@ import { usePosicionBus } from '../hooks/usePosicionBus';
 import { usePrefiereOscuro } from '../hooks/usePrefiereOscuro';
 import { useReserva } from '../hooks/useReserva';
 import { useResumenRuta } from '../hooks/useResumenRuta';
+import { vistaOcupacion } from '../core/ocupacion';
+import { LineaOcupacion } from '../componentes/OcupacionBus';
 import { useRutaElegida } from '../hooks/useRutaElegida';
 import { useUbicacion } from '../hooks/useUbicacion';
 import { MapaJalapa } from '../componentes/MapaJalapa';
@@ -82,7 +84,9 @@ export function Mapa() {
     undefined,
     rutaActiva ? rutaActiva.id : null,
   );
-  const { esperandoPorParada, refrescar } = useResumenRuta(rutaActiva?.id);
+  const { esperandoPorParada, ocupacion, refrescar } = useResumenRuta(rutaActiva?.id);
+  // Cuanta gente lleva el bus: pastilla bajo el marcador y linea en la hoja.
+  const vistaDeOcupacion = useMemo(() => vistaOcupacion(ocupacion), [ocupacion]);
   // QA 5.1: minutos para que el bus llegue a la parada, por el trazado real.
   const eta = useEtaRuta(rutaActiva?.id, posicion?.timestamp ?? null);
   const { ubicacion, solicitarUbicacion } = useUbicacion();
@@ -404,6 +408,7 @@ export function Mapa() {
         modo={oscuro ? 'oscuro' : 'claro'}
         paradaTuyaId={paradaMostradaId}
         esperandoPorParada={esperandoPorParada}
+        ocupacion={posicion ? vistaDeOcupacion : null}
         ubicacionPasajero={ubicacion}
         onElegirParada={elegir}
         control={control}
@@ -529,7 +534,14 @@ export function Mapa() {
             esperando={paradaMostradaId !== null ? (esperandoPorParada.get(paradaMostradaId) ?? 0) : 0}
             minutosDeAviso={minutos}
             ultimoDato={ultimoDato}
-            eta={parada ? <TarjetaEta eta={eta} paradaId={parada.id} /> : null}
+            eta={
+              parada ? (
+                <>
+                  <TarjetaEta eta={eta} paradaId={parada.id} />
+                  {vistaDeOcupacion.tono !== 'sin' && <LineaOcupacion vista={vistaDeOcupacion} />}
+                </>
+              ) : null
+            }
             aviso={aviso}
             enviando={enviando}
             preguntarSiSigue={preguntarSiSigue}

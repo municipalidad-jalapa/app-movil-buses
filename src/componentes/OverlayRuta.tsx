@@ -1,5 +1,7 @@
 import { ANCHO_LIENZO, ALTO_LIENZO, trazoDe, type PuntoLienzo } from '../core/proyeccionMapa';
 import { IconoBus as DibujoBus } from './IconoBus';
+import { PildoraOcupacion } from './OcupacionBus';
+import type { VistaOcupacion } from '../core/ocupacion';
 
 /**
  * La ruta, las paradas y el bus sobre el mapa.
@@ -36,6 +38,8 @@ interface Props {
   bus: PuntoLienzo | null;
   /** Dato de mas de 5 min: el bus se atenua (DESIGN.md §7). */
   busRancio?: boolean;
+  /** Cuanta gente lleva el bus: la misma pastilla que en el mapa. */
+  ocupacion?: VistaOcupacion | null;
   /** Ultimas posiciones, de mas vieja a mas nueva, para la estela. */
   estela?: readonly PuntoLienzo[];
   /** El bus se separo del trazo conocido (DESIGN.md seccion 7). */
@@ -71,6 +75,7 @@ export function OverlayRuta({
   trazoRuta,
   bus,
   busRancio = false,
+  ocupacion = null,
   estela = [],
   desvio = false,
   trazoReal = [],
@@ -162,6 +167,13 @@ export function OverlayRuta({
       {bus && (
         <g opacity={busRancio ? 0.5 : 1} data-testid="bus">
           <MarcadorDelBus punto={bus} />
+          {ocupacion && (
+            <foreignObject x={bus.x - 110} y={bus.y + 30} width="220" height="40">
+              <div className="mapa-jalapa__ocupacion">
+                <PildoraOcupacion vista={ocupacion} />
+              </div>
+            </foreignObject>
+          )}
         </g>
       )}
 
