@@ -2,7 +2,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { guardarParada, guardarTrazado, indiceDeInsercion, listarRutasAdmin } from '../../core/panelAdmin/rutasAdminApi';
+import {
+  eliminarParada,
+  guardarParada,
+  guardarTrazado,
+  indiceDeInsercion,
+  listarRutasAdmin,
+} from '../../core/panelAdmin/rutasAdminApi';
 import type { Ruta } from '../../core/tipos';
 import { CorregirRutas } from './CorregirRutas';
 
@@ -18,6 +24,7 @@ vi.mock('../../core/panelAdmin/rutasAdminApi', async (original) => ({
   listarRutasAdmin: vi.fn(),
   guardarTrazado: vi.fn(),
   guardarParada: vi.fn(),
+  eliminarParada: vi.fn(),
 }));
 
 const RUTA: Ruta = {
@@ -43,6 +50,7 @@ beforeEach(() => {
   vi.mocked(listarRutasAdmin).mockReset().mockResolvedValue([RUTA]);
   vi.mocked(guardarTrazado).mockReset();
   vi.mocked(guardarParada).mockReset();
+  vi.mocked(eliminarParada).mockReset();
 });
 afterEach(cleanup);
 
@@ -92,6 +100,28 @@ describe('Corregir rutas en el panel municipal (QA 5.6)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Guardar parada' }));
     expect(await screen.findByText('La parada necesita un nombre.')).toBeTruthy();
     expect(guardarParada).not.toHaveBeenCalled();
+  });
+
+  it('elimina una parada despues de confirmar', async () => {
+    vi.mocked(eliminarParada).mockResolvedValue({ ...RUTA, paradas: [RUTA.paradas[0]] });
+    abrir();
+    fireEvent.click(await screen.findByRole('button', { name: /Mercado/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Eliminar parada' }));
+    expect(eliminarParada).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sí, eliminar' }));
+    await screen.findByText('Parada «1a Calle - Mercado» eliminada del recorrido.');
+    expect(eliminarParada).toHaveBeenCalledWith('t-admin', 1, 2);
+    expect(screen.queryByRole('button', { name: /Mercado/ })).toBeNull();
+  });
+
+  it('cancelar no elimina la parada', async () => {
+    abrir();
+    fireEvent.click(await screen.findByRole('button', { name: /Parque Central/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Eliminar parada' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(screen.getByRole('button', { name: 'Eliminar parada' })).toBeTruthy();
+    expect(eliminarParada).not.toHaveBeenCalled();
   });
 });
 

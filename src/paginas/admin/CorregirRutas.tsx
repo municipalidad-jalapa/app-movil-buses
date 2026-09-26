@@ -5,6 +5,7 @@ import { ErrorApi } from '../../core/errores';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
 import {
   agregarParada,
+  eliminarParada,
   crearRuta,
   guardarParada,
   guardarTrazado,
@@ -40,6 +41,8 @@ export function CorregirRutas() {
   const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
   const [cargando, setCargando] = useState(true);
   const [nombreNueva, setNombreNueva] = useState('');
+  /** Parada que espera el "Sí, eliminar": borrar pide confirmar en el mismo lugar. */
+  const [porEliminar, setPorEliminar] = useState<number | null>(null);
 
   // Por ref: la carga de rutas no tiene que repetirse si cambia la funcion.
   const cerrar = useRef(cerrarSesion);
@@ -170,6 +173,21 @@ export function CorregirRutas() {
       manejarError(causa, 'No pudimos agregar la parada.');
     } finally {
       setGuardando(false);
+    }
+  }
+
+  async function eliminarLaParada() {
+    if (!token || !ruta || !paradaGuardada) return;
+    setGuardando(true);
+    setMensaje(null);
+    try {
+      reemplazarRuta(await eliminarParada(token, ruta.id, paradaGuardada.id));
+      setMensaje({ tipo: 'ok', texto: `Parada «${paradaGuardada.nombre}» eliminada del recorrido.` });
+    } catch (causa) {
+      manejarError(causa, 'No pudimos eliminar la parada.');
+    } finally {
+      setGuardando(false);
+      setPorEliminar(null);
     }
   }
 
@@ -410,6 +428,42 @@ export function CorregirRutas() {
                         {guardando ? 'Guardando…' : 'Guardar parada'}
                       </button>
                     </div>
+                    {porEliminar === parada.id ? (
+                      <div className="corregir-rutas__confirmar" role="group" aria-label="Confirmar eliminación">
+                        <p className="panel-ayuda">
+                          ¿Eliminar «{paradaGuardada?.nombre}» del recorrido? Las siguientes suben un lugar y las
+                          reservas que tenga se cancelan.
+                        </p>
+                        <div className="corregir-rutas__acciones">
+                          <button
+                            type="button"
+                            className="panel-boton panel-boton--secundario"
+                            onClick={() => setPorEliminar(null)}
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="button"
+                            className="panel-boton panel-boton--secundario corregir-rutas__eliminar"
+                            disabled={guardando}
+                            onClick={() => void eliminarLaParada()}
+                          >
+                            Sí, eliminar
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="corregir-rutas__acciones">
+                        <button
+                          type="button"
+                          className="panel-boton panel-boton--secundario corregir-rutas__eliminar"
+                          disabled={guardando}
+                          onClick={() => setPorEliminar(parada.id)}
+                        >
+                          Eliminar parada
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </section>
