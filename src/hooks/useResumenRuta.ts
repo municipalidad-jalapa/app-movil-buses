@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiClient } from '../core/apiClient';
+import type { Ocupacion } from '../core/ocupacion';
 import type { ResumenRuta } from '../core/tipos';
 
 /** Cada cuanto se refresca el conteo. La demanda cambia a paso de persona. */
@@ -17,6 +18,7 @@ export const REFRESCO_RESUMEN_MS = 15_000;
  */
 export function useResumenRuta(rutaId: number | null | undefined) {
   const [esperandoPorParada, setEsperando] = useState<ReadonlyMap<number, number>>(new Map());
+  const [ocupacion, setOcupacion] = useState<Ocupacion | null>(null);
   const [pedido, setPedido] = useState(0);
 
   useEffect(() => {
@@ -31,6 +33,7 @@ export function useResumenRuta(rutaId: number | null | undefined) {
           setEsperando(
             new Map(datos.reservasActivas.porParada.map((f) => [f.paradaId, f.reservasActivas])),
           );
+          setOcupacion(datos.ocupacion ?? null);
         })
         .catch(() => {});
 
@@ -44,5 +47,5 @@ export function useResumenRuta(rutaId: number | null | undefined) {
 
   const refrescar = useCallback(() => setPedido((n) => n + 1), []);
 
-  return { esperandoPorParada, refrescar };
+  return { esperandoPorParada, ocupacion, refrescar };
 }

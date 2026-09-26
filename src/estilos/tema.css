@@ -20,6 +20,7 @@
   --amarillo-volcan: #f2b705;        /* "tu parada", confirmacion, acento */
   --amarillo-volcan-tinta: #241c00;  /* texto sobre amarillo */
   --amarillo-volcan-superficie: #fbf0d6;
+  --amarillo-volcan-superficie-tinta: #241c00;
 
   --rojo-santa-marta: #8c2b22;       /* identidad; "yo" en el mapa; soltar la reserva */
   --rojo-santa-marta-superficie: #f6e4e0;
@@ -37,6 +38,22 @@
   --tinta-tenue: #6b6357;            /* metadatos, marcas de tiempo */
   --tinta-apagada: #938a7c;          /* deshabilitado */
 
+  /* ---- Texto de acento sobre superficie (SCRUM-26, bloque G) -------------
+     La marca no cambia de dia a noche ([DURA]), pero el verde y el rojo de
+     marca sobre la superficie OSCURA no llegan al contraste AA (1.5:1 y 2.1:1).
+     Estos tokens son los que se usan cuando el color es TEXTO o icono sobre la
+     superficie; para rellenos y trazos se siguen usando los de marca. */
+  --acento-texto: #10402a;           /* enlaces y texto verde sobre superficie */
+  --alerta-texto: #8c2b22;           /* errores y acciones destructivas */
+  --aviso-superficie: #fbf0d6;       /* franja de aviso (demora reportada) */
+  --aviso-tinta: #241c00;            /* texto sobre esa franja */
+  --aviso-borde: #f2b705;
+  /* Texto sobre una superficie de marca oscura (verde o boton primario). */
+  --sobre-marca: #fbf7f0;
+  /* Avisos sobre superficie oscura: la version clara de cada color. */
+  --alerta-sobre-oscuro: #f0b4ab;
+  --aviso-sobre-oscuro: #f2d27a;
+
   --borde: #ddd3c2;
   --borde-sutil: #e3dacb;
   --borde-manija: #c2b8a8;           /* manija de la hoja, lineas apagadas */
@@ -46,6 +63,13 @@
   --conductor-tarjeta: #12362a;
   --conductor-tinta: #f7f3ea;
   --conductor-tinta-suave: #c9d6cd;
+  /* Panel en ruta: "Bajó" se distingue de "Subió" (amarillo) por color,
+     flecha y palabra; las lineas separan sin competir con los numeros. */
+  --conductor-baja: #8fcaf0;
+  --conductor-baja-tinta: #0b1f16;
+  --conductor-linea: #4e6b5a;
+  --conductor-linea-suave: #1f4a38;
+  --conductor-en-vivo: #7fd49a;
 
   /* ---- Tipografia (autoalojada, DESIGN.md §13) ---------------------------- */
   --fuente: 'Public Sans Variable', 'Public Sans', system-ui, -apple-system,
@@ -114,8 +138,16 @@
     --borde-sutil: #302b23;
     --borde-manija: #4a443a;
 
+    /* Bloque G: las versiones de noche cumplen AA sobre la superficie oscura
+       (9.9:1 el verde, 7.9:1 el rojo, 10.7:1 el aviso). */
+    --acento-texto: #8fcf9f;
+    --alerta-texto: #e39a90;
+    --aviso-superficie: #3a2e0c;
+    --aviso-tinta: #f6e5b6;
+
     --verde-jumay-superficie: #20291f;
     --amarillo-volcan-superficie: #3a2e0c;
+    --amarillo-volcan-superficie-tinta: #f6e5b6;
     --rojo-santa-marta-superficie: #3a1a15;
   }
 }

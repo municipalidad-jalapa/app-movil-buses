@@ -6,9 +6,10 @@ import {
 } from '../core/proyeccionMapa';
 import type { Posicion, Ruta } from '../core/tipos';
 import { FondoCargando, FondoCroquis } from './FondosDeMapa';
-import { MapaOpenStreetMap, type ControlMapa } from './MapaOpenStreetMap';
+import { MapaOpenStreetMap, type ControlMapa, type MargenesMapa } from './MapaOpenStreetMap';
 import { OverlayRuta, type ParadaEnMapa } from './OverlayRuta';
 import './MapaJalapa.css';
+import type { VistaOcupacion } from '../core/ocupacion';
 
 /**
  * El mapa de la pantalla del pasajero (HU-50).
@@ -39,10 +40,14 @@ interface Props {
   paradaTuyaId?: number | null;
   /** paradaId -> personas esperando, para el contador bajo cada parada. */
   esperandoPorParada?: ReadonlyMap<number, number>;
+  /** Cuanta gente lleva el bus; null para no mostrar la pastilla. */
+  ocupacion?: VistaOcupacion | null;
   /** El punto "yo", si el pasajero compartio su ubicacion. */
   ubicacionPasajero?: { latitud: number; longitud: number } | null;
   onElegirParada?: (id: number) => void;
   control?: RefObject<ControlMapa | null>;
+  /** Cuanto tapan los avisos y la hoja: el mapa lo descuenta al encuadrar. */
+  obtenerMargenes?: () => MargenesMapa;
 }
 
 export function MapaJalapa({
@@ -55,9 +60,11 @@ export function MapaJalapa({
   desvio = false,
   paradaTuyaId = null,
   esperandoPorParada,
+  ocupacion = null,
   ubicacionPasajero = null,
   onElegirParada,
   control,
+  obtenerMargenes,
 }: Props) {
   const oscuro = modo === 'oscuro';
 
@@ -107,9 +114,11 @@ export function MapaJalapa({
           oscuro={oscuro}
           paradaElegidaId={paradaTuyaId}
           esperandoPorParada={esperandoPorParada}
+          ocupacion={ocupacion}
           ubicacionPasajero={ubicacionPasajero}
           onElegirParada={onElegirParada}
           control={control}
+          obtenerMargenes={obtenerMargenes}
           onNoDisponible={() => setMapaNoDisponible(true)}
         />
       )}
@@ -125,6 +134,7 @@ export function MapaJalapa({
             trazoRuta={trazoRuta}
             bus={bus}
             busRancio={busRancio}
+            ocupacion={ocupacion}
             estela={estela}
             desvio={desvio}
             trazoReal={desvio && bus ? [...trazoRuta.slice(0, 2), bus] : []}

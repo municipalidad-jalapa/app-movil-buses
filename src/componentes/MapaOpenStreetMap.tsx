@@ -14,6 +14,9 @@ import { recorridoDeRuta } from '../core/recorridoDeRuta';
 import { estiloOpenStreetMap, estiloOpenStreetMapOscuro } from '../core/estiloMapa';
 import { soportaMapa } from '../core/soporteDeMapa';
 import type { Parada, Posicion, Ruta } from '../core/tipos';
+import { svgIconoBus } from './IconoBus';
+import { htmlPildoraOcupacion } from './OcupacionBus';
+import type { VistaOcupacion } from '../core/ocupacion';
 
 /**
  * El mapa real de OpenStreetMap con la ruta, las paradas y el bus encima.
@@ -34,8 +37,21 @@ const BORDE = '#DDD3C2';
 
 const FUENTE_RUTA = 'ruta';
 
-/** Lo que el diseno desplaza el centro para que la hoja inferior no lo tape. */
-const DESPLAZAMIENTO_HOJA: [number, number] = [0, -110];
+/**
+ * Lo que tapan los avisos de arriba y la hoja de abajo, en px. El mapa lo
+ * resta al encuadrar y al centrar, para que la ruta y la parada queden en la
+ * franja que de verdad se ve (QA: en pantallas chicas los avisos tapaban la
+ * ruta entera).
+ */
+export interface MargenesMapa {
+  arriba: number;
+  abajo: number;
+}
+
+const SIN_MARGENES: MargenesMapa = { arriba: 0, abajo: 220 };
+
+/** Por debajo de este zoom las paradas se achican y esconden su contador. */
+const ZOOM_CERCA = 14.5;
 
 /** Acciones que la pantalla pide al mapa: los botones flotantes del diseno. */
 export interface ControlMapa {
@@ -45,6 +61,8 @@ export interface ControlMapa {
   verParada(id: number): void;
   /** Vuelve a encuadrar la ruta entera. */
   verRuta(): void;
+  /** Centra en un punto cualquiera, como la ubicacion del pasajero. */
+  verPunto(latitud: number, longitud: number): void;
 }
 
 interface Props {
@@ -57,10 +75,14 @@ interface Props {
   paradaElegidaId?: number | null;
   /** paradaId -> personas esperando. La que falte se muestra en 0. */
   esperandoPorParada?: ReadonlyMap<number, number>;
+  /** Cuanta gente lleva el bus: pastilla bajo el marcador. null: sin pastilla. */
+  ocupacion?: VistaOcupacion | null;
   /** El punto rojo "yo". Solo si el pasajero compartio su ubicacion. */
   ubicacionPasajero?: { latitud: number; longitud: number } | null;
   onElegirParada?: (id: number) => void;
   control?: RefObject<ControlMapa | null>;
+  /** Cuanto tapan hoy los avisos y la hoja. Se consulta en cada movimiento. */
+  obtenerMargenes?: () => MargenesMapa;
   /**
    * El mapa no se pudo crear. Pasa de verdad: MapLibre necesita WebGL2 y hay
    * telefonos de gama baja que no lo traen, que es justo el publico de esta app
@@ -76,9 +98,11 @@ export function MapaOpenStreetMap({
   oscuro,
   paradaElegidaId = null,
   esperandoPorParada,
+  ocupacion = null,
   ubicacionPasajero = null,
   onElegirParada,
   control,
+  obtenerMargenes,
   onNoDisponible,
 }: Props) {
   const contenedor = useRef<HTMLDivElement>(null);
@@ -94,6 +118,11 @@ export function MapaOpenStreetMap({
   useEffect(() => {
     alElegir.current = onElegirParada;
   }, [onElegirParada]);
+  const margenes = useRef(obtenerMargenes);
+  useEffect(() => {
+    margenes.current = obtenerMargenes;
+  }, [obtenerMargenes]);
+  const margenesActuales = () => margenes.current?.() ?? SIN_MARGENES;
   /**
    * El mapa ya cargo su estilo.
    *
@@ -157,6 +186,13 @@ export function MapaOpenStreetMap({
     instancia.on('styledata', marcarListo);
     instancia.on('load', () => setListo(true));
 
+    // Lejos, las paradas se amontonan y sus contadores se tapan entre si:
+    // se achican y el contador espera a que la persona se acerque.
+    const marcarDistancia = () =>
+      contenedor.current?.classList.toggle('mapa-jalapa__capa--lejos', instancia.getZoom() < ZOOM_CERCA);
+    instancia.on('zoom', marcarDistancia);
+    marcarDistancia();
+
     // Asa para depurar desde la consola del navegador. Solo en desarrollo.
     if (import.meta.env.DEV) {
       (window as unknown as { __mapa?: MapaLibre }).__mapa = instancia;
@@ -211,14 +247,16 @@ export function MapaOpenStreetMap({
         instancia.easeTo({
           center: [elegida.longitud, elegida.latitud],
           zoom: 15.2,
-          offset: DESPLAZAMIENTO_HOJA,
+          offset: desplazamiento(margenesActuales()),
           duration: 0,
         });
       } else {
-        encuadrarRuta(instancia, ruta, primeraVez ? 0 : 600);
+        encuadrarRuta(instancia, ruta, primeraVez ? 0 : 600, margenesActuales());
       }
       rutaEncuadrada.current = ruta.id;
     }
+    // margenesActuales lee un ref: no hace falta como dependencia.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ruta, listo]);
 
   // --- Las paradas con su contador ----------------------------------------
@@ -268,6 +306,26 @@ export function MapaOpenStreetMap({
     if (nodo) nodo.style.opacity = busRancio ? '0.5' : '1';
   }, [busRancio, posicionBus]);
 
+  // La pastilla de ocupacion viaja dentro del marcador: se mueve con el bus.
+  useEffect(() => {
+    const nodo = marcadorBus.current?.getElement();
+    if (!nodo) return;
+    let pastilla = nodo.querySelector<HTMLElement>('.marcador-bus__ocupacion');
+    if (!ocupacion) {
+      pastilla?.remove();
+      nodo.setAttribute('aria-label', 'Dónde va el bus');
+      return;
+    }
+    if (!pastilla) {
+      pastilla = document.createElement('div');
+      pastilla.className = 'marcador-bus__ocupacion';
+      pastilla.setAttribute('aria-hidden', 'true');
+      nodo.appendChild(pastilla);
+    }
+    pastilla.innerHTML = htmlPildoraOcupacion(ocupacion);
+    nodo.setAttribute('aria-label', `Dónde va el bus. ${ocupacion.frase}`);
+  }, [ocupacion, posicionBus, listo]);
+
   // --- El pasajero ---------------------------------------------------------
   useEffect(() => {
     const instancia = mapa.current;
@@ -292,19 +350,36 @@ export function MapaOpenStreetMap({
         mapa.current.easeTo({
           center: [posicionBus.longitud, posicionBus.latitud],
           zoom: 15.2,
-          offset: DESPLAZAMIENTO_HOJA,
+          offset: desplazamiento(margenesActuales()),
           duration: 700,
         });
       },
       verParada(id) {
         const p = ruta?.paradas.find((x) => x.id === id);
         if (!mapa.current || !p) return;
-        mapa.current.easeTo({ center: [p.longitud, p.latitud], offset: DESPLAZAMIENTO_HOJA, duration: 600 });
+        mapa.current.easeTo({
+          center: [p.longitud, p.latitud],
+          // Al elegir se acerca lo justo para leer las calles de alrededor.
+          zoom: Math.max(mapa.current.getZoom(), ZOOM_CERCA + 0.2),
+          offset: desplazamiento(margenesActuales()),
+          duration: 600,
+        });
       },
       verRuta() {
-        if (mapa.current && ruta) encuadrarRuta(mapa.current, ruta, 600);
+        if (mapa.current && ruta) encuadrarRuta(mapa.current, ruta, 600, margenesActuales());
+      },
+      verPunto(latitud, longitud) {
+        if (!mapa.current) return;
+        mapa.current.easeTo({
+          center: [longitud, latitud],
+          zoom: Math.max(mapa.current.getZoom(), 16),
+          offset: desplazamiento(margenesActuales()),
+          duration: 700,
+        });
       },
     };
+    // margenesActuales lee un ref: no hace falta como dependencia.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [control, posicionBus, ruta]);
 
   return (
@@ -316,16 +391,33 @@ export function MapaOpenStreetMap({
   );
 }
 
-function encuadrarRuta(instancia: MapaLibre, ruta: Ruta, duracion: number) {
+/** El centro visible no es el del lienzo: sube o baja segun lo que tapan. */
+function desplazamiento(m: MargenesMapa): [number, number] {
+  return [0, Math.round((m.arriba - m.abajo) / 2)];
+}
+
+function encuadrarRuta(instancia: MapaLibre, ruta: Ruta, duracion: number, m: MargenesMapa) {
   const puntos = recorridoDeRuta(ruta);
   if (puntos.length === 0) return;
   const limites = new LngLatBounds();
   puntos.forEach((p) => limites.extend([p.longitud, p.latitud]));
-  // Abajo mas margen: ahi vive la hoja de reserva.
+
+  // Arriba y abajo se descuenta lo que tapan avisos y hoja; a la derecha, los
+  // botones redondos. Si el telefono es tan chico que no queda franja util, se
+  // reparte lo que hay: mejor la ruta un poco tapada que un encuadre roto.
+  const { clientWidth: ancho, clientHeight: alto } = instancia.getContainer();
+  let arriba = m.arriba + 20;
+  let abajo = m.abajo + 20;
+  const franjaMinima = 140;
+  if (alto > 0 && alto - arriba - abajo < franjaMinima) {
+    const escala = Math.max(0, alto - franjaMinima) / Math.max(1, arriba + abajo);
+    arriba = Math.round(arriba * escala);
+    abajo = Math.round(abajo * escala);
+  }
   instancia.fitBounds(limites, {
-    padding: { top: 72, right: 88, bottom: 230, left: 40 },
+    padding: { top: arriba, right: ancho > 0 && ancho < 420 ? 72 : 88, bottom: abajo, left: 28 },
     duration: duracion,
-    maxZoom: 16,
+    maxZoom: 16.5,
   });
 }
 
@@ -351,14 +443,15 @@ function pintarRuta(instancia: MapaLibre, ruta: Ruta | null) {
     type: 'line',
     source: FUENTE_RUTA,
     layout: { 'line-join': 'round', 'line-cap': 'round' },
-    paint: { 'line-color': CREMA, 'line-width': 13 },
+    // Mas finas de lejos, para que la ruta no tape las calles que cruza.
+    paint: { 'line-color': CREMA, 'line-width': ['interpolate', ['linear'], ['zoom'], 12, 7, 15, 12, 18, 18] },
   });
   ponerCapa(instancia, {
     id: 'ruta-linea',
     type: 'line',
     source: FUENTE_RUTA,
     layout: { 'line-join': 'round', 'line-cap': 'round' },
-    paint: { 'line-color': VERDE, 'line-width': 6 },
+    paint: { 'line-color': VERDE, 'line-width': ['interpolate', ['linear'], ['zoom'], 12, 3, 15, 6, 18, 9] },
   });
 }
 
@@ -379,6 +472,8 @@ export function elementoDeParada(
   const boton = document.createElement('button');
   boton.type = 'button';
   boton.className = 'marcador-parada';
+  // Selector estable para pruebas automatizadas (QA, ronda 2).
+  boton.dataset.testid = `parada-${parada.id}`;
   boton.setAttribute(
     'aria-label',
     `${parada.nombre}, ${esperando} ${esperando === 1 ? 'persona esperando' : 'personas esperando'}`,
@@ -389,6 +484,7 @@ export function elementoDeParada(
     'padding:0;min-height:0;cursor:pointer;font-family:var(--fuente)';
 
   const nodo = document.createElement('span');
+  nodo.className = elegida ? 'marcador-parada__nodo marcador-parada__nodo--elegida' : 'marcador-parada__nodo';
   if (elegida) {
     nodo.style.cssText =
       `width:44px;height:44px;border-radius:999px;background:${AMARILLO};border:4px solid ${TINTA_AMARILLO};` +
@@ -402,6 +498,7 @@ export function elementoDeParada(
   }
 
   const numero = document.createElement('span');
+  numero.className = 'marcador-parada__numero';
   numero.textContent = String(esperando);
   numero.style.cssText =
     `font-size:${elegida ? '17px' : '14px'};font-weight:800;color:${TINTA};background:${CREMA};` +
@@ -420,15 +517,14 @@ export function elementoDeParada(
 function elementoDelBus(): HTMLElement {
   const nodo = document.createElement('div');
   nodo.className = 'marcador-bus';
+  nodo.dataset.testid = 'bus';
   nodo.setAttribute('role', 'img');
   nodo.setAttribute('aria-label', 'Dónde va el bus');
   nodo.style.cssText =
     `width:46px;height:46px;border-radius:999px;background:${VERDE};border:4px solid ${CREMA};` +
     'display:flex;align-items:center;justify-content:center;box-sizing:border-box';
   nodo.innerHTML =
-    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${CREMA}" stroke-width="2.2" ` +
-    'stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="11" rx="2"></rect>' +
-    '<path d="M3 11h18M7 20v-2M17 20v-2"></path></svg>';
+    svgIconoBus(CREMA, 22, 2.2);
   return nodo;
 }
 
@@ -437,6 +533,7 @@ function elementoYo(): HTMLElement {
   const nodo = document.createElement('div');
   nodo.setAttribute('role', 'img');
   nodo.setAttribute('aria-label', 'Dónde estás');
+  nodo.dataset.testid = 'yo';
   nodo.style.cssText =
     `width:20px;height:20px;border-radius:999px;background:${ROJO};border:4px solid ${CREMA};box-sizing:border-box`;
   return nodo;

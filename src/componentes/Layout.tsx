@@ -1,38 +1,76 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { MenuAcceso } from './MenuAcceso';
+import { PieLegal } from './PieLegal';
 import './Layout.css';
 
 interface Props {
   children: ReactNode;
+
   /**
    * Sin margenes ni ancho maximo: el contenido llega a los bordes.
    *
-   * <p>Lo necesita la pantalla del mapa, que en `design/MapaOSM.dc.html` ocupa
-   * todo el ancho y lleva la informacion flotando encima, no debajo.
+   * Lo necesita la pantalla del mapa, que en `design/MapaOSM.dc.html`
+   * ocupa todo el ancho y lleva la informacion flotando encima,
+   * no debajo.
    */
   aSangre?: boolean;
+
   /**
-   * Estado del servicio, a la derecha de la marca. El canvas pone ahi la
-   * pastilla "En ruta"; hoy no hay historia ni dato que la alimente, asi que
-   * nadie la pasa.
+   * Permite usar un contenedor mas amplio en pantallas de escritorio
+   * sin afectar el ancho normal del resto de la aplicacion.
+   */
+  anchoAmplio?: boolean;
+
+  /**
+   * Estado del servicio, a la derecha de la marca.
    */
   estado?: ReactNode;
+
+  /**
+   * Permite ocultar el pie legal en pantallas que necesiten
+   * ocupar completamente el espacio disponible.
+   */
+  sinPie?: boolean;
 }
 
 /**
- * Cascaron de la app: la cabecera verde del canvas (logo y "EcoRuta") y el
- * area de contenido. Movil primero.
- *
- * A la derecha de la marca vive el menu de acceso por rol (pasajero, conductor,
- * admin): es el unico punto de entrada a las tres caras del sistema.
+ * Cascaron de la app: cabecera verde, contenido principal
+ * y pie legal.
  */
-export function Layout({ children, aSangre = false, estado }: Props) {
+export function Layout({
+  children,
+  aSangre = false,
+  anchoAmplio = false,
+  estado,
+  sinPie = false,
+}: Props) {
+  const clasesContenido = [
+    'apl__contenido',
+    aSangre ? 'apl__contenido--a-sangre' : '',
+    anchoAmplio ? 'apl__contenido--amplio' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className="apl">
+    <div className={aSangre ? 'apl apl--a-sangre' : 'apl'}>
       <header className="apl__encabezado">
-        <span className="apl__marca">
-          <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-            <circle cx="32" cy="32" r="31" fill="#FBF7F0" />
+        <Link to="/" className="apl__marca" aria-label="EcoRuta, volver al mapa">
+          <svg
+            width="30"
+            height="30"
+            viewBox="0 0 64 64"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <circle
+              cx="32"
+              cy="32"
+              r="31"
+              fill="#FBF7F0"
+            />
+
             <path
               d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8"
               fill="none"
@@ -41,16 +79,25 @@ export function Layout({ children, aSangre = false, estado }: Props) {
               strokeLinecap="round"
             />
           </svg>
-          EcoRuta
-        </span>
+          <span className="apl__nombre">EcoRuta</span>
+        </Link>
+
         <span className="apl__acciones">
-          {estado && <span className="apl__estado">{estado}</span>}
+          {estado && (
+            <span className="apl__estado">
+              {estado}
+            </span>
+          )}
+
           <MenuAcceso />
         </span>
       </header>
-      <main className={aSangre ? 'apl__contenido apl__contenido--a-sangre' : 'apl__contenido'}>
+
+      <main className={clasesContenido}>
         {children}
       </main>
+
+      {!sinPie && <PieLegal />}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { useUbicacion } from './useUbicacion';
+import { ubicacionSimulada, useUbicacion } from './useUbicacion';
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -83,5 +83,24 @@ describe('useUbicacion', () => {
     expect(result.current.error).toBe(
       'Este navegador no permite obtener tu ubicación.',
     );
+  });
+});
+
+describe('ubicacionSimulada (QA, solo desarrollo)', () => {
+  it('en desarrollo devuelve el punto configurado', () => {
+    expect(ubicacionSimulada({ DEV: true, VITE_UBICACION_SIMULADA: ' 14.6326 , -89.9871 ' })).toEqual({
+      latitud: 14.6326,
+      longitud: -89.9871,
+    });
+  });
+
+  it('en un build de produccion se ignora aunque la variable venga puesta', () => {
+    expect(ubicacionSimulada({ DEV: false, VITE_UBICACION_SIMULADA: '14.6326,-89.9871' })).toBeNull();
+  });
+
+  it('un valor mal escrito no inventa una ubicacion', () => {
+    expect(ubicacionSimulada({ DEV: true, VITE_UBICACION_SIMULADA: 'jalapa' })).toBeNull();
+    expect(ubicacionSimulada({ DEV: true, VITE_UBICACION_SIMULADA: '200,10' })).toBeNull();
+    expect(ubicacionSimulada({ DEV: true })).toBeNull();
   });
 });

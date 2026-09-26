@@ -71,6 +71,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // Firebase es compartido con el panel municipal: un inicio de sesion del
+      // administrador tambien dispara este evento. Sin login del conductor en
+      // curso ni sesion suya guardada, el usuario no es de aqui.
+      if (!loginEnCursoRef.current && !haySesionRef.current && !leerSesion()) {
+        setCargando(false);
+        return;
+      }
+
       try {
         const idToken = await getIdToken(user);
         const sesion = await intercambiarTokenConductor(idToken);

@@ -1,0 +1,86 @@
+/* Tarjeta que recomienda instalar la app. Flota bajo la cabecera, sobre el mapa. */
+.instalar-app {
+  position: fixed;
+  top: calc(var(--alto-encabezado) + 8px);
+  left: 50%;
+  z-index: 35;
+  display: flex;
+  gap: 12px;
+  width: min(480px, calc(100% - 24px));
+  box-sizing: border-box;
+  padding: 14px 16px;
+  transform: translateX(-50%);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-tarjeta);
+  color: var(--tinta);
+  box-shadow: var(--sombra);
+}
+
+.instalar-app__icono {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.instalar-app__textos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.instalar-app__titulo {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.instalar-app__nota,
+.instalar-app__pasos {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--tinta-secundaria);
+}
+
+.instalar-app__pasos {
+  font-weight: 700;
+  color: var(--tinta-cuerpo);
+}
+
+.instalar-app__acciones {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.instalar-app__instalar,
+.instalar-app__despues {
+  min-height: var(--tactil-minimo);
+  padding: 0 18px;
+  border-radius: var(--radio-pastilla);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.instalar-app__instalar {
+  border: 0;
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+}
+
+.instalar-app__despues {
+  border: 1px solid var(--borde);
+  background: transparent;
+  color: var(--tinta);
+}
+
+.instalar-app button:focus-visible {
+  outline: 3px solid var(--acento-texto);
+  outline-offset: 2px;
+}

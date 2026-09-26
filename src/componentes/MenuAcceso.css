@@ -1,6 +1,7 @@
 .menu-acceso {
   position: relative;
   display: inline-flex;
+  flex-shrink: 0;
 }
 
 .menu-acceso__boton {
@@ -15,8 +16,25 @@
   background: rgba(251, 247, 240, 0.14);
   border: 1px solid rgba(251, 247, 240, 0.35);
   border-radius: 999px;
-  padding: 8px 14px;
+  min-height: var(--tactil-minimo);
+  padding: 0 14px;
   cursor: pointer;
+}
+
+/* Telefonos: queda el avatar y la flecha; el rotulo se sigue leyendo en voz. */
+@media (max-width: 420px) {
+  .menu-acceso__boton {
+    padding: 0 10px;
+    gap: 4px;
+  }
+
+  .menu-acceso__boton:has(.menu-acceso__avatar) .menu-acceso__rotulo {
+    position: absolute;
+    width: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 .menu-acceso__boton:hover {
@@ -37,12 +55,14 @@
   right: 0;
   z-index: 40;
   min-width: 220px;
+  width: 280px;
+  max-width: calc(100vw - 32px);
   display: flex;
   flex-direction: column;
   background: var(--superficie-base, #fbf7f0);
   color: var(--tinta, #10402a);
   border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 12px 32px rgba(28, 26, 23, 0.28);
   overflow: hidden;
 }
 
@@ -53,7 +73,7 @@
   padding: 12px 16px;
   text-decoration: none;
   color: inherit;
-  border-bottom: 1px solid rgba(16, 64, 42, 0.1);
+  border-bottom: 1px solid var(--borde-sutil);
 }
 
 .menu-acceso__opcion:last-child {
@@ -73,4 +93,143 @@
 .menu-acceso__ayuda {
   font-size: 12px;
   opacity: 0.7;
+}
+
+/* SCRUM-26, B.1: cuenta opcional del pasajero en el menu. */
+.menu-acceso__boton:has(.menu-acceso__avatar) {
+  padding: 0 12px 0 7px;
+}
+
+.menu-acceso__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radio-pastilla);
+  background: var(--verde-jumay-fuerte);
+  color: var(--verde-jumay-suave);
+  font-family: var(--fuente-titulos);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.menu-acceso__avatar--cuenta {
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+}
+
+.menu-acceso__avatar--grande {
+  flex-basis: 40px;
+  width: 40px;
+  height: 40px;
+}
+
+.menu-acceso__avatar--invitado {
+  background: var(--verde-jumay-superficie);
+  color: var(--acento-texto);
+}
+
+.menu-acceso__cuenta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--borde);
+  background: var(--superficie-suave);
+}
+
+.menu-acceso__cuenta-textos,
+.menu-acceso__textos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+}
+
+.menu-acceso__cuenta-ayuda {
+  font-size: 13px;
+  color: var(--tinta-secundaria);
+}
+
+.menu-acceso__cuenta-correo {
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--tinta);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-acceso__accion {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--borde-sutil);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.menu-acceso__accion svg {
+  flex: 0 0 22px;
+}
+
+.menu-acceso__error {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 41;
+  width: min(300px, calc(100vw - 32px));
+  padding: 16px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-tarjeta);
+  box-shadow: var(--sombra);
+  color: var(--tinta);
+}
+
+.menu-acceso__error p {
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.menu-acceso__error button {
+  min-height: var(--tactil-minimo);
+  padding: 0 12px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-control);
+  background: var(--superficie-base);
+  color: var(--acento-texto);
+  font: inherit;
+  cursor: pointer;
+}
+
+.menu-acceso__error button:focus-visible {
+  outline: 3px solid var(--acento-texto);
+  outline-offset: 2px;
+}
+
+.menu-acceso__titulo--salir {
+  color: var(--alerta-texto);
+}
+
+.menu-acceso__titulo--entrar {
+  color: var(--acento-texto);
+}
+
+@media (prefers-color-scheme: dark) {
+  .menu-acceso__titulo--salir {
+    color: #f0b4ab;
+  }
+
+  .menu-acceso__titulo--entrar,
+  .menu-acceso__avatar--invitado {
+    color: var(--verde-jumay-suave);
+  }
 }

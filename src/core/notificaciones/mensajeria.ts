@@ -12,7 +12,20 @@ import { config } from '../config';
 const RUTA_SERVICE_WORKER = '/firebase-messaging-sw.js';
 
 /** Tipos de aviso que manda el backend en `data.tipo`. */
-export type TipoAviso = 'bus-cerca' | 'confirmar-abordaje';
+export type TipoAviso = 'bus-cerca' | 'confirmar-abordaje' | 'reserva-por-vencer';
+
+/**
+ * Hasta QA 4.2 el backend mandaba el nombre de su enum. Se aceptan tambien,
+ * para que un backend sin actualizar no vuelva a dejar los avisos mudos.
+ */
+const TIPOS_DEL_BACKEND: Record<string, TipoAviso> = {
+  'bus-cerca': 'bus-cerca',
+  'confirmar-abordaje': 'confirmar-abordaje',
+  'reserva-por-vencer': 'reserva-por-vencer',
+  APROXIMACION: 'bus-cerca',
+  LLEGADA: 'confirmar-abordaje',
+  POR_VENCER: 'reserva-por-vencer',
+};
 
 /** Lo que la aplicacion entiende de un aviso, venga del SW o del primer plano. */
 export interface AvisoRecibido {
@@ -47,6 +60,18 @@ function urlDelServiceWorker(): string {
 }
 
 let registroPrometido: Promise<ServiceWorkerRegistration> | null = null;
+
+/**
+ * Registra el worker apenas carga la pagina, sin esperar a los avisos: con el
+ * worker activo Chrome ofrece instalar la app. Es el mismo registro que usan
+ * los avisos despues. Si el navegador no tiene workers, no pasa nada.
+ */
+export function registrarAlCargar(ventana: Window = window): void {
+  if (!('serviceWorker' in ventana.navigator)) return;
+  const registrar = () => void registrarServiceWorker().catch(() => {});
+  if (ventana.document.readyState === 'complete') registrar();
+  else ventana.addEventListener('load', registrar, { once: true });
+}
 
 /** Registra el worker una sola vez por carga de pagina. */
 export function registrarServiceWorker(): Promise<ServiceWorkerRegistration> {
@@ -86,7 +111,7 @@ export async function obtenerTokenNotificacion(): Promise<string | null> {
 }
 
 function comoTipoAviso(valor: unknown): TipoAviso | null {
-  return valor === 'bus-cerca' || valor === 'confirmar-abordaje' ? valor : null;
+  return typeof valor === 'string' ? (TIPOS_DEL_BACKEND[valor] ?? null) : null;
 }
 
 function comoNumero(valor: unknown): number | null {

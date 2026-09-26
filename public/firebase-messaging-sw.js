@@ -40,21 +40,38 @@ async function avisarALaAplicacion(datos) {
   pestanas.forEach((pestana) => pestana.postMessage(datos));
 }
 
-function construirNotificacion(datos) {
+/** Nombres viejos del backend (antes de QA 4.2) -> los de la web. */
+const TIPOS_VIEJOS = { APROXIMACION: 'bus-cerca', LLEGADA: 'confirmar-abordaje', POR_VENCER: 'reserva-por-vencer' };
+
+/** Titulos por si el aviso llega sin texto. DESIGN.md §10: lenguaje llano. */
+const TITULOS = {
+  'bus-cerca': 'El bus está por llegar',
+  'confirmar-abordaje': '¿Lograste subir al bus?',
+  'reserva-por-vencer': 'Tu aviso está por vencer',
+};
+
+function construirNotificacion(crudos) {
+  const datos = { ...crudos, tipo: TIPOS_VIEJOS[crudos.tipo] || crudos.tipo };
   const esAbordaje = datos.tipo === 'confirmar-abordaje';
+  const esVencimiento = datos.tipo === 'reserva-por-vencer';
 
   return {
-    titulo: datos.titulo || TITULO_POR_DEFECTO,
+    titulo: datos.titulo || TITULOS[datos.tipo] || TITULO_POR_DEFECTO,
     opciones: {
       body: datos.cuerpo || '',
       // TODO(HU-PWA): agregar icon y badge cuando exista el manifest con los
       // iconos de la aplicacion. Apuntar a un archivo inexistente deja la
       // notificacion sin icono y sin aviso de error.
-      tag: esAbordaje ? `abordaje-${datos.reservaId ?? 'sin-reserva'}` : 'bus-cerca',
-      // Renotificar en el aviso de abordaje: es una pregunta, y si se pierde la
-      // reserva queda colgada.
-      renotify: esAbordaje,
-      requireInteraction: esAbordaje,
+      tag: esAbordaje
+        ? `abordaje-${datos.reservaId ?? 'sin-reserva'}`
+        : esVencimiento
+          ? `vence-${datos.reservaId ?? 'sin-reserva'}`
+          : 'bus-cerca',
+      // Renotificar y no cerrarse sola en las dos preguntas: si se pierden, la
+      // reserva queda colgada o vence sin que el pasajero se entere.
+      renotify: esAbordaje || esVencimiento,
+      requireInteraction: esAbordaje || esVencimiento,
+      vibrate: [220, 120, 220],
       data: datos,
       actions: esAbordaje
         ? [
@@ -117,3 +134,25 @@ self.addEventListener('notificationclick', (evento) => {
 // pestanas, y el pasajero sigue con la version vieja.
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (evento) => evento.waitUntil(clients.claim()));
+
+// Instalar la app (PWA): Chrome ofrece "Instalar" cuando el worker atiende las
+// navegaciones. Siempre va a la red; sin senal muestra un aviso en vez de la
+// pantalla de error del navegador. No se guarda nada en cache: los datos del
+// bus tienen que ser los de ahora.
+const SIN_CONEXION = `<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EcoRuta</title><meta name="theme-color" content="#10402a"></head>
+<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#10402a;color:#fbf7f0;font-family:system-ui,sans-serif;text-align:center">
+<main style="padding:24px;max-width:22rem"><h1 style="font-size:22px">Sin conexión</h1>
+<p style="font-size:16px;line-height:1.5">EcoRuta necesita internet para mostrar dónde viene el bus. Volvé a intentar cuando tengas señal.</p>
+<button onclick="location.reload()" style="min-height:48px;padding:0 24px;border:0;border-radius:999px;background:#f2b705;color:#241c00;font-size:16px;font-weight:800">Reintentar</button></main>
+</body></html>`;
+
+self.addEventListener('fetch', (evento) => {
+  if (evento.request.mode !== 'navigate') return;
+  evento.respondWith(
+    fetch(evento.request).catch(
+      () => new Response(SIN_CONEXION, { headers: { 'Content-Type': 'text/html; charset=utf-8' } }),
+    ),
+  );
+});

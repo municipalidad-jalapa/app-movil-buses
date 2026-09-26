@@ -1,0 +1,166 @@
+/*
+ * Aviso de atraso del piloto (SCRUM-26, E.2). Va en el panel del conductor,
+ * que usa la paleta oscura (--conductor-*): se mira de día, dentro del bus y
+ * con el sol entrando. Todo lo tocable pasa de 48 px (DESIGN.md §5).
+ */
+
+.atraso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3, 0.75rem);
+  padding: 16px;
+  border: 1px solid var(--verde-jumay-apagado);
+  border-radius: var(--radio-tarjeta-chica);
+  background: var(--conductor-tarjeta);
+  color: var(--conductor-tinta);
+}
+
+.atraso__titulo {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--conductor-tinta);
+}
+
+.atraso__ayuda,
+.atraso__cargando,
+.atraso__vigente-nota {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--conductor-tinta-suave);
+}
+
+.atraso__grupo {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.atraso__etiqueta {
+  display: block;
+  padding: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--conductor-tinta);
+}
+
+.atraso__opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.atraso__opcion {
+  flex: 1 1 auto;
+  min-width: 96px;
+  min-height: var(--tactil-minimo, 48px);
+  padding: 0 16px;
+  border: 1px solid var(--verde-jumay-apagado);
+  border-radius: var(--radio-control);
+  background: transparent;
+  color: var(--conductor-tinta);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.atraso__opcion[aria-pressed='true'] {
+  border-color: var(--amarillo-volcan);
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+  font-weight: 600;
+}
+
+.atraso__minutos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--conductor-tinta-suave);
+}
+
+.atraso__minutos input {
+  width: 96px;
+  min-height: var(--tactil-minimo, 48px);
+  padding: 0 12px;
+  border: 1px solid var(--verde-jumay-apagado);
+  border-radius: var(--radio-control);
+  background: var(--conductor-fondo);
+  color: var(--conductor-tinta);
+  font: inherit;
+  font-size: 16px;
+}
+
+.atraso__comentario {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.atraso__comentario textarea {
+  padding: 12px;
+  border: 1px solid var(--verde-jumay-apagado);
+  border-radius: var(--radio-control);
+  background: var(--conductor-fondo);
+  color: var(--conductor-tinta);
+  font: inherit;
+  font-size: 16px;
+  resize: vertical;
+}
+
+.atraso__contador {
+  align-self: flex-end;
+  font-size: 13px;
+  color: var(--conductor-tinta-suave);
+}
+
+.atraso__boton {
+  min-height: var(--tactil-minimo, 48px);
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radio-control);
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.atraso__boton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.atraso__boton--secundario {
+  border: 1px solid var(--verde-jumay-apagado);
+  background: transparent;
+  color: var(--conductor-tinta);
+}
+
+.atraso__vigente {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-left: 4px solid var(--amarillo-volcan);
+  border-radius: var(--radio-control);
+  background: var(--conductor-fondo);
+}
+
+.atraso__vigente-texto {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--conductor-tinta);
+}
+
+.atraso__error {
+  margin: 0;
+  font-size: 14px;
+  color: var(--amarillo-volcan);
+}

@@ -1,34 +1,36 @@
-import { useCallback, useEffect, useState } from 'react';
-import { AvisoInactividad } from '../../componentes/admin/AvisoInactividad';
-import { ChipEstadoServicio } from '../../componentes/admin/ChipEstadoServicio';
-import { IconoSalir, SimboloEcoRuta } from '../../componentes/admin/IconosPanel';
+import { useEffect, useState } from 'react';
+import { ChipTransmitiendo } from '../../componentes/admin/ChipTransmitiendo';
+import { MarcoPanel } from '../../componentes/admin/MarcoPanel';
 import { ErrorApi } from '../../core/errores';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
-import { consultarServicio, type EstadoServicio, type RutaEnServicio } from '../../core/panelAdmin/panelAdminApi';
-import { useInactividad } from '../../hooks/useInactividad';
+import { haceCuanto } from '../../core/panelAdmin/formatoTiempo';
+import {
+  consultarPanel,
+  type PanelRuta,
+  type PanelRutas,
+  type PosicionPanel,
+  type ReservaPorParada,
+} from '../../core/panelAdmin/panelAdminApi';
 import './PanelMunicipal.css';
 
 const REFRESCO_MS = 30_000;
 
 const hora = new Intl.DateTimeFormat('es-GT', { hour: '2-digit', minute: '2-digit', hour12: false });
 
-function haceCuanto(iso: string, ahoraMs: number): string {
-  const minutos = Math.max(0, Math.round((ahoraMs - Date.parse(iso)) / 60_000));
-  return minutos === 0 ? 'hace menos de 1 min' : `hace ${minutos} min`;
+function totalReservasActivas(reservas: ReservaPorParada[]): number {
+  return reservas.reduce((acumulado, reserva) => acumulado + reserva.activas, 0);
 }
 
-/** Portada del panel municipal: el servicio completo (SCRUM-173, criterio 6). Canvas: 2 y 3a. */
-export function PanelAdmin() {
-  const { sesion, renovarSesion, cerrarSesion } = useAuthAdmin();
-  const [servicio, setServicio] = useState<EstadoServicio | null>(null);
-  const [error, setError] = useState<string | null>(null);
+function paradasConReservas(reservas: ReservaPorParada[]): ReservaPorParada[] {
+  return reservas.filter((reserva) => reserva.activas > 0);
+}
 
-  const alCerrarPorInactividad = useCallback(() => cerrarSesion('inactividad'), [cerrarSesion]);
-  const { segundosRestantes, seguir } = useInactividad({
-    expiraEnMs: sesion?.expiraEnMs ?? 0,
-    alRenovar: () => void renovarSesion(),
-    alCerrar: alCerrarPorInactividad,
-  });
+/** Portada del panel municipal: rutas con transmisión y reservas (HU-79). Canvas: 2 y 3a. */
+export function PanelAdmin() {
+  const { sesion, cerrarSesion } = useAuthAdmin();
+  const [panel, setPanel] = useState<PanelRutas | null>(null);
+  const [consultadoEn, setConsultadoEn] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const token = sesion?.token;
   useEffect(() => {
@@ -36,7 +38,8 @@ export function PanelAdmin() {
     const control = new AbortController();
     const cargar = async () => {
       try {
-        setServicio(await consultarServicio(token, control.signal));
+        setPanel(await consultarPanel(token, control.signal));
+        setConsultadoEn(new Date().toISOString());
         setError(null);
       } catch (causa) {
         if (control.signal.aborted) return;
@@ -55,38 +58,21 @@ export function PanelAdmin() {
     };
   }, [token, cerrarSesion]);
 
-  const rutas = servicio?.rutas ?? [];
-  const enRuta = rutas.filter((r) => r.estado === 'EN_RUTA').length;
-  const conBus = rutas.filter((r) => r.bus).length;
-  const sinDatos = rutas.filter((r) => r.estado === 'SIN_DATOS_RECIENTES').length;
-  const ahoraMs = servicio ? Date.parse(servicio.consultadoEn) : Date.now();
+  const rutas = panel?.rutas ?? [];
+  const transmitiendo = rutas.filter((ruta) => ruta.transmitiendo).length;
+  const sinTransmitir = rutas.filter((ruta) => !ruta.transmitiendo).length;
+  const ahoraMs = consultadoEn ? Date.parse(consultadoEn) : Date.now();
 
   return (
-    <div className="panel-escritorio">
-      <header className="panel-cabecera">
-        <div className="panel-cabecera__marca">
-          <SimboloEcoRuta tamano={30} />
-          <span className="panel-cabecera__ecoruta">EcoRuta</span>
-          <span className="panel-cabecera__separador" aria-hidden="true" />
-          <span className="panel-cabecera__seccion">Panel municipal</span>
-        </div>
-        <div className="panel-cabecera__usuario">
-          <span className="panel-cabecera__correo">{sesion?.correo}</span>
-          <button type="button" className="panel-boton panel-boton--cabecera" onClick={() => cerrarSesion()}>
-            <IconoSalir />
-            Cerrar sesión
-          </button>
-        </div>
-      </header>
-
+    <MarcoPanel>
       <main className="panel-principal">
         <div className="panel-principal__encabezado">
           <div>
             <h1 className="panel-h1">Estado del servicio</h1>
             <p className="panel-apoyo">Todas las rutas y sus buses. Se actualiza cada 30 segundos.</p>
           </div>
-          {servicio && (
-            <p className="panel-ayuda tabular">Actualizado a las {hora.format(new Date(servicio.consultadoEn))}</p>
+          {consultadoEn && (
+            <p className="panel-ayuda tabular">Actualizado a las {hora.format(new Date(consultadoEn))}</p>
           )}
         </div>
 
@@ -97,9 +83,9 @@ export function PanelAdmin() {
         )}
 
         <div className="panel-resumen">
-          <Cifra etiqueta="Rutas activas" valor={servicio ? String(rutas.length) : '—'} />
-          <Cifra etiqueta="Buses en ruta" valor={servicio ? `${enRuta} de ${conBus}` : '—'} />
-          <Cifra etiqueta="Buses sin datos recientes" valor={servicio ? String(sinDatos) : '—'} />
+          <Cifra etiqueta="Rutas activas" valor={panel ? String(rutas.length) : '—'} />
+          <Cifra etiqueta="Buses en ruta" valor={panel ? String(transmitiendo) : '—'} />
+          <Cifra etiqueta="Buses sin datos recientes" valor={panel ? String(sinTransmitir) : '—'} />
         </div>
 
         <div className="panel-tabla-marco">
@@ -110,14 +96,14 @@ export function PanelAdmin() {
                 <th scope="col">Bus asignado</th>
                 <th scope="col">Estado del bus</th>
                 <th scope="col" className="panel-tabla__num">Última posición</th>
-                <th scope="col" className="panel-tabla__num">Velocidad</th>
+                <th scope="col">Reservas activas</th>
               </tr>
             </thead>
             <tbody>
               {rutas.map((ruta) => (
                 <FilaRuta key={ruta.rutaId} ruta={ruta} ahoraMs={ahoraMs} />
               ))}
-              {servicio && rutas.length === 0 && (
+              {panel && rutas.length === 0 && (
                 <tr>
                   <td colSpan={5} className="panel-tabla__vacia">
                     No hay rutas activas.
@@ -128,13 +114,9 @@ export function PanelAdmin() {
           </table>
         </div>
 
-        <p className="panel-ayuda">«Sin datos recientes»: el bus no envía su posición desde hace más de 2 minutos.</p>
+        <p className="panel-ayuda">«Sin transmitir»: el bus no envía posición, o la ruta no tiene vehículo asignado.</p>
       </main>
-
-      {segundosRestantes !== null && (
-        <AvisoInactividad segundos={segundosRestantes} onSeguir={seguir} onCerrarSesion={() => cerrarSesion()} />
-      )}
-    </div>
+    </MarcoPanel>
   );
 }
 
@@ -147,43 +129,70 @@ function Cifra({ etiqueta, valor }: { etiqueta: string; valor: string }) {
   );
 }
 
-function FilaRuta({ ruta, ahoraMs }: { ruta: RutaEnServicio; ahoraMs: number }) {
-  const atrasada = ruta.estado === 'SIN_DATOS_RECIENTES';
+function FilaRuta({ ruta, ahoraMs }: { ruta: PanelRuta; ahoraMs: number }) {
   return (
     <tr>
       <td className="panel-tabla__ruta">{ruta.nombre}</td>
       <td>
-        {ruta.bus ? (
-          <>
-            <span className="panel-tabla__principal">{ruta.bus.identificador}</span>
-            <span className="panel-tabla__secundario">Placa {ruta.bus.placa}</span>
-          </>
-        ) : (
-          <span className="panel-tabla__secundario">—</span>
-        )}
+        <CeldaVehiculo vehiculoId={ruta.vehiculoId} />
       </td>
       <td>
-        <ChipEstadoServicio estado={ruta.estado} />
+        <ChipTransmitiendo transmitiendo={ruta.transmitiendo} />
       </td>
       <td className="panel-tabla__num tabular">
-        {ruta.posicion ? (
-          <>
-            <span className="panel-tabla__principal">{hora.format(new Date(ruta.posicion.timestamp))}</span>
-            <span className={atrasada ? 'panel-tabla__secundario panel-tabla__atrasada' : 'panel-tabla__secundario'}>
-              {haceCuanto(ruta.posicion.timestamp, ahoraMs)}
-            </span>
-          </>
-        ) : (
-          <span className="panel-tabla__secundario">Sin posiciones</span>
-        )}
+        <CeldaPosicion posicion={ruta.posicion} atrasada={!ruta.transmitiendo} ahoraMs={ahoraMs} />
       </td>
-      <td className="panel-tabla__num tabular">
-        {ruta.estado === 'EN_RUTA' && ruta.posicion?.velocidadKmh != null ? (
-          <span className="panel-tabla__principal">{Math.round(ruta.posicion.velocidadKmh)} km/h</span>
-        ) : (
-          <span className="panel-tabla__secundario">—</span>
-        )}
+      <td>
+        <CeldaReservas reservas={ruta.reservasPorParada} />
       </td>
     </tr>
+  );
+}
+
+function CeldaVehiculo({ vehiculoId }: { vehiculoId: number | null }) {
+  if (vehiculoId == null) {
+    return <span className="panel-tabla__secundario">Sin vehículo asignado</span>;
+  }
+  return <span className="panel-tabla__principal">{vehiculoId}</span>;
+}
+
+function CeldaPosicion({
+  posicion,
+  atrasada,
+  ahoraMs,
+}: {
+  posicion: PosicionPanel | null;
+  atrasada: boolean;
+  ahoraMs: number;
+}) {
+  if (!posicion) {
+    return <span className="panel-tabla__secundario">Sin posiciones</span>;
+  }
+  return (
+    <>
+      <span className="panel-tabla__principal">{hora.format(new Date(posicion.registradaEn))}</span>
+      <span className={atrasada ? 'panel-tabla__secundario panel-tabla__atrasada' : 'panel-tabla__secundario'}>
+        {haceCuanto(posicion.registradaEn, ahoraMs)}
+      </span>
+    </>
+  );
+}
+
+function CeldaReservas({ reservas }: { reservas: ReservaPorParada[] }) {
+  const total = totalReservasActivas(reservas);
+  const detalle = paradasConReservas(reservas);
+  return (
+    <>
+      <span className="panel-tabla__principal">{total}</span>
+      {detalle.length === 0 ? (
+        <span className="panel-tabla__secundario">Sin reservas</span>
+      ) : (
+        detalle.map((reserva) => (
+          <span key={reserva.paradaId} className="panel-tabla__secundario">
+            Parada {reserva.paradaId}: {reserva.activas}
+          </span>
+        ))
+      )}
+    </>
   );
 }

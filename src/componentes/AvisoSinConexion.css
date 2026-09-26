@@ -54,7 +54,7 @@
   padding: 14px;
   background: var(--superficie-suave);
   border-radius: var(--radio-tarjeta);
-  color: var(--verde-jumay);
+  color: var(--acento-texto);
 }
 
 .sin-conexion__tarjeta svg {

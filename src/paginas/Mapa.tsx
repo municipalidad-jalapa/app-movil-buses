@@ -1,11 +1,14 @@
-import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAvisosDelBus } from '../hooks/useAvisosDelBus';
 import { useEnLinea } from '../hooks/useEnLinea';
+import { useEtaRuta } from '../hooks/useEtaRuta';
 import { usePosicionBus } from '../hooks/usePosicionBus';
 import { usePrefiereOscuro } from '../hooks/usePrefiereOscuro';
 import { useReserva } from '../hooks/useReserva';
 import { useResumenRuta } from '../hooks/useResumenRuta';
+import { vistaOcupacion } from '../core/ocupacion';
+import { LineaOcupacion } from '../componentes/OcupacionBus';
 import { useRutaElegida } from '../hooks/useRutaElegida';
 import { useUbicacion } from '../hooks/useUbicacion';
 import { MapaJalapa } from '../componentes/MapaJalapa';
@@ -18,13 +21,17 @@ import { HoraUltimoDato, formatearMomento } from '../componentes/HoraUltimoDato'
 import { MensajeError } from '../componentes/MensajeError';
 import { PreferenciaNotificaciones } from '../componentes/PreferenciaNotificaciones';
 import { TarjetaAbordaje } from '../componentes/TarjetaAbordaje';
+import { TarjetaEta } from '../componentes/TarjetaEta';
 import { metrosEntre, minutosRestantes, paradaMasCercana, textoDistancia } from '../core/distanciaAParada';
 import { ErrorApi } from '../core/errores';
 import { esRancio } from '../core/frescuraDato';
+import { notificarSiNoSeVe, vibrar } from '../core/notificaciones/avisoLocal';
 import { obtenerIdDispositivo } from '../core/identidadDispositivo';
 import { cancelarReserva, registrarDemanda, renovarReserva } from '../core/registroDemanda';
 import type { EstadoReserva, RegistroCreadoResponse, Reserva } from '../core/tipos';
 import { estaVigente } from '../estado/ReservaProvider';
+import { OpinarSobreElServicio } from '../componentes/opiniones/OpinarSobreElServicio';
+import { IconoBus } from '../componentes/IconoBus';
 import './Mapa.css';
 
 const SIN_UBICACION =
@@ -43,8 +50,15 @@ const YA_AVISASTE = 'Ya avisamos desde este teléfono que estás esperando. No h
 const RADIO_APROXIMACION_M = 250;
 const RADIO_LLEGADA_M = 40;
 
-/** HU-52: con este tiempo o menos, la hoja pregunta si sigue esperando. */
-const PREGUNTAR_SI_SIGUE_MS = 60_000;
+/**
+ * HU-52 y QA 4.1: con este tiempo o menos, se avisa que la reserva esta por
+ * vencer y la hoja pregunta si sigue esperando. Dos minutos dan margen para
+ * sacar el telefono del bolsillo y responder.
+ */
+const PREGUNTAR_SI_SIGUE_MS = 120_000;
+
+/** Cuanto dura la pista "Toca otra vez" del boton de ubicacion. */
+const PISTA_UBICACION_MS = 6_000;
 
 /** Fases que la pantalla lleva por su cuenta; "confirmada" sale de la reserva. */
 type FaseLocal = Exclude<FaseHoja, 'confirmada'>;
@@ -70,7 +84,11 @@ export function Mapa() {
     undefined,
     rutaActiva ? rutaActiva.id : null,
   );
-  const { esperandoPorParada, refrescar } = useResumenRuta(rutaActiva?.id);
+  const { esperandoPorParada, ocupacion, refrescar } = useResumenRuta(rutaActiva?.id);
+  // Cuanta gente lleva el bus: pastilla bajo el marcador y linea en la hoja.
+  const vistaDeOcupacion = useMemo(() => vistaOcupacion(ocupacion), [ocupacion]);
+  // QA 5.1: minutos para que el bus llegue a la parada, por el trazado real.
+  const eta = useEtaRuta(rutaActiva?.id, posicion?.timestamp ?? null);
   const { ubicacion, solicitarUbicacion } = useUbicacion();
   const { reserva, guardarReserva, limpiarReserva } = useReserva();
   const { preguntandoAbordaje: avisoDeAbordaje } = useAvisosDelBus();
@@ -91,6 +109,13 @@ export function Mapa() {
   );
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  // QA 4.1: el boton redondo de ubicacion va en dos toques. El primero te
+  // muestra donde estas; el segundo te lleva a la parada mas cercana.
+  const [ubicacionCentrada, setUbicacionCentrada] = useState(false);
+  // QA 4.1: la hoja se puede achicar a una linea para ver el mapa.
+  const [hojaMinimizada, setHojaMinimizada] = useState(false);
+  /** Evita un segundo DELETE si el toque se repite antes de que el botón se deshabilite. */
+  const cancelando = useRef(false);
   // La parada del QR se aplica una sola vez: despues, el pasajero puede cambiar
   // de ruta sin que el QR lo vuelva a arrastrar.
   const paradaDelQr = useRef<number | null>(!reserva ? paradaId : null);
@@ -102,7 +127,13 @@ export function Mapa() {
 
   const pantalla = useRef<HTMLDivElement>(null);
   const hoja = useRef<HTMLDivElement>(null);
+  const encima = useRef<HTMLDivElement>(null);
   useAltoDeHoja(pantalla, hoja);
+  // El mapa pregunta cuanto tapan los avisos y la hoja justo al moverse.
+  const obtenerMargenes = useCallback(
+    () => ({ arriba: encima.current?.offsetHeight ?? 0, abajo: hoja.current?.offsetHeight ?? 220 }),
+    [],
+  );
 
   // El parametro del QR ya se leyo: se quita para que una recarga no vuelva a
   // elegir esa parada despues de que el pasajero eligio otra.
@@ -172,6 +203,21 @@ export function Mapa() {
   const minutos = reservaVigente ? minutosRestantes(reserva!.expiraEn, ahora) : null;
   const preguntarSiSigue = msRestantes !== null && msRestantes <= PREGUNTAR_SI_SIGUE_MS;
 
+  // QA 4.1: avisar cuando la reserva esta por vencer. Una vez por vencimiento
+  // (renovar cambia expiraEn y rearma el aviso): vibra y, si la pagina no esta
+  // a la vista, deja una notificacion del sistema.
+  const vencimientoAvisado = useRef<string | null>(null);
+  useEffect(() => {
+    if (!preguntarSiSigue || !reserva || vencimientoAvisado.current === reserva.expiraEn) return;
+    vencimientoAvisado.current = reserva.expiraEn;
+    vibrar();
+    void notificarSiNoSeVe({
+      titulo: 'Tu aviso está por vencer',
+      cuerpo: '¿Seguís esperando el bus? Abrí EcoRuta y tocá «Sigo esperando».',
+      etiqueta: 'reserva-' + reserva.id + '-vence',
+    });
+  }, [preguntarSiSigue, reserva]);
+
   const elegir = useCallback(
     (id: number) => {
       // Con la reserva hecha, la parada no cambia por un toque en el mapa.
@@ -183,6 +229,34 @@ export function Mapa() {
     },
     [reservaVigente, resuelta, enviando],
   );
+
+  // La pista del segundo toque se retira sola.
+  useEffect(() => {
+    if (!ubicacionCentrada) return;
+    const t = setTimeout(() => setUbicacionCentrada(false), PISTA_UBICACION_MS);
+    return () => clearTimeout(t);
+  }, [ubicacionCentrada]);
+
+  /** El boton redondo: primero "donde estoy", despues "la parada mas cercana". */
+  async function botonUbicacion() {
+    if (ubicacionCentrada) {
+      setUbicacionCentrada(false);
+      if ((reservaVigente || resuelta) && reserva) {
+        // Con reserva, la parada que importa es la tuya.
+        control.current?.verParada(reserva.paradaId);
+        return;
+      }
+      await usarCercana();
+      return;
+    }
+    const donde = await solicitarUbicacion();
+    if (!donde) {
+      setAviso(SIN_UBICACION_CERCANA);
+      return;
+    }
+    control.current?.verPunto(donde.latitud, donde.longitud);
+    setUbicacionCentrada(true);
+  }
 
   async function usarCercana() {
     if (reservaVigente || resuelta) {
@@ -254,22 +328,31 @@ export function Mapa() {
   }
 
   async function cancelar() {
-    if (!reserva) return;
+    if (!reserva || cancelando.current) return;
+    cancelando.current = true;
     setEnviando(true);
     setAviso(null);
     try {
       await cancelarReserva(reserva.id, obtenerIdDispositivo());
     } catch (causa) {
-      // 404 o 422: en el servidor ya no esta vigente, que es lo que se pedia.
-      const yaNoVigente = causa instanceof ErrorApi && (causa.status === 404 || causa.status === 422);
-      if (!yaNoVigente) {
-        setAviso(mensajeDe(causa));
+      // 404: la copia local ya no existe en el servidor → se limpia sin fingir éxito.
+      if (causa instanceof ErrorApi && causa.status === 404) {
+        limpiarReserva();
         setEnviando(false);
+        cancelando.current = false;
+        elegirOtra();
+        refrescar();
         return;
       }
+      // 403, 422 (p. ej. ABORDO), red o 5xx: se conserva la reserva y se puede reintentar.
+      setAviso(mensajeDe(causa));
+      setEnviando(false);
+      cancelando.current = false;
+      return;
     }
     limpiarReserva();
     setEnviando(false);
+    cancelando.current = false;
     elegirOtra();
     refrescar();
   }
@@ -307,6 +390,11 @@ export function Mapa() {
       <TarjetaAbordaje preguntando={preguntandoAbordaje} onListo={cerrarAbordaje} />
     ) : null;
 
+  // Lo que pide respuesta abre la hoja aunque se haya achicado.
+  const hojaAbiertaAFuerza =
+    preguntarSiSigue || contenidoAbordaje !== null || aviso !== null || fase === 'buscando';
+  const hojaChica = hojaMinimizada && !hojaAbiertaAFuerza;
+
   return (
     <div
       className={enLinea ? 'pantalla-mapa' : 'pantalla-mapa pantalla-mapa--sin-conexion'}
@@ -320,9 +408,11 @@ export function Mapa() {
         modo={oscuro ? 'oscuro' : 'claro'}
         paradaTuyaId={paradaMostradaId}
         esperandoPorParada={esperandoPorParada}
+        ocupacion={posicion ? vistaDeOcupacion : null}
         ubicacionPasajero={ubicacion}
         onElegirParada={elegir}
         control={control}
+        obtenerMargenes={obtenerMargenes}
       />
 
       {!enLinea && (
@@ -335,7 +425,7 @@ export function Mapa() {
         />
       )}
 
-      <div className="pantalla-mapa__encima">
+      <div className="pantalla-mapa__encima" ref={encima}>
         {/* "En vivo" es lo normal y el diseno no lo anuncia; solo se avisa la degradacion. */}
         {enLinea && estadoConexion !== 'en-vivo' && <BannerConexion estadoConexion={estadoConexion} />}
 
@@ -354,11 +444,7 @@ export function Mapa() {
         {/* HU-57: el mismo aviso de aproximacion, dentro de la app. */}
         {enLinea && busCerca && !preguntandoAbordaje && (
           <div className="pantalla-mapa__viene" role="status" aria-live="polite">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-              <rect x="3" y="5" width="18" height="11" rx="2" />
-              <path d="M3 11h18M7 20v-2M17 20v-2" />
-            </svg>
+            <IconoBus tamano={22} grosor={2.2} />
             <span>El bus ya viene para tu parada</span>
           </div>
         )}
@@ -395,6 +481,8 @@ export function Mapa() {
 
       <div className="pantalla-mapa__abajo">
         <div className="pantalla-mapa__flotantes">
+          {/* SCRUM-26: opinar sobre la ruta que se esta mirando. */}
+          <OpinarSobreElServicio redondo />
           <button
             type="button"
             className="pantalla-mapa__redondo"
@@ -403,29 +491,42 @@ export function Mapa() {
             onClick={() => control.current?.verBus()}
             disabled={!posicion}
           >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-              <rect x="3" y="5" width="18" height="11" rx="2" />
-              <path d="M3 11h18M7 20v-2M17 20v-2" />
-            </svg>
+            <IconoBus tamano={26} grosor={2.2} />
           </button>
-          <button
-            type="button"
-            className="pantalla-mapa__redondo"
-            title="Usar mi ubicación"
-            aria-label="Usar mi ubicación"
-            onClick={() => void usarCercana()}
-            disabled={enviando || fase === 'buscando'}
-          >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="3.4" />
-              <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" />
-            </svg>
-          </button>
+          <div className="pantalla-mapa__con-pista">
+            {ubicacionCentrada && (
+              <span className="pantalla-mapa__pista-boton" role="status">
+                {reservaVigente || resuelta ? 'Tocá otra vez: tu parada' : 'Tocá otra vez: parada más cercana'}
+              </span>
+            )}
+            <button
+              type="button"
+              className={
+                ubicacionCentrada ? 'pantalla-mapa__redondo pantalla-mapa__redondo--segundo' : 'pantalla-mapa__redondo'
+              }
+              title={ubicacionCentrada ? 'Ir a la parada más cercana' : 'Ver mi ubicación'}
+              aria-label={ubicacionCentrada ? 'Ir a la parada más cercana' : 'Ver mi ubicación'}
+              onClick={() => void botonUbicacion()}
+              disabled={enviando || fase === 'buscando'}
+            >
+              {ubicacionCentrada ? (
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                  <path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z" />
+                  <circle cx="12" cy="10" r="2.4" />
+                </svg>
+              ) : (
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3.4" />
+                  <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
-        <div ref={hoja}>
+        <div className="pantalla-mapa__hoja" ref={hoja}>
           <HojaReserva
             fase={fase}
             nombreParada={parada?.nombre ?? ''}
@@ -433,9 +534,20 @@ export function Mapa() {
             esperando={paradaMostradaId !== null ? (esperandoPorParada.get(paradaMostradaId) ?? 0) : 0}
             minutosDeAviso={minutos}
             ultimoDato={ultimoDato}
+            eta={
+              parada ? (
+                <>
+                  <TarjetaEta eta={eta} paradaId={parada.id} />
+                  {vistaDeOcupacion.tono !== 'sin' && <LineaOcupacion vista={vistaDeOcupacion} />}
+                </>
+              ) : null
+            }
             aviso={aviso}
             enviando={enviando}
             preguntarSiSigue={preguntarSiSigue}
+            segundosRestantes={msRestantes !== null ? msRestantes / 1000 : null}
+            minimizada={hojaChica}
+            onAlternarTamano={() => setHojaMinimizada(!hojaChica)}
             extraConfirmada={<PreferenciaNotificaciones />}
             contenido={contenidoAbordaje}
             onUsarCercana={() => void usarCercana()}

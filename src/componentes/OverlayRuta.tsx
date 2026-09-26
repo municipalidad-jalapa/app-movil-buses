@@ -1,4 +1,7 @@
 import { ANCHO_LIENZO, ALTO_LIENZO, trazoDe, type PuntoLienzo } from '../core/proyeccionMapa';
+import { IconoBus as DibujoBus } from './IconoBus';
+import { PildoraOcupacion } from './OcupacionBus';
+import type { VistaOcupacion } from '../core/ocupacion';
 
 /**
  * La ruta, las paradas y el bus sobre el mapa.
@@ -35,6 +38,8 @@ interface Props {
   bus: PuntoLienzo | null;
   /** Dato de mas de 5 min: el bus se atenua (DESIGN.md §7). */
   busRancio?: boolean;
+  /** Cuanta gente lleva el bus: la misma pastilla que en el mapa. */
+  ocupacion?: VistaOcupacion | null;
   /** Ultimas posiciones, de mas vieja a mas nueva, para la estela. */
   estela?: readonly PuntoLienzo[];
   /** El bus se separo del trazo conocido (DESIGN.md seccion 7). */
@@ -49,10 +54,7 @@ interface Props {
 function IconoBus() {
   return (
     <g transform="translate(-11,-11)">
-      <svg x="0" y="0" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={CONTORNO} strokeWidth="2.2" strokeLinecap="round">
-        <rect x="3" y="5" width="18" height="11" rx="2" />
-        <path d="M3 11h18M7 20v-2M17 20v-2" />
-      </svg>
+      <DibujoBus x={0} y={0} tamano={22} grosor={2.2} color={CONTORNO} />
     </g>
   );
 }
@@ -73,6 +75,7 @@ export function OverlayRuta({
   trazoRuta,
   bus,
   busRancio = false,
+  ocupacion = null,
   estela = [],
   desvio = false,
   trazoReal = [],
@@ -115,6 +118,7 @@ export function OverlayRuta({
           .map((p) => (
             <g
               key={p.id}
+              data-testid={`parada-${p.id}`}
               role={onElegirParada ? 'button' : undefined}
               tabIndex={onElegirParada ? 0 : undefined}
               aria-label={onElegirParada ? p.nombre : undefined}
@@ -139,7 +143,7 @@ export function OverlayRuta({
 
       {/* Tu parada: mas grande y en amarillo. Color + forma + tamano, nunca solo color. */}
       {tuya && (
-        <g transform={`translate(${tuya.punto.x},${tuya.punto.y})`}>
+        <g transform={`translate(${tuya.punto.x},${tuya.punto.y})`} data-testid={`parada-${tuya.id}`}>
           <circle r="21" fill={AMARILLO} stroke={TINTA_AMARILLO} strokeWidth="4" />
           <rect x="-7" y="-7" width="14" height="14" transform="rotate(45)" fill={TINTA_AMARILLO} />
           <title>{tuya.nombre}</title>
@@ -161,8 +165,15 @@ export function OverlayRuta({
       </g>
 
       {bus && (
-        <g opacity={busRancio ? 0.5 : 1}>
+        <g opacity={busRancio ? 0.5 : 1} data-testid="bus">
           <MarcadorDelBus punto={bus} />
+          {ocupacion && (
+            <foreignObject x={bus.x - 110} y={bus.y + 30} width="220" height="40">
+              <div className="mapa-jalapa__ocupacion">
+                <PildoraOcupacion vista={ocupacion} />
+              </div>
+            </foreignObject>
+          )}
         </g>
       )}
 

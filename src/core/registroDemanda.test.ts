@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiClient } from './apiClient';
+import { ErrorApi } from './errores';
 import {
+  CABECERA_DISPOSITIVO,
+  cancelarReserva,
   registrarDemanda,
   RUTA_REGISTRO_DEMANDA,
 } from './registroDemanda';
@@ -8,6 +11,7 @@ import {
 vi.mock('./apiClient', () => ({
   apiClient: {
     post: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -44,5 +48,34 @@ describe('registrarDemanda', () => {
       estado: 'ACTIVA',
       expiraEn: '2026-08-26T10:30:00',
     });
+  });
+});
+
+describe('cancelarReserva (HU-77 / SCRUM-172)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('usa DELETE /api/v1/reservas/{id} con X-Dispositivo-Id', async () => {
+    vi.mocked(apiClient.delete).mockResolvedValue(null);
+
+    await cancelarReserva(9, 'dispositivo');
+
+    expect(apiClient.delete).toHaveBeenCalledWith(`${RUTA_REGISTRO_DEMANDA}/9`, {
+      cabeceras: { [CABECERA_DISPOSITIVO]: 'dispositivo' },
+    });
+  });
+
+  it('resuelve correctamente una respuesta 204 sin cuerpo', async () => {
+    vi.mocked(apiClient.delete).mockResolvedValue(null);
+
+    await expect(cancelarReserva(9, 'dispositivo')).resolves.toBeUndefined();
+  });
+
+  it('propaga los errores de apiClient.delete sin tratarlos como éxito', async () => {
+    const fallo = new ErrorApi(422, 'Esta reserva ya fue marcada como abordada.');
+    vi.mocked(apiClient.delete).mockRejectedValue(fallo);
+
+    await expect(cancelarReserva(9, 'dispositivo')).rejects.toBe(fallo);
   });
 });

@@ -4,20 +4,28 @@
   min-height: 100dvh;
 }
 
-/* Cabecera del canvas (MapaOSM): verde de marca, 12/18/14 px, fila de 30 px. */
+/*
+ * Cabecera del canvas (MapaOSM): verde de marca. Una sola fila en cualquier
+ * ancho: marca a la izquierda y, a la derecha, el selector de ruta y el menu,
+ * todos con la misma altura tactil para que queden alineados con el logo (QA).
+ */
 .apl__encabezado {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   min-height: var(--alto-encabezado);
-  padding: calc(12px + var(--seguro-arriba)) 18px 14px;
+  padding: calc(4px + var(--seguro-arriba)) 18px 4px;
   background: var(--verde-jumay);
-  color: var(--superficie-base);
+  color: var(--sobre-marca);
 }
 
 .apl__marca {
   display: inline-flex;
+  flex-shrink: 0;
+  min-height: var(--tactil-minimo);
+  text-decoration: none;
   align-items: center;
   gap: 10px;
   font-family: var(--fuente-titulos);
@@ -36,6 +44,8 @@
    de acceso por rol, alineados a la derecha. */
 .apl__acciones {
   display: inline-flex;
+  flex: 1 1 auto;
+  justify-content: flex-end;
   align-items: center;
   gap: 12px;
 }
@@ -57,14 +67,78 @@
 }
 
 /*
+ * Contenido amplio para paginas que necesitan aprovechar mejor
+ * el espacio disponible en escritorio, como privacidad y aviso legal.
+ */
+.apl__contenido--amplio {
+  max-width: 1320px;
+}
+
+/*
  * El mapa llega a los bordes: es la vista principal del pasajero y cada pixel
  * de margen le quita mapa. La informacion va flotando encima.
  */
 .apl__contenido--a-sangre {
   max-width: none;
   padding: 0;
+
   /* min-height: 0 deja que el hijo de 100dvh no desborde el flex. */
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * QA (pantallas pequenas): la cabecera real mide mas que --alto-encabezado en
+ * cuanto aparece el selector de ruta, y el mapa, calculado con esa resta,
+ * empujaba la hoja fuera de la pantalla. Con el mapa a sangre la pantalla es
+ * exactamente la ventana y el mapa toma lo que sobra, mida lo que mida la
+ * cabecera.
+ */
+.apl--a-sangre {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* La cabecera no se encoge ni desborda: el selector cede primero. */
+.apl__encabezado {
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.apl__acciones {
+  min-width: 0;
+}
+
+.apl__estado {
+  display: inline-flex;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+/*
+ * En telefonos el nombre cede su lugar y queda el logo: el selector de ruta
+ * es lo que mas importa. Sin selector (conductor, legales) el menu sigue a la
+ * derecha, asi su lista se abre dentro de la pantalla.
+ */
+@media (max-width: 420px) {
+  .apl__encabezado {
+    padding-inline: 12px;
+  }
+
+  .apl__acciones {
+    gap: 8px;
+  }
+
+  .apl__nombre {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 
 /* Modo oscuro, artboard M3: la cabecera baja a verde profundo. */

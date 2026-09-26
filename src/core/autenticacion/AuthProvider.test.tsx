@@ -181,6 +181,19 @@ describe('AuthProvider', () => {
     expect(screen.getByTestId('correo').textContent).toBe('conductor@jalapa.gob.gt');
   });
 
+  it('ignora el inicio de sesion del panel municipal: no pide sesion de conductor', async () => {
+    montar();
+    emitirCambio(null);
+    await waitFor(() => expect(screen.getByTestId('cargando').textContent).toBe('no'));
+
+    // El administrador entra con Firebase desde /admin/login.
+    emitirCambio({ email: 'admin@jalapa.gob.gt' } as User);
+
+    await waitFor(() => expect(screen.getByTestId('cargando').textContent).toBe('no'));
+    expect(intercambiarTokenConductor).not.toHaveBeenCalled();
+    expect(screen.getByTestId('correo').textContent).toBe('');
+  });
+
   it('conserva el JWT vigente si el refresco falla por red', async () => {
     montar();
     emitirCambio(null);
