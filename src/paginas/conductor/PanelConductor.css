@@ -1,7 +1,8 @@
 /*
  * Panel del conductor en ruta. Pensado para el telefono en el tablero, en
- * horizontal: a la izquierda lo que se lee de un vistazo, a la derecha el
- * boton que se toca con el pulgar. En vertical se apila igual, boton abajo.
+ * horizontal: a la izquierda la parada con "Subió" y "Bajó", a la derecha el
+ * mapa. En vertical se apila y el mapa no se muestra. Nada se desplaza: cada
+ * texto se corta con puntos suspensivos antes que empujar la pantalla.
  * Superficie siempre oscura (tokens --conductor-*), no sigue al tema.
  */
 
@@ -38,18 +39,13 @@
   justify-content: center;
   gap: 20px;
   text-align: center;
+  overflow: auto;
 }
 
-.conductor__vacio {
-  margin: 0;
-  max-width: 28rem;
-  font-size: 18px;
-  line-height: 26px;
-}
-
-/* ---------- Barra: ruta, GPS y acciones de apoyo ---------- */
+/* ---------- Barra ---------- */
 .conductor__barra {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 12px;
   min-width: 0;
@@ -65,12 +61,15 @@
   border: 2px solid var(--conductor-linea);
   border-radius: 14px;
   background: transparent;
-  overflow: hidden;
+  color: var(--conductor-tinta);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--conductor-tinta);
+}
+
+.conductor__ruta-nombre {
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -140,7 +139,7 @@
   font-weight: 700;
 }
 
-/* ---------- Contenido: informacion + protagonista ---------- */
+/* ---------- Contenido: la parada y el mapa ---------- */
 .conductor__contenido {
   flex: 1;
   min-height: 0;
@@ -149,32 +148,26 @@
 }
 
 .conductor__tarjeta {
-  flex: 1 1 0;
+  flex: 1.3 1 0;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px 20px;
-  border-radius: 24px;
-  background: var(--conductor-tarjeta);
-  overflow: auto;
-}
-
-.conductor__lateral {
-  flex: 0 0 300px;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  overflow: auto;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 24px;
+  background: var(--conductor-tarjeta);
+  overflow: hidden;
 }
 
-.conductor__espacio {
-  flex: 1;
+.conductor__cabeza {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
 .conductor__rotulo {
-  display: block;
   font-size: 15px;
   font-weight: 700;
   color: var(--amarillo-volcan);
@@ -182,386 +175,175 @@
 
 .conductor__titulo {
   margin: 0;
-  font-family: var(--fuente-titulos);
-  font-size: 40px;
-  line-height: 44px;
-  font-weight: 800;
-}
-
-.conductor__titulo--mediano {
-  font-size: 26px;
-  line-height: 30px;
-}
-
-.conductor__apoyo {
-  margin: 0;
-  font-size: 16px;
-  line-height: 23px;
-  color: var(--conductor-tinta-suave);
-}
-
-.conductor__fila-grande {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.conductor__minutos {
-  flex-shrink: 0;
-  font-family: var(--fuente-titulos);
-  font-size: 44px;
-  line-height: 48px;
-  font-weight: 800;
-}
-
-.conductor__esperan {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-  color: var(--conductor-tinta-suave);
-  font-size: 16px;
-}
-
-.conductor__esperan strong {
-  font-family: var(--fuente-titulos);
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--conductor-tinta);
-}
-
-.conductor__pie {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 24px;
-  padding-top: 12px;
-  border-top: 1px solid var(--conductor-linea);
-}
-
-.conductor__siguiente {
-  display: flex;
-  flex-direction: column;
-  font-size: 14px;
-  color: var(--conductor-tinta-suave);
-}
-
-.conductor__siguiente strong {
-  font-size: 16px;
-  color: var(--conductor-tinta);
-}
-
-/* ---------- Cifras ---------- */
-.conductor__cifras {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.conductor__cifras--tres {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.conductor__cifra {
-  display: flex;
-  flex-direction: column;
-}
-
-.conductor__cifras .conductor__cifra {
-  align-items: center;
-  padding: 8px 4px;
-  border-radius: 14px;
-  background: var(--conductor-fondo);
-}
-
-.conductor__lateral .conductor__cifra {
-  background: var(--conductor-tarjeta);
-}
-
-.conductor__cifra-valor {
+  overflow: hidden;
   font-family: var(--fuente-titulos);
   font-size: 36px;
-  line-height: 40px;
+  line-height: 42px;
   font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.conductor__cifra-rotulo {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--conductor-tinta-suave);
+.conductor--mensaje .conductor__titulo {
+  white-space: normal;
 }
 
-.conductor__cifra--sube .conductor__cifra-valor {
-  color: var(--amarillo-volcan);
-}
-
-.conductor__cifra--baja .conductor__cifra-valor {
-  color: var(--conductor-baja);
-}
-
-.conductor__cifra--suave .conductor__cifra-valor {
-  color: var(--conductor-tinta-suave);
-}
-
-.conductor__cifras .conductor__cifra--borde,
-.conductor__lateral .conductor__cifra--borde {
-  border: 2px solid var(--conductor-linea);
-  background: transparent;
-}
-
-.conductor__estado {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--conductor-tinta-suave);
-}
-
-.conductor__fallo {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--alerta-sobre-oscuro);
-}
-
-/* ---------- Botones de la columna izquierda en la parada ---------- */
-.conductor__secundario {
-  min-height: 52px;
+.conductor__detalle {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: 2px solid var(--conductor-linea);
-  border-radius: 16px;
-  background: transparent;
-  color: var(--conductor-tinta);
+  gap: 4px 8px;
+  margin: 0;
   font-size: 17px;
-  font-weight: 700;
+  line-height: 24px;
+  color: var(--conductor-tinta-suave);
 }
 
-.conductor__salir {
-  min-height: 84px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border: 0;
-  border-radius: 20px;
-  background: var(--conductor-tinta);
-  color: var(--conductor-fondo);
-  font-family: var(--fuente-titulos);
-  font-size: 22px;
+.conductor__detalle strong {
   font-weight: 800;
+  color: var(--conductor-tinta);
 }
 
-/* ---------- Protagonistas: botones grandes del lado del pulgar ---------- */
-.conductor__grande {
+.conductor__detalle svg {
+  flex-shrink: 0;
+}
+
+/* "Subió" y "Bajó": lo que se toca, del alto que quede libre. */
+.conductor__contar {
+  flex: 1;
+  min-height: 96px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.conductor__boton-conteo {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 160px;
-  padding: 16px;
+  gap: 6px;
+  min-height: 0;
+  padding: 10px 14px;
   border: 0;
-  border-radius: 28px;
+  border-radius: 24px;
+}
+
+.conductor__boton-conteo svg {
+  flex-shrink: 0;
+}
+
+.conductor__boton-texto {
+  font-family: var(--fuente-titulos);
+  font-size: 34px;
+  line-height: 38px;
+  font-weight: 800;
+}
+
+/* Cuantos van en esta parada: pastilla sobre el mismo color del boton. */
+.conductor__boton-cifra {
+  min-width: 2.2em;
+  padding: 2px 12px;
+  border: 2px solid currentColor;
+  border-radius: var(--radio-pastilla);
+  font-family: var(--fuente-titulos);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 800;
   text-align: center;
 }
 
-.conductor__grande--principal {
-  flex: 0 0 340px;
+.conductor__boton-conteo--sube {
   background: var(--amarillo-volcan);
   color: var(--amarillo-volcan-tinta);
 }
 
-.conductor__grande--sube {
-  flex: 1 1 0;
-  background: var(--amarillo-volcan);
-  color: var(--amarillo-volcan-tinta);
-}
-
-.conductor__grande--baja {
-  flex: 1 1 0;
+.conductor__boton-conteo--baja {
   background: var(--conductor-baja);
   color: var(--conductor-baja-tinta);
 }
 
-.conductor__grande--claro {
-  background: var(--conductor-tinta);
-  color: var(--conductor-fondo);
+.conductor__pie {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--conductor-linea);
 }
 
-.conductor__grande--seguir {
-  flex: 0 0 300px;
-  align-items: stretch;
-  justify-content: space-between;
-  text-align: left;
+.conductor__cifra {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
 }
 
-.conductor__grande-texto {
+.conductor__cifra-valor {
   font-family: var(--fuente-titulos);
-  font-size: 36px;
-  line-height: 40px;
+  font-size: 28px;
+  line-height: 30px;
   font-weight: 800;
 }
 
-.conductor__grande-apoyo {
-  font-size: 17px;
+.conductor__cifra-rotulo {
+  font-size: 13px;
   font-weight: 700;
+  color: var(--conductor-tinta-suave);
 }
 
-.conductor__grande-nota {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.conductor__sigue {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 16px;
-}
-
-.conductor__sigue strong {
-  font-family: var(--fuente-titulos);
-  font-size: 24px;
-  line-height: 28px;
-}
-
-.conductor__sigue-rotulo {
+.conductor__estado {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
   font-size: 15px;
   font-weight: 700;
+  line-height: 20px;
+  color: var(--conductor-tinta-suave);
 }
 
-.conductor__seguir {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  text-align: center;
+.conductor__estado--fallo {
+  color: var(--alerta-sobre-oscuro);
 }
 
-/* ---------- Parada cerrada ---------- */
-.conductor__cerrada {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.conductor__check {
+.conductor__secundario {
   display: flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 56px;
   height: 56px;
-  border-radius: var(--radio-pastilla);
-  background: var(--amarillo-volcan);
-  color: var(--amarillo-volcan-tinta);
-}
-
-/* ---------- Hojas: paradas y reportar atraso ---------- */
-.conductor__velo {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  background: rgb(0 0 0 / 55%);
-}
-
-.conductor__hoja {
-  width: min(560px, 100%);
-  max-height: 100%;
-  box-sizing: border-box;
-  overflow: auto;
-  padding: 16px 20px 20px;
-  border-radius: 24px;
-  background: var(--conductor-tarjeta);
+  padding: 0;
+  border: 2px solid var(--conductor-linea);
+  border-radius: 16px;
+  background: transparent;
   color: var(--conductor-tinta);
 }
 
-.conductor__hoja--clara {
-  background: var(--superficie-base);
-  color: var(--tinta);
+.conductor__secundario svg {
+  flex-shrink: 0;
 }
 
-.conductor__hoja--clara .conductor__chico {
-  border-color: var(--borde);
-  color: var(--tinta);
-}
-
-.conductor__hoja-cabecera {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.conductor__hoja-cabecera h2 {
-  margin: 0;
-  font-family: var(--fuente-titulos);
-  font-size: 22px;
+.conductor__siguiente {
+  flex-shrink: 0;
+  min-height: 56px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--conductor-tinta);
+  color: var(--conductor-fondo);
+  font-size: 18px;
   font-weight: 800;
 }
 
-.conductor__lista {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.conductor__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 56px;
-  padding: 6px 6px 6px 14px;
-  border: 1px solid var(--conductor-linea-suave);
-  border-radius: 14px;
-}
-
-.conductor__item-textos {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  font-size: 14px;
-  color: var(--conductor-tinta-suave);
-}
-
-.conductor__item-textos strong {
-  font-size: 17px;
-  color: var(--conductor-tinta);
-}
-
-.conductor__item-estado {
-  padding-right: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--conductor-tinta-suave);
-}
-
-/* ---------- En camino: proxima parada, mapa y "Llegué" ---------- */
-.conductor__contenido--camino .conductor__grande--principal {
-  flex-basis: 260px;
-}
-
 .conductor__mapa {
-  flex: 1.1 1 0;
+  flex: 1 1 0;
   min-width: 200px;
   overflow: hidden;
   border-radius: 24px;
   background: var(--conductor-tarjeta);
 }
 
-/* ---------- Elegir ruta: al entrar y desde la barra ---------- */
+/* ---------- Elegir ruta: al entrar sin ruta y desde la barra ---------- */
 .conductor__elegir {
   display: flex;
   flex-direction: column;
@@ -614,13 +396,113 @@
   color: var(--amarillo-volcan);
 }
 
-.conductor__empezar {
-  flex: 0 0 auto;
-  width: min(100%, 22rem);
-  min-height: 96px;
+.conductor__fallo {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--alerta-sobre-oscuro);
 }
 
-/* ---------- Telefono en vertical: se apila, el boton queda abajo ---------- */
+.conductor__apoyo {
+  margin: 0;
+  font-size: 16px;
+  line-height: 23px;
+  color: var(--conductor-tinta-suave);
+}
+
+/* ---------- Hojas: paradas, ruta y reportar atraso ---------- */
+.conductor__velo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: rgb(0 0 0 / 55%);
+}
+
+.conductor__hoja {
+  width: min(560px, 100%);
+  max-height: 100%;
+  box-sizing: border-box;
+  overflow: auto;
+  padding: 16px 20px 20px;
+  border-radius: 24px;
+  background: var(--conductor-tarjeta);
+  color: var(--conductor-tinta);
+}
+
+.conductor__hoja--clara {
+  background: var(--superficie-base);
+  color: var(--tinta);
+}
+
+.conductor__hoja--clara .conductor__chico {
+  border-color: var(--borde);
+  color: var(--tinta);
+}
+
+.conductor__hoja-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.conductor__hoja-cabecera h2 {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.conductor__hoja .conductor__estado {
+  margin-top: 10px;
+}
+
+.conductor__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.conductor__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 6px 6px 6px 14px;
+  border: 1px solid var(--conductor-linea-suave);
+  border-radius: 14px;
+}
+
+.conductor__item-textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--conductor-tinta-suave);
+}
+
+.conductor__item-textos strong {
+  font-size: 17px;
+  color: var(--conductor-tinta);
+}
+
+.conductor__item-estado {
+  padding-right: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--conductor-tinta-suave);
+}
+
+/* ---------- Telefono en vertical: se apila y el mapa no se muestra ---------- */
 @media (orientation: portrait) {
   .conductor__barra {
     flex-wrap: wrap;
@@ -629,7 +511,7 @@
 
   .conductor__acciones {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     width: 100%;
     margin-left: 0;
   }
@@ -639,48 +521,48 @@
     font-size: 14px;
   }
 
-  .conductor__contenido {
-    flex-direction: column;
-  }
-
-  /* En vertical no hay ancho para tres columnas: la tarjeta y "Llegué" mandan. */
   .conductor__mapa {
     display: none;
   }
 
-  /* En la parada, Subió y Bajó lado a lado debajo del conteo. */
-  .conductor__contenido--parada {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: auto minmax(0, 1fr);
+  /* "Subió" arriba de "Bajó": botones anchos para el pulgar, con la flecha,
+     el texto y la cifra en una fila para que no se salgan de lo alto. */
+  .conductor__contar {
+    grid-template-columns: 1fr;
   }
 
-  .conductor__contenido--parada .conductor__lateral {
-    grid-column: 1 / -1;
+  .conductor__boton-conteo {
+    flex-direction: row;
+    gap: 14px;
   }
 
-  .conductor__tarjeta,
-  .conductor__lateral {
-    flex: 0 1 auto;
-  }
-
-  .conductor__grande--principal,
-  .conductor__grande--seguir,
-  .conductor__grande--sube,
-  .conductor__grande--baja {
-    flex: 1 0 160px;
-  }
-
+  /* En vertical sobra alto y falta ancho: el nombre usa hasta dos lineas. */
   .conductor__titulo {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     font-size: 30px;
     line-height: 34px;
+    white-space: normal;
+  }
+
+  .conductor__pie {
+    flex-wrap: wrap;
+  }
+
+  .conductor__estado {
+    flex-basis: 100%;
+    order: -1;
+  }
+
+  .conductor__siguiente {
+    flex: 1;
   }
 }
 
 /*
- * Telefono acostado: la pantalla mide menos de 420 px de alto. Todo se
- * compacta para que la columna izquierda entre sin desplazarse; los botones
- * grandes siguen ocupando el alto completo.
+ * Telefono acostado: menos de 420 px de alto. Todo se compacta para que la
+ * tarjeta entre sin desplazarse; "Subió" y "Bajó" se quedan con el resto.
  */
 @media (orientation: landscape) and (max-height: 420px) {
   .conductor {
@@ -690,76 +572,66 @@
   }
 
   .conductor__contenido {
-    gap: 10px;
+    gap: 8px;
   }
 
   .conductor__tarjeta {
-    gap: 6px;
-    padding: 12px 16px;
-  }
-
-  .conductor__lateral {
-    gap: 6px;
+    gap: 8px;
+    padding: 10px 14px;
   }
 
   .conductor__chico {
-    padding: 0 12px;
+    padding: 0 10px;
     font-size: 14px;
   }
 
   .conductor__titulo {
-    font-size: 28px;
-    line-height: 32px;
+    font-size: 26px;
+    line-height: 30px;
   }
 
-  .conductor__titulo--mediano {
-    font-size: 22px;
-    line-height: 26px;
+  .conductor__detalle {
+    font-size: 15px;
+    line-height: 20px;
   }
 
-  .conductor__minutos {
-    font-size: 36px;
-    line-height: 40px;
+  .conductor__contar {
+    min-height: 72px;
+    gap: 8px;
   }
 
-  .conductor__esperan strong {
-    font-size: 22px;
+  .conductor__boton-conteo {
+    padding: 8px 12px;
+  }
+
+  .conductor__boton-texto {
+    font-size: 26px;
+    line-height: 30px;
   }
 
   .conductor__pie {
-    padding-top: 8px;
-  }
-
-  .conductor__cifras .conductor__cifra {
-    padding: 4px;
+    gap: 10px;
+    padding-top: 6px;
   }
 
   .conductor__cifra-valor {
-    font-size: 28px;
-    line-height: 32px;
+    font-size: 22px;
+    line-height: 24px;
+  }
+
+  .conductor__estado {
+    font-size: 13px;
+    line-height: 16px;
   }
 
   .conductor__secundario {
+    width: var(--tactil-minimo);
+    height: var(--tactil-minimo);
+  }
+
+  .conductor__siguiente {
     min-height: var(--tactil-minimo);
+    padding: 0 14px;
     font-size: 16px;
-  }
-
-  .conductor__salir {
-    min-height: 64px;
-    font-size: 20px;
-  }
-
-  .conductor__grande {
-    min-height: 0;
-  }
-
-  .conductor__grande svg {
-    width: 72px;
-    height: 72px;
-  }
-
-  .conductor__grande-texto {
-    font-size: 32px;
-    line-height: 36px;
   }
 }

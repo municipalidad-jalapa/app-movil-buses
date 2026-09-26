@@ -299,17 +299,19 @@ Reglas de redacción:
 Máxima carga de identidad. Mapa como vista principal. Croquis como respaldo.
 
 ### Conductor (tablet horizontal, navegador)
-**[DURA]** Sin ornamento. Próxima parada con su demanda y el botón «Llegué» en alto
-contraste, legibles a un metro mientras se maneja. Sin scroll. Asume pantalla siempre
+**[DURA]** Sin ornamento. Una sola pantalla: la parada en la que está el bus (o la
+próxima) con su demanda y los botones «Subió» y «Bajó», en alto contraste, legibles a un
+metro mientras se maneja. «Siguiente parada» la cierra. No hay paso de «Llegué». Sin
+scroll: los textos largos se cortan con puntos suspensivos. Asume pantalla siempre
 encendida y luz cambiante dentro del bus.
 
 **[DURA]** El mapa es apoyo, no protagonista (cambio de 2026-09-26: antes esta superficie
-no llevaba mapa). Va en modo oscuro entre la tarjeta de la próxima parada y «Llegué»,
-solo en la vista «en camino» y en horizontal. Nunca tapa ni achica por debajo de lo
-legible la próxima parada ni el botón. En vertical no se muestra.
+no llevaba mapa). Va en modo oscuro a la derecha de la tarjeta de la parada, solo en
+horizontal. Nunca tapa ni achica por debajo de lo legible la parada ni sus botones. En
+vertical no se muestra.
 
-Al entrar, el conductor confirma la ruta que va a manejar o la cambia; en la jornada la
-cambia tocando su nombre en la barra.
+La ruta se ve en la barra y se cambia tocando su nombre. Sin ruta asignada, el conductor
+la elige al entrar.
 
 ### Panel municipal (escritorio)
 Sobrio. Identidad solo en la cabecera. Orientado a que un funcionario justifique

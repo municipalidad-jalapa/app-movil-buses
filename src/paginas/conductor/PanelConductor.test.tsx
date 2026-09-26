@@ -75,6 +75,17 @@ const RUTAS: RutaDelConductor = {
   ],
 };
 
+/** A 10 m de El Calvario: el GPS lo ubica ahi aunque el Mercado llegue antes. */
+function busEnElCalvario(minutosAtras = 0) {
+  return {
+    latitud: 14.6306,
+    longitud: -89.99281,
+    velocidadKmh: 0,
+    timestamp: new Date(Date.now() - minutosAtras * 60_000).toISOString(),
+    vehiculo: 'BUS-01',
+  };
+}
+
 function abrir() {
   render(
     <MemoryRouter>
@@ -89,58 +100,57 @@ beforeEach(() => {
   posicionDelBus.mockReset().mockReturnValue(null);
   vi.mocked(obtenerRutaConductor).mockReset().mockResolvedValue(RUTAS);
   vi.mocked(elegirRutaConductor).mockReset().mockResolvedValue({ ...RUTAS, rutaId: 2, rutaNombre: 'RUTA SECUNDARIA' });
-  // Ya confirmo la ruta en esta sesion: la mayoria de los casos arranca en el panel.
-  sessionStorage.setItem('ecoruta_conductor_ruta_confirmada', '1');
 });
-afterEach(() => {
-  cleanup();
-  sessionStorage.clear();
-});
+afterEach(cleanup);
 
 describe('Panel del conductor en ruta', () => {
-  it('en camino muestra la proxima parada, quienes esperan y cuantos van a bordo', async () => {
+  it('entra directo a la parada con Subió y Bajó, sin paso de Llegué', async () => {
     abrir();
     // El Mercado llega antes (2 min): es la proxima.
     expect(await screen.findByRole('heading', { name: 'Mercado' })).toBeTruthy();
+    expect(screen.getByText('Próxima parada')).toBeTruthy();
     expect(screen.getByText('2 esperan')).toBeTruthy();
     expect(screen.getByText('12')).toBeTruthy();
     expect(screen.getByText('21')).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Llegué/ })).toBeTruthy();
     expect(screen.getByText('Vuelta 2')).toBeTruthy();
+    expect(screen.getByText('Mapa de RUTA PRINCIPAL')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Subió. Van 0' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Bajó. Van 0' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Llegué/ })).toBeNull();
+    expect(screen.queryByText('Hoy manejás')).toBeNull();
   });
 
-  it('en la parada cuenta con Subió y Bajó, deshace y guarda el conteo al salir', async () => {
+  it('cuenta, deshace y al pasar a la siguiente guarda el conteo y sigue con otra parada', async () => {
     vi.mocked(marcarParadaAtendida).mockResolvedValue({ reservasCerradas: 2, marcadaEn: '2026-09-23T15:05:00Z' });
     abrir();
-    fireEvent.click(await screen.findByRole('button', { name: /Llegué/ }));
+    await screen.findByRole('heading', { name: 'Mercado' });
 
-    expect(screen.getByRole('heading', { name: 'Mercado' })).toBeTruthy();
-    expect(screen.getByText('2 avisaron por la app')).toBeTruthy();
-
-    const subio = screen.getByRole('button', { name: /Subió/ });
+    const subio = screen.getByRole('button', { name: /^Subió/ });
     fireEvent.click(subio);
     fireEvent.click(subio);
     fireEvent.click(subio);
-    fireEvent.click(screen.getByRole('button', { name: /Bajó/ }));
-    fireEvent.click(screen.getByRole('button', { name: /Bajó/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Bajó/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Bajó/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Deshacer el último' }));
 
+    expect(screen.getByRole('button', { name: 'Subió. Van 3' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Bajó. Van 1' })).toBeTruthy();
     expect(screen.getByRole('status').textContent).toBe('1 subió sin avisar por la app');
-
-    fireEvent.click(screen.getByRole('button', { name: /Salir de la parada/ }));
-
-    await screen.findByRole('heading', { name: 'Mercado: cerrada' });
-    expect(marcarParadaAtendida).toHaveBeenCalledWith(1, 2, { subieron: 3, bajaron: 1 });
-    // 12 a bordo al llegar + 3 - 1.
+    // 12 a bordo + 3 - 1.
     expect(screen.getByText('14')).toBeTruthy();
-    // Sigue la proxima pendiente, sin la que se acaba de cerrar.
-    expect(screen.getByRole('button', { name: /Seguir la ruta/ }).textContent).toContain('Parque Central');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente parada' }));
+
+    await waitFor(() => expect(marcarParadaAtendida).toHaveBeenCalledWith(1, 2, { subieron: 3, bajaron: 1 }));
+    // Sigue la proxima pendiente, sin la que se acaba de cerrar, con el conteo en cero.
+    expect(await screen.findByRole('heading', { name: 'Parque Central' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Subió. Van 0' })).toBeTruthy();
+    expect(screen.getByRole('status').textContent).toBe('Mercado cerrada: 3 subieron, 1 bajó.');
   });
 
   it('no pierde toques rapidos seguidos antes de que la pantalla se redibuje', async () => {
     abrir();
-    fireEvent.click(await screen.findByRole('button', { name: /Llegué/ }));
-    const subio = screen.getByRole('button', { name: /Subió/ });
+    const subio = await screen.findByRole('button', { name: /^Subió/ });
     act(() => {
       subio.click();
       subio.click();
@@ -149,25 +159,50 @@ describe('Panel del conductor en ruta', () => {
     expect(screen.getByRole('status').textContent).toBe('1 subió sin avisar por la app');
   });
 
-  it('si no se pudo guardar se queda en la parada y lo dice', async () => {
+  it('si no se pudo guardar se queda en la parada con su conteo y lo dice', async () => {
     vi.mocked(marcarParadaAtendida).mockRejectedValue(new ErrorApi(409, 'La parada ya fue marcada como atendida.'));
     abrir();
-    fireEvent.click(await screen.findByRole('button', { name: /Llegué/ }));
-    fireEvent.click(screen.getByRole('button', { name: /Salir de la parada/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /^Subió/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente parada' }));
 
-    expect((await screen.findByRole('alert')).textContent).toMatch(/la cerraste hace un momento/);
-    expect(screen.getByRole('button', { name: /Subió/ })).toBeTruthy();
+    await waitFor(() => expect(screen.getByRole('status').textContent).toMatch(/la cerraste hace un momento/));
+    expect(screen.getByRole('heading', { name: 'Mercado' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Subió. Van 1' })).toBeTruthy();
   });
 
-  it('el GPS detecta la llegada: bus detenido en la proxima parada', async () => {
-    vi.mocked(obtenerPanelConductor).mockResolvedValue({
-      ...PANEL,
-      estadoBus: 'DETENIDO_EN_PARADA',
-      paradas: PANEL.paradas.map((p) => (p.paradaId === 2 ? { ...p, minutos: 0 } : p)),
-    });
+  it('con el bus en una parada, esa es la que cuenta aunque otra llegue antes por el orden', async () => {
+    posicionDelBus.mockReturnValue(busEnElCalvario());
     abrir();
-    expect(await screen.findByText('Estás en la parada')).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Subió/ })).toBeTruthy();
+
+    expect(await screen.findByRole('heading', { name: 'El Calvario' })).toBeTruthy();
+    expect(screen.getByText('Estás aquí')).toBeTruthy();
+  });
+
+  it('lejos de toda parada o con la posicion vieja, propone la proxima del recorrido', async () => {
+    posicionDelBus.mockReturnValue(busEnElCalvario(10));
+    abrir();
+
+    expect(await screen.findByRole('heading', { name: 'Mercado' })).toBeTruthy();
+    expect(screen.getByText('Próxima parada')).toBeTruthy();
+  });
+
+  it('al empezar a contar la parada queda fija aunque el GPS proponga otra', async () => {
+    const { rerender } = render(
+      <MemoryRouter>
+        <PanelConductor />
+      </MemoryRouter>,
+    );
+    fireEvent.click(await screen.findByRole('button', { name: /^Subió/ }));
+    expect(screen.getByRole('heading', { name: 'Mercado' })).toBeTruthy();
+
+    posicionDelBus.mockReturnValue(busEnElCalvario());
+    rerender(
+      <MemoryRouter>
+        <PanelConductor />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('heading', { name: 'Mercado' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Subió. Van 1' })).toBeTruthy();
   });
 
   it('la lista de paradas deja elegir en cual esta y marca las cerradas', async () => {
@@ -176,10 +211,12 @@ describe('Panel del conductor en ruta', () => {
     const lista = screen.getByRole('list', { name: 'Paradas del recorrido' });
     const filas = within(lista).getAllByRole('listitem');
     expect(within(filas[3]).getByText('Cerrada')).toBeTruthy();
+    expect(within(filas[1]).getByText('Aquí')).toBeTruthy();
 
     fireEvent.click(within(filas[0]).getByRole('button', { name: 'Estoy aquí' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(screen.getByRole('heading', { name: 'Parque Central' })).toBeTruthy();
-    expect(screen.getByText('3 avisaron por la app')).toBeTruthy();
+    expect(screen.getByText('Estás aquí')).toBeTruthy();
   });
 
   it('reportar atraso se abre en una hoja aparte', async () => {
@@ -205,33 +242,6 @@ describe('Panel del conductor en ruta', () => {
     expect(await screen.findByRole('button', { name: 'Cambiar ruta. Ahora: RUTA SECUNDARIA' })).toBeTruthy();
   });
 
-  it('al entrar confirma la ruta y ve el mapa junto a la proxima parada', async () => {
-    sessionStorage.clear();
-    abrir();
-
-    expect(await screen.findByText('Hoy manejás')).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'RUTA PRINCIPAL' })).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Empezar' }));
-
-    expect(await screen.findByRole('heading', { name: 'Mercado' })).toBeTruthy();
-    expect(screen.getByText('Mapa de RUTA PRINCIPAL')).toBeTruthy();
-    expect(sessionStorage.getItem('ecoruta_conductor_ruta_confirmada')).toBe('1');
-    expect(elegirRutaConductor).not.toHaveBeenCalled();
-  });
-
-  it('al entrar puede cambiar de ruta antes de empezar', async () => {
-    sessionStorage.clear();
-    abrir();
-    fireEvent.click(await screen.findByRole('button', { name: 'Cambiar ruta' }));
-
-    const actual = await screen.findByRole('button', { name: /RUTA PRINCIPAL/ });
-    expect(actual.getAttribute('aria-pressed')).toBe('true');
-    fireEvent.click(screen.getByRole('button', { name: /RUTA SECUNDARIA/ }));
-
-    await waitFor(() => expect(elegirRutaConductor).toHaveBeenCalledWith(2));
-    expect(await screen.findByRole('heading', { name: 'Mercado' })).toBeTruthy();
-  });
-
   it('en la jornada cambia de ruta tocando su nombre en la barra', async () => {
     abrir();
     fireEvent.click(await screen.findByRole('button', { name: 'Cambiar ruta. Ahora: RUTA PRINCIPAL' }));
@@ -242,53 +252,6 @@ describe('Panel del conductor en ruta', () => {
     await waitFor(() => expect(elegirRutaConductor).toHaveBeenCalledWith(2));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     await waitFor(() => expect(obtenerPanelConductor).toHaveBeenCalledTimes(2));
-  });
-
-  it('con el bus en una parada, esa es la que propone aunque otra llegue antes por el orden', async () => {
-    // A 10 m de El Calvario; el Mercado (2 min) seria la proxima por tiempo.
-    posicionDelBus.mockReturnValue({
-      latitud: 14.6306,
-      longitud: -89.99281,
-      velocidadKmh: 12,
-      timestamp: new Date().toISOString(),
-      vehiculo: 'BUS-01',
-    });
-    abrir();
-
-    expect(await screen.findByRole('heading', { name: 'El Calvario' })).toBeTruthy();
-    expect(screen.getByText('Estás aquí')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: /Llegué/ }));
-    expect(await screen.findByRole('heading', { name: 'El Calvario' })).toBeTruthy();
-    expect(screen.getByText('Estás en la parada')).toBeTruthy();
-  });
-
-  it('lejos de toda parada o con la posicion vieja, propone la proxima del recorrido', async () => {
-    posicionDelBus.mockReturnValue({
-      latitud: 14.6306,
-      longitud: -89.99281,
-      velocidadKmh: 12,
-      timestamp: new Date(Date.now() - 10 * 60_000).toISOString(),
-      vehiculo: 'BUS-01',
-    });
-    abrir();
-
-    expect(await screen.findByRole('heading', { name: 'Mercado' })).toBeTruthy();
-    expect(screen.getByText('Próxima parada')).toBeTruthy();
-  });
-
-  it('el bus detenido donde lo ubica el GPS abre la parada solo', async () => {
-    vi.mocked(obtenerPanelConductor).mockResolvedValue({ ...PANEL, estadoBus: 'DETENIDO_EN_PARADA' });
-    posicionDelBus.mockReturnValue({
-      latitud: 14.6306,
-      longitud: -89.99281,
-      velocidadKmh: 0,
-      timestamp: new Date().toISOString(),
-      vehiculo: 'BUS-01',
-    });
-    abrir();
-
-    expect(await screen.findByText('Estás en la parada')).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'El Calvario' })).toBeTruthy();
   });
 
   it('si no se pudo cambiar de ruta lo dice y no cierra la hoja', async () => {

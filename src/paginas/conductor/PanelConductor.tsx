@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ReportarAtraso } from '../../componentes/atrasos/ReportarAtraso';
 import { Cargando } from '../../componentes/Cargando';
@@ -10,8 +10,6 @@ import {
   paradaDondeEstaElBus,
   posicionVigente,
   proximaParada,
-  recordarRutaConfirmada,
-  rutaYaConfirmada,
   textoLlegada,
   type ParadaDelPanel,
 } from '../../core/panelConductor';
@@ -22,44 +20,33 @@ import { useRutas } from '../../hooks/useRutas';
 import './PanelConductor.css';
 
 /**
- * Panel del conductor en ruta (HU-62, HU-75, HU-76). Diseño "Panel del
- * conductor en ruta": teléfono en el tablero, en horizontal, con una sola mano.
+ * Panel del conductor en ruta (HU-62, HU-75, HU-76). Teléfono en el tablero,
+ * en horizontal, con una sola mano.
  *
- * <p>Al entrar, el conductor confirma la ruta que va a manejar o la cambia; en
- * la jornada la cambia tocando su nombre en la barra.
+ * <p>Una sola pantalla: la parada en la que está el bus (según el GPS) o la
+ * próxima del recorrido, con "Subió" y "Bajó" ahí mismo y "Siguiente parada"
+ * para cerrarla con lo que contó el piloto. No hay que avisar que se llegó.
+ * Al primer toque la parada queda fija hasta cerrarla, aunque el GPS proponga
+ * otra: el conteo nunca cambia de parada a medio contar.
  *
- * <p>La parada que propone "Llegué" es aquella en la que esta el bus segun el
- * GPS; si no esta en ninguna, la proxima del recorrido.
- *
- * <p>Tres momentos, cada uno con un protagonista del lado del pulgar:
- * en camino ("Llegué"), en la parada ("Subió" y "Bajó") y parada cerrada
- * ("Seguir la ruta"). Al salir de la parada se guarda lo que contó el piloto,
- * incluidos los que subieron sin avisar por la app, y se cierran sus avisos.
+ * <p>La ruta se ve y se cambia tocando su nombre en la barra.
  */
 
 type Movimiento = 'sube' | 'baja';
-
-type Fase =
-  | { tipo: 'camino' }
-  | { tipo: 'parada'; parada: ParadaDelPanel; historial: Movimiento[]; aBordoAlLlegar: number }
-  | {
-      tipo: 'cerrada';
-      parada: ParadaDelPanel;
-      subieron: number;
-      bajaron: number;
-      aBordo: number;
-    };
 
 type Hoja = 'paradas' | 'atraso' | 'ruta' | null;
 
 export function PanelConductor() {
   const { cerrarSesion } = useAuth();
   const { panel, cargando, error, marcando, cerrarParada, reintentar } = usePanelConductor();
-  const [fase, setFase] = useState<Fase>({ tipo: 'camino' });
   const [hoja, setHoja] = useState<Hoja>(null);
   const [fallo, setFallo] = useState<string | null>(null);
-  const [confirmada, setConfirmada] = useState(rutaYaConfirmada);
-  const [eligiendoRuta, setEligiendoRuta] = useState(false);
+  const [cierre, setCierre] = useState<string | null>(null);
+  /** Parada fijada a mano (lista de paradas) o por el primer toque. */
+  const [fijadaId, setFijadaId] = useState<number | null>(null);
+  const [historial, setHistorial] = useState<Movimiento[]>([]);
+  /** La recien cerrada sigue pendiente hasta que llega el panel nuevo. */
+  const [cerradaId, setCerradaId] = useState<number | null>(null);
 
   // La ruta (ubicacion de las paradas) y el bus en vivo: para el mapa y para
   // saber en que parada esta el bus. null mientras no hay panel: no se pide nada.
@@ -72,69 +59,62 @@ export function PanelConductor() {
   );
   const bus = posicionVigente(posicion, Date.now());
 
+  // El panel nuevo ya trae la parada cerrada como atendida (o una vuelta nueva).
+  useEffect(() => setCerradaId(null), [panel]);
+
   const paradas = panel?.paradas ?? [];
-  const aBordo = panel?.aBordo ?? 0;
-  // La que se acaba de cerrar puede seguir pendiente hasta el proximo refresco.
-  const cerradaId = fase.tipo === 'cerrada' ? fase.parada.paradaId : null;
-  const pendientes = paradas.filter((p) => p.paradaId !== cerradaId);
+  const pendientes = paradas.filter((p) => p.paradaId !== cerradaId && !p.atendidaEn);
+  const fijada = pendientes.find((p) => p.paradaId === fijadaId) ?? null;
   const aqui = paradaDondeEstaElBus(pendientes, ubicaciones, bus);
-  const proxima = proximaParada(pendientes, ubicaciones, bus);
+  const actual = fijada ?? proximaParada(pendientes, ubicaciones, bus);
 
-  const llegar = useCallback(
-    (parada: ParadaDelPanel) => {
-      setHoja(null);
-      setFallo(null);
-      setFase({ tipo: 'parada', parada, historial: [], aBordoAlLlegar: aBordo });
-    },
-    [aBordo],
-  );
-
-  // El GPS detecta la llegada: el bus detenido en la parada que toca, o en la
-  // que el GPS lo ubica aunque no fuera la siguiente del orden.
-  const autoLlegada = useRef<number | null>(null);
-  const aquiId = aqui?.paradaId ?? null;
+  // La parada fijada se cerro por otro lado (otra pestana): el conteo se suelta.
   useEffect(() => {
-    if (fase.tipo !== 'camino' || !panel || !proxima) return;
-    const enLaParada =
-      panel.estadoBus === 'DETENIDO_EN_PARADA' &&
-      (aquiId === proxima.paradaId || (proxima.minutos !== null && proxima.minutos <= 0));
-    if (enLaParada && autoLlegada.current !== proxima.paradaId) {
-      autoLlegada.current = proxima.paradaId;
-      llegar(proxima);
+    if (fijadaId !== null && !fijada && panel) {
+      setFijadaId(null);
+      setHistorial([]);
     }
-  }, [fase.tipo, panel, proxima, aquiId, llegar]);
+  }, [fijadaId, fijada, panel]);
 
-  async function salirDeLaParada() {
-    if (fase.tipo !== 'parada') return;
-    const subieron = fase.historial.filter((m) => m === 'sube').length;
-    const bajaron = fase.historial.length - subieron;
+  const subieron = historial.filter((m) => m === 'sube').length;
+  const bajaron = historial.length - subieron;
+  const aBordo = Math.max(0, (panel?.aBordo ?? 0) + subieron - bajaron);
+
+  function mover(movimiento: Movimiento) {
+    if (!actual) return;
+    setFijadaId((id) => id ?? actual.paradaId);
+    setCierre(null);
     setFallo(null);
-    const resultado = await cerrarParada(fase.parada.paradaId, { subieron, bajaron });
+    setHistorial((h) => [...h, movimiento]);
+  }
+
+  async function siguienteParada() {
+    if (!actual) return;
+    setFallo(null);
+    const resultado = await cerrarParada(actual.paradaId, { subieron, bajaron });
     if (!resultado.ok) {
       setFallo(resultado.mensaje);
       return;
     }
-    setFase({
-      tipo: 'cerrada',
-      parada: fase.parada,
-      subieron,
-      bajaron,
-      aBordo: Math.max(0, fase.aBordoAlLlegar + subieron - bajaron),
-    });
+    setCierre(textoCierre(actual.nombre, subieron, bajaron));
+    setCerradaId(actual.paradaId);
+    setFijadaId(null);
+    setHistorial([]);
   }
 
-  function empezar() {
-    recordarRutaConfirmada();
-    setConfirmada(true);
-    setEligiendoRuta(false);
+  function elegirParada(p: ParadaDelPanel) {
+    setHoja(null);
+    setFijadaId(p.paradaId);
+    setCierre(null);
   }
 
-  /** Eligio ruta (al entrar o desde la barra): empieza en camino con el panel nuevo. */
+  /** Cambio la ruta desde la barra o la eligio al entrar: arranca de cero. */
   function rutaElegida() {
-    empezar();
     setHoja(null);
     setFallo(null);
-    setFase({ tipo: 'camino' });
+    setCierre(null);
+    setFijadaId(null);
+    setHistorial([]);
     reintentar();
   }
 
@@ -148,41 +128,8 @@ export function PanelConductor() {
   if (!panel && error?.status === 403) {
     return (
       <div className="conductor conductor--mensaje">
-        <h1 className="conductor__titulo conductor__titulo--mediano">¿Qué ruta vas a manejar hoy?</h1>
+        <h1 className="conductor__titulo">¿Qué ruta vas a manejar hoy?</h1>
         <ElegirRuta onElegida={rutaElegida} />
-        {salir}
-      </div>
-    );
-  }
-
-  // Al entrar: confirma la ruta o la cambia, una vez por sesion.
-  if (panel && !confirmada) {
-    return (
-      <div className="conductor conductor--mensaje">
-        {eligiendoRuta ? (
-          <>
-            <h1 className="conductor__titulo conductor__titulo--mediano">¿Qué ruta vas a manejar hoy?</h1>
-            <ElegirRuta onElegida={rutaElegida} />
-            <button type="button" className="conductor__chico" onClick={() => setEligiendoRuta(false)}>
-              Volver
-            </button>
-          </>
-        ) : (
-          <>
-            <span className="conductor__rotulo">Hoy manejás</span>
-            <h1 className="conductor__titulo">{panel.rutaNombre}</h1>
-            <button
-              type="button"
-              className="conductor__grande conductor__grande--principal conductor__empezar"
-              onClick={empezar}
-            >
-              <span className="conductor__grande-texto">Empezar</span>
-            </button>
-            <button type="button" className="conductor__chico" onClick={() => setEligiendoRuta(true)}>
-              Cambiar ruta
-            </button>
-          </>
-        )}
         {salir}
       </div>
     );
@@ -205,162 +152,127 @@ export function PanelConductor() {
     );
   }
 
-  const barra = (
-    <header className="conductor__barra">
-      <button
-        type="button"
-        className="conductor__ruta"
-        aria-label={`Cambiar ruta. Ahora: ${panel.rutaNombre}`}
-        onClick={() => setHoja('ruta')}
-      >
-        {panel.rutaNombre}
-        <IconoCambiar />
-      </button>
-      {panel.vuelta !== undefined && <span className="conductor__vuelta">Vuelta {panel.vuelta}</span>}
-      <span className="conductor__gps">
-        <span
-          className={
-            panel.estadoBus === 'SIN_DATOS' ? 'conductor__punto conductor__punto--sin-datos' : 'conductor__punto'
-          }
-          aria-hidden="true"
-        />
-        {panel.estadoBus === 'SIN_DATOS' ? 'Sin GPS' : 'GPS en vivo'}
-      </span>
-      {error && <span className="conductor__sin-conexion">Sin conexión: reintentando</span>}
-      <span className="conductor__acciones">
-        <Link to="/" className="conductor__chico">
-          Ver el mapa
-        </Link>
-        <button type="button" className="conductor__chico" onClick={() => setHoja('paradas')}>
-          Paradas
-        </button>
-        <button type="button" className="conductor__chico" onClick={() => setHoja('atraso')}>
-          Reportar atraso
-        </button>
-        {salir}
-      </span>
-    </header>
-  );
+  const enviando = actual !== null && marcando === actual.paradaId;
 
   return (
     <div className="conductor">
-      {fase.tipo !== 'parada' && barra}
+      <header className="conductor__barra">
+        <button
+          type="button"
+          className="conductor__ruta"
+          aria-label={`Cambiar ruta. Ahora: ${panel.rutaNombre}`}
+          onClick={() => setHoja('ruta')}
+        >
+          <span className="conductor__ruta-nombre">{panel.rutaNombre}</span>
+          <IconoCambiar />
+        </button>
+        {panel.vuelta !== undefined && <span className="conductor__vuelta">Vuelta {panel.vuelta}</span>}
+        <span className="conductor__gps">
+          <span
+            className={
+              panel.estadoBus === 'SIN_DATOS' ? 'conductor__punto conductor__punto--sin-datos' : 'conductor__punto'
+            }
+            aria-hidden="true"
+          />
+          {panel.estadoBus === 'SIN_DATOS' ? 'Sin GPS' : 'GPS en vivo'}
+        </span>
+        {error && <span className="conductor__sin-conexion">Sin conexión: reintentando</span>}
+        <span className="conductor__acciones">
+          <button type="button" className="conductor__chico" onClick={() => setHoja('paradas')}>
+            Paradas
+          </button>
+          <button type="button" className="conductor__chico" onClick={() => setHoja('atraso')}>
+            Reportar atraso
+          </button>
+          {salir}
+        </span>
+      </header>
 
-      {fase.tipo === 'camino' && (
-        <main className="conductor__contenido conductor__contenido--camino">
-          <section className="conductor__tarjeta" aria-labelledby="conductor-proxima">
-            {proxima ? (
-              <>
-                <span className="conductor__rotulo">{aqui ? 'Estás aquí' : 'Próxima parada'}</span>
-                <div className="conductor__fila-grande">
-                  <h1 id="conductor-proxima" className="conductor__titulo">
-                    {proxima.nombre}
-                  </h1>
-                  <span className="conductor__minutos">{textoLlegada(proxima, panel.estadoBus)}</span>
-                </div>
-                <p className="conductor__esperan">
+      <main className="conductor__contenido">
+        <section className="conductor__tarjeta" aria-labelledby="conductor-parada">
+          {actual ? (
+            <>
+              <div className="conductor__cabeza">
+                <span className="conductor__rotulo">{fijada || aqui ? 'Estás aquí' : 'Próxima parada'}</span>
+                <h1 id="conductor-parada" className="conductor__titulo">
+                  {actual.nombre}
+                </h1>
+                <p className="conductor__detalle">
+                  <span>{textoLlegada(actual, panel.estadoBus)}</span>
+                  <span aria-hidden="true">·</span>
                   <IconoPersonas />
-                  <strong>{textoEsperan(proxima.reservasActivas)}</strong>
+                  <strong>{textoEsperan(actual.reservasActivas)}</strong>
                   <span>según la app</span>
                 </p>
-                <div className="conductor__espacio" />
-                <div className="conductor__pie">
-                  <Cifra valor={aBordo} rotulo="a bordo" />
-                  <Cifra valor={panel.subieronHoy ?? 0} rotulo="subieron hoy" />
-                  {siguientes(paradas, proxima).map((p) => (
-                    <span key={p.paradaId} className="conductor__siguiente">
-                      <strong>{p.nombre}</strong>
-                      <span>
-                        {textoEsperan(p.reservasActivas)} · {textoLlegada(p, panel.estadoBus)}
-                      </span>
-                    </span>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <>
-                <h1 id="conductor-proxima" className="conductor__titulo">
-                  Recorrido completo
-                </h1>
-                <p className="conductor__apoyo">Ya cerraste todas las paradas de esta vuelta.</p>
-                <div className="conductor__espacio" />
-                <div className="conductor__pie">
-                  <Cifra valor={aBordo} rotulo="a bordo" />
-                  <Cifra valor={panel.subieronHoy ?? 0} rotulo="subieron hoy" />
-                </div>
-              </>
-            )}
-          </section>
+              </div>
 
-          <MapaConductor panel={panel} ruta={ruta} posicion={posicion} />
+              <div className="conductor__contar">
+                <button
+                  type="button"
+                  className="conductor__boton-conteo conductor__boton-conteo--sube"
+                  onClick={() => mover('sube')}
+                  disabled={enviando}
+                  aria-label={`Subió. Van ${subieron}`}
+                >
+                  <IconoFlecha arriba />
+                  <span className="conductor__boton-texto">Subió</span>
+                  <span className="conductor__boton-cifra tabular">{subieron}</span>
+                </button>
+                <button
+                  type="button"
+                  className="conductor__boton-conteo conductor__boton-conteo--baja"
+                  onClick={() => mover('baja')}
+                  disabled={enviando}
+                  aria-label={`Bajó. Van ${bajaron}`}
+                >
+                  <IconoFlecha />
+                  <span className="conductor__boton-texto">Bajó</span>
+                  <span className="conductor__boton-cifra tabular">{bajaron}</span>
+                </button>
+              </div>
 
-          <button
-            type="button"
-            className="conductor__grande conductor__grande--principal"
-            onClick={() => proxima && llegar(proxima)}
-            disabled={!proxima}
-          >
-            <IconoUbicacion />
-            <span className="conductor__grande-texto">Llegué</span>
-            {proxima && <span className="conductor__grande-apoyo">a {proxima.nombre}</span>}
-            <span className="conductor__grande-nota">El GPS también la detecta solo</span>
-          </button>
-        </main>
-      )}
-
-      {fase.tipo === 'parada' && (
-        <EnLaParada
-          fase={fase}
-          enviando={marcando === fase.parada.paradaId}
-          fallo={fallo}
-          onMover={(m) => setFase((f) => (f.tipo === 'parada' ? { ...f, historial: [...f.historial, m] } : f))}
-          onDeshacer={() => setFase((f) => (f.tipo === 'parada' ? { ...f, historial: f.historial.slice(0, -1) } : f))}
-          onSalir={() => void salirDeLaParada()}
-        />
-      )}
-
-      {fase.tipo === 'cerrada' && (
-        <main className="conductor__contenido">
-          <section className="conductor__tarjeta" aria-labelledby="conductor-cerrada">
-            <div className="conductor__cerrada">
-              <span className="conductor__check" aria-hidden="true">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
-                  strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg>
-              </span>
-              <h1 id="conductor-cerrada" className="conductor__titulo">
-                {fase.parada.nombre}: cerrada
+              <div className="conductor__pie">
+                <Cifra valor={aBordo} rotulo="a bordo" />
+                <Cifra valor={panel.subieronHoy ?? 0} rotulo="subieron hoy" />
+                <p className={fallo ? 'conductor__estado conductor__estado--fallo' : 'conductor__estado'} role="status">
+                  {fallo ?? (historial.length > 0 ? textoConteo(actual.reservasActivas, subieron) : cierre)}
+                </p>
+                <button
+                  type="button"
+                  className="conductor__secundario"
+                  onClick={() => setHistorial((h) => h.slice(0, -1))}
+                  disabled={historial.length === 0 || enviando}
+                  aria-label="Deshacer el último"
+                >
+                  <IconoDeshacer />
+                </button>
+                <button
+                  type="button"
+                  className="conductor__siguiente"
+                  onClick={() => void siguienteParada()}
+                  disabled={enviando}
+                >
+                  {enviando ? 'Guardando…' : 'Siguiente parada'}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="conductor__cabeza">
+              <h1 id="conductor-parada" className="conductor__titulo">
+                Recorrido completo
               </h1>
-            </div>
-            <div className="conductor__cifras">
-              <Cifra valor={fase.subieron} rotulo="subieron" tono="sube" />
-              <Cifra valor={fase.bajaron} rotulo="bajaron" tono="baja" />
-              <Cifra valor={fase.parada.reservasActivas} rotulo="avisaron" tono="suave" />
-              <Cifra valor={fase.aBordo} rotulo="a bordo" tono="borde" />
-            </div>
-            <p className="conductor__apoyo">{textoCierre(fase.parada.reservasActivas, fase.subieron)}</p>
-          </section>
-
-          <button
-            type="button"
-            className="conductor__grande conductor__grande--claro conductor__grande--seguir"
-            onClick={() => setFase({ tipo: 'camino' })}
-          >
-            <span className="conductor__sigue">
-              <span className="conductor__sigue-rotulo">Sigue</span>
-              <strong>{proxima ? proxima.nombre : 'Fin del recorrido'}</strong>
-              {proxima && (
-                <span>
-                  {textoEsperan(proxima.reservasActivas)} · {textoLlegada(proxima, panel.estadoBus)}
-                </span>
+              <p className="conductor__detalle">Ya cerraste todas las paradas de esta vuelta.</p>
+              {cierre && (
+                <p className="conductor__estado" role="status">
+                  {cierre}
+                </p>
               )}
-            </span>
-            <span className="conductor__seguir">
-              <IconoFlecha tamano={64} />
-              <span className="conductor__grande-texto">Seguir la ruta</span>
-            </span>
-          </button>
-        </main>
-      )}
+            </div>
+          )}
+        </section>
+
+        <MapaConductor panel={panel} ruta={ruta} posicion={posicion} />
+      </main>
 
       {hoja === 'paradas' && (
         <Hoja titulo="Paradas de tu recorrido" onCerrar={() => setHoja(null)}>
@@ -373,16 +285,26 @@ export function PanelConductor() {
                     {textoEsperan(p.reservasActivas)} · {textoLlegada(p, panel.estadoBus)}
                   </span>
                 </span>
-                {p.atendidaEn ? (
+                {p.atendidaEn || p.paradaId === cerradaId ? (
                   <span className="conductor__item-estado">Cerrada</span>
+                ) : p.paradaId === actual?.paradaId ? (
+                  <span className="conductor__item-estado">Aquí</span>
                 ) : (
-                  <button type="button" className="conductor__chico" onClick={() => llegar(p)}>
+                  <button
+                    type="button"
+                    className="conductor__chico"
+                    onClick={() => elegirParada(p)}
+                    disabled={historial.length > 0}
+                  >
                     Estoy aquí
                   </button>
                 )}
               </li>
             ))}
           </ul>
+          {historial.length > 0 && (
+            <p className="conductor__estado">Cerrá la parada que estás contando para elegir otra.</p>
+          )}
         </Hoja>
       )}
 
@@ -399,92 +321,6 @@ export function PanelConductor() {
         </Hoja>
       )}
     </div>
-  );
-}
-
-function EnLaParada({
-  fase,
-  enviando,
-  fallo,
-  onMover,
-  onDeshacer,
-  onSalir,
-}: {
-  fase: Extract<Fase, { tipo: 'parada' }>;
-  enviando: boolean;
-  fallo: string | null;
-  onMover: (m: Movimiento) => void;
-  onDeshacer: () => void;
-  onSalir: () => void;
-}) {
-  const subieron = fase.historial.filter((m) => m === 'sube').length;
-  const bajaron = fase.historial.length - subieron;
-  const aBordo = Math.max(0, fase.aBordoAlLlegar + subieron - bajaron);
-  const avisaron = fase.parada.reservasActivas;
-
-  return (
-    <main className="conductor__contenido conductor__contenido--parada">
-      <section className="conductor__lateral" aria-labelledby="conductor-parada">
-        <div>
-          <span className="conductor__rotulo">Estás en la parada</span>
-          <h1 id="conductor-parada" className="conductor__titulo conductor__titulo--mediano">
-            {fase.parada.nombre}
-          </h1>
-          <span className="conductor__apoyo">{textoAvisaron(avisaron)}</span>
-        </div>
-        <div className="conductor__cifras conductor__cifras--tres">
-          <Cifra valor={subieron} rotulo="subieron" tono="sube" />
-          <Cifra valor={bajaron} rotulo="bajaron" tono="baja" />
-          <Cifra valor={aBordo} rotulo="a bordo" tono="borde" />
-        </div>
-        <p className="conductor__estado" role="status">
-          {textoConteo(avisaron, subieron)}
-        </p>
-        {fallo && (
-          <p className="conductor__fallo" role="alert">
-            {fallo}
-          </p>
-        )}
-        <div className="conductor__espacio" />
-        <button
-          type="button"
-          className="conductor__secundario"
-          onClick={onDeshacer}
-          disabled={fase.historial.length === 0 || enviando}
-        >
-          <IconoDeshacer />
-          Deshacer el último
-        </button>
-        <button type="button" className="conductor__salir" onClick={onSalir} disabled={enviando}>
-          {enviando ? 'Guardando…' : 'Salir de la parada'}
-          {!enviando && <IconoFlecha tamano={28} />}
-        </button>
-      </section>
-
-      <button
-        type="button"
-        className="conductor__grande conductor__grande--sube"
-        onClick={() => onMover('sube')}
-        disabled={enviando}
-      >
-        <svg width="104" height="104" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8"
-          strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 20V5" /><path d="M5 11l7-7 7 7" /></svg>
-        <span className="conductor__grande-texto">Subió</span>
-        <span className="conductor__grande-apoyo">+1 pasajero</span>
-      </button>
-
-      <button
-        type="button"
-        className="conductor__grande conductor__grande--baja"
-        onClick={() => onMover('baja')}
-        disabled={enviando}
-      >
-        <svg width="104" height="104" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8"
-          strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 4v15" /><path d="M19 13l-7 7-7-7" /></svg>
-        <span className="conductor__grande-texto">Bajó</span>
-        <span className="conductor__grande-apoyo">−1 pasajero</span>
-      </button>
-    </main>
   );
 }
 
@@ -527,36 +363,18 @@ function Hoja({
   );
 }
 
-function Cifra({
-  valor,
-  rotulo,
-  tono,
-}: {
-  valor: number;
-  rotulo: string;
-  tono?: 'sube' | 'baja' | 'suave' | 'borde';
-}) {
+function Cifra({ valor, rotulo }: { valor: number; rotulo: string }) {
   return (
-    <span className={tono ? `conductor__cifra conductor__cifra--${tono}` : 'conductor__cifra'}>
+    <span className="conductor__cifra">
       <span className="conductor__cifra-valor tabular">{valor}</span>
       <span className="conductor__cifra-rotulo">{rotulo}</span>
     </span>
   );
 }
 
-/** Las dos paradas pendientes que siguen a la proxima, en el orden del recorrido. */
-function siguientes(paradas: ParadaDelPanel[], proxima: ParadaDelPanel): ParadaDelPanel[] {
-  return paradas.filter((p) => !p.atendidaEn && p.orden > proxima.orden).slice(0, 2);
-}
-
 function textoEsperan(n: number): string {
   if (n === 0) return 'Nadie espera';
   return n === 1 ? '1 espera' : `${n} esperan`;
-}
-
-function textoAvisaron(n: number): string {
-  if (n === 0) return 'Nadie avisó por la app';
-  return n === 1 ? '1 avisó por la app' : `${n} avisaron por la app`;
 }
 
 function textoConteo(avisaron: number, subieron: number): string {
@@ -565,42 +383,40 @@ function textoConteo(avisaron: number, subieron: number): string {
     return faltan === 1 ? 'Falta 1 de los que avisaron' : `Faltan ${faltan} de los que avisaron`;
   }
   if (subieron === avisaron) {
-    return avisaron === 0 ? 'Marcá a cada persona que suba o baje' : 'Subieron todos los que avisaron';
+    return avisaron === 0 ? 'Contando' : 'Subieron todos los que avisaron';
   }
   const extra = subieron - avisaron;
   return extra === 1 ? '1 subió sin avisar por la app' : `${extra} subieron sin avisar por la app`;
 }
 
-function textoCierre(avisaron: number, subieron: number): string {
-  if (avisaron === 0) return 'Nadie había avisado por la app en esta parada.';
-  const avisos = avisaron === 1 ? 'El aviso de esta parada queda' : `Los ${avisaron} avisos de esta parada quedan`;
-  const sinAviso = subieron > avisaron ? ' Los que subieron sin aviso cuentan aparte.' : '';
-  return `${avisos} como abordados.${sinAviso}`;
+function textoCierre(nombre: string, subieron: number, bajaron: number): string {
+  return `${nombre} cerrada: ${subieron} ${subieron === 1 ? 'subió' : 'subieron'}, ${bajaron} ${
+    bajaron === 1 ? 'bajó' : 'bajaron'
+  }.`;
 }
 
-function IconoUbicacion() {
+function IconoFlecha({ arriba = false }: { arriba?: boolean }) {
   return (
-    <svg width="88" height="88" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8"
       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z" />
-      <circle cx="12" cy="10" r="2.6" />
-    </svg>
-  );
-}
-
-function IconoFlecha({ tamano }: { tamano: number }) {
-  return (
-    <svg width={tamano} height={tamano} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"
-      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M5 12h14" />
-      <path d="M13 6l6 6-6 6" />
+      {arriba ? (
+        <>
+          <path d="M12 20V5" />
+          <path d="M5 11l7-7 7 7" />
+        </>
+      ) : (
+        <>
+          <path d="M12 4v15" />
+          <path d="M19 13l-7 7-7-7" />
+        </>
+      )}
     </svg>
   );
 }
 
 function IconoDeshacer() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"
       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
       <path d="M3 3v5h5" />
@@ -619,7 +435,7 @@ function IconoCambiar() {
 
 function IconoPersonas() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
       <circle cx="9" cy="7" r="4" />

@@ -179,26 +179,3 @@ export function obtenerRutaConductor(signal?: AbortSignal) {
 export function elegirRutaConductor(rutaId: number) {
   return apiClient.put<RutaDelConductor>(RUTA_DEL_CONDUCTOR, { rutaId }, { intentos: 1 });
 }
-
-const CLAVE_RUTA_CONFIRMADA = 'ecoruta_conductor_ruta_confirmada';
-
-/**
- * ¿Ya confirmo la ruta en esta sesion del navegador? Al entrar se le pregunta
- * una vez; despues la ruta queda en la barra. Sin almacenamiento (ventana
- * privada, datos bloqueados) se pregunta de nuevo, que es lo seguro.
- */
-export function rutaYaConfirmada(): boolean {
-  try {
-    return sessionStorage.getItem(CLAVE_RUTA_CONFIRMADA) === '1';
-  } catch {
-    return false;
-  }
-}
-
-export function recordarRutaConfirmada(): void {
-  try {
-    sessionStorage.setItem(CLAVE_RUTA_CONFIRMADA, '1');
-  } catch {
-    // Sin almacenamiento solo se vuelve a preguntar al recargar.
-  }
-}
