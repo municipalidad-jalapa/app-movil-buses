@@ -1,17 +1,35 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ReportarAtraso } from '../../componentes/atrasos/ReportarAtraso';
 import { Cargando } from '../../componentes/Cargando';
+import { ElegirRuta } from '../../componentes/conductor/ElegirRuta';
+import { MapaConductor } from '../../componentes/conductor/MapaConductor';
 import { MensajeError } from '../../componentes/MensajeError';
 import { useAuth } from '../../core/autenticacion/useAuth';
-import { proximaPendiente, textoLlegada, type ParadaDelPanel } from '../../core/panelConductor';
+import {
+  paradaDondeEstaElBus,
+  posicionVigente,
+  proximaParada,
+  recordarRutaConfirmada,
+  rutaYaConfirmada,
+  textoLlegada,
+  type ParadaDelPanel,
+} from '../../core/panelConductor';
 import { useDeslizarHoja } from '../../hooks/useDeslizarHoja';
 import { usePanelConductor } from '../../hooks/usePanelConductor';
+import { usePosicionBus } from '../../hooks/usePosicionBus';
+import { useRutas } from '../../hooks/useRutas';
 import './PanelConductor.css';
 
 /**
  * Panel del conductor en ruta (HU-62, HU-75, HU-76). Diseño "Panel del
  * conductor en ruta": teléfono en el tablero, en horizontal, con una sola mano.
+ *
+ * <p>Al entrar, el conductor confirma la ruta que va a manejar o la cambia; en
+ * la jornada la cambia tocando su nombre en la barra.
+ *
+ * <p>La parada que propone "Llegué" es aquella en la que esta el bus segun el
+ * GPS; si no esta en ninguna, la proxima del recorrido.
  *
  * <p>Tres momentos, cada uno con un protagonista del lado del pulgar:
  * en camino ("Llegué"), en la parada ("Subió" y "Bajó") y parada cerrada
@@ -32,7 +50,7 @@ type Fase =
       aBordo: number;
     };
 
-type Hoja = 'paradas' | 'atraso' | null;
+type Hoja = 'paradas' | 'atraso' | 'ruta' | null;
 
 export function PanelConductor() {
   const { cerrarSesion } = useAuth();
@@ -40,12 +58,27 @@ export function PanelConductor() {
   const [fase, setFase] = useState<Fase>({ tipo: 'camino' });
   const [hoja, setHoja] = useState<Hoja>(null);
   const [fallo, setFallo] = useState<string | null>(null);
+  const [confirmada, setConfirmada] = useState(rutaYaConfirmada);
+  const [eligiendoRuta, setEligiendoRuta] = useState(false);
+
+  // La ruta (ubicacion de las paradas) y el bus en vivo: para el mapa y para
+  // saber en que parada esta el bus. null mientras no hay panel: no se pide nada.
+  const { rutas } = useRutas();
+  const ruta = rutas?.find((r) => r.id === panel?.rutaId) ?? null;
+  const { posicion } = usePosicionBus(undefined, panel ? panel.rutaId : null);
+  const ubicaciones = useMemo(
+    () => new Map((ruta?.paradas ?? []).map((p) => [p.id, { latitud: p.latitud, longitud: p.longitud }] as const)),
+    [ruta],
+  );
+  const bus = posicionVigente(posicion, Date.now());
 
   const paradas = panel?.paradas ?? [];
   const aBordo = panel?.aBordo ?? 0;
   // La que se acaba de cerrar puede seguir pendiente hasta el proximo refresco.
   const cerradaId = fase.tipo === 'cerrada' ? fase.parada.paradaId : null;
-  const proxima = proximaPendiente(paradas.filter((p) => p.paradaId !== cerradaId));
+  const pendientes = paradas.filter((p) => p.paradaId !== cerradaId);
+  const aqui = paradaDondeEstaElBus(pendientes, ubicaciones, bus);
+  const proxima = proximaParada(pendientes, ubicaciones, bus);
 
   const llegar = useCallback(
     (parada: ParadaDelPanel) => {
@@ -56,17 +89,20 @@ export function PanelConductor() {
     [aBordo],
   );
 
-  // El GPS detecta la llegada: el bus detenido en la parada que toca.
+  // El GPS detecta la llegada: el bus detenido en la parada que toca, o en la
+  // que el GPS lo ubica aunque no fuera la siguiente del orden.
   const autoLlegada = useRef<number | null>(null);
+  const aquiId = aqui?.paradaId ?? null;
   useEffect(() => {
     if (fase.tipo !== 'camino' || !panel || !proxima) return;
     const enLaParada =
-      panel.estadoBus === 'DETENIDO_EN_PARADA' && proxima.minutos !== null && proxima.minutos <= 0;
+      panel.estadoBus === 'DETENIDO_EN_PARADA' &&
+      (aquiId === proxima.paradaId || (proxima.minutos !== null && proxima.minutos <= 0));
     if (enLaParada && autoLlegada.current !== proxima.paradaId) {
       autoLlegada.current = proxima.paradaId;
       llegar(proxima);
     }
-  }, [fase.tipo, panel, proxima, llegar]);
+  }, [fase.tipo, panel, proxima, aquiId, llegar]);
 
   async function salirDeLaParada() {
     if (fase.tipo !== 'parada') return;
@@ -87,15 +123,76 @@ export function PanelConductor() {
     });
   }
 
-  // Sin panel todavia: cargando, sin ruta o sin conexion.
+  function empezar() {
+    recordarRutaConfirmada();
+    setConfirmada(true);
+    setEligiendoRuta(false);
+  }
+
+  /** Eligio ruta (al entrar o desde la barra): empieza en camino con el panel nuevo. */
+  function rutaElegida() {
+    empezar();
+    setHoja(null);
+    setFallo(null);
+    setFase({ tipo: 'camino' });
+    reintentar();
+  }
+
+  const salir = (
+    <button type="button" className="conductor__chico" onClick={() => void cerrarSesion()}>
+      Cerrar sesión
+    </button>
+  );
+
+  // Sin ruta todavia (403): la elige aqui mismo.
+  if (!panel && error?.status === 403) {
+    return (
+      <div className="conductor conductor--mensaje">
+        <h1 className="conductor__titulo conductor__titulo--mediano">¿Qué ruta vas a manejar hoy?</h1>
+        <ElegirRuta onElegida={rutaElegida} />
+        {salir}
+      </div>
+    );
+  }
+
+  // Al entrar: confirma la ruta o la cambia, una vez por sesion.
+  if (panel && !confirmada) {
+    return (
+      <div className="conductor conductor--mensaje">
+        {eligiendoRuta ? (
+          <>
+            <h1 className="conductor__titulo conductor__titulo--mediano">¿Qué ruta vas a manejar hoy?</h1>
+            <ElegirRuta onElegida={rutaElegida} />
+            <button type="button" className="conductor__chico" onClick={() => setEligiendoRuta(false)}>
+              Volver
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="conductor__rotulo">Hoy manejás</span>
+            <h1 className="conductor__titulo">{panel.rutaNombre}</h1>
+            <button
+              type="button"
+              className="conductor__grande conductor__grande--principal conductor__empezar"
+              onClick={empezar}
+            >
+              <span className="conductor__grande-texto">Empezar</span>
+            </button>
+            <button type="button" className="conductor__chico" onClick={() => setEligiendoRuta(true)}>
+              Cambiar ruta
+            </button>
+          </>
+        )}
+        {salir}
+      </div>
+    );
+  }
+
+  // Sin panel todavia: cargando o sin conexion.
   if (!panel) {
     return (
       <div className="conductor conductor--mensaje">
-        {error?.status === 403 ? (
-          <p className="conductor__vacio" role="alert">
-            No tenés una ruta asignada. Pedile a la Municipalidad que te asigne una.
-          </p>
-        ) : error ? (
+        {error ? (
           <MensajeError error={error} onReintentar={reintentar} />
         ) : (
           cargando && <Cargando texto="Cargando tu ruta…" />
@@ -103,16 +200,22 @@ export function PanelConductor() {
         <Link to="/" className="conductor__chico">
           Ver el mapa
         </Link>
-        <button type="button" className="conductor__chico" onClick={() => void cerrarSesion()}>
-          Cerrar sesión
-        </button>
+        {salir}
       </div>
     );
   }
 
   const barra = (
     <header className="conductor__barra">
-      <span className="conductor__ruta">{panel.rutaNombre}</span>
+      <button
+        type="button"
+        className="conductor__ruta"
+        aria-label={`Cambiar ruta. Ahora: ${panel.rutaNombre}`}
+        onClick={() => setHoja('ruta')}
+      >
+        {panel.rutaNombre}
+        <IconoCambiar />
+      </button>
       {panel.vuelta !== undefined && <span className="conductor__vuelta">Vuelta {panel.vuelta}</span>}
       <span className="conductor__gps">
         <span
@@ -134,9 +237,7 @@ export function PanelConductor() {
         <button type="button" className="conductor__chico" onClick={() => setHoja('atraso')}>
           Reportar atraso
         </button>
-        <button type="button" className="conductor__chico" onClick={() => void cerrarSesion()}>
-          Cerrar sesión
-        </button>
+        {salir}
       </span>
     </header>
   );
@@ -146,11 +247,11 @@ export function PanelConductor() {
       {fase.tipo !== 'parada' && barra}
 
       {fase.tipo === 'camino' && (
-        <main className="conductor__contenido">
+        <main className="conductor__contenido conductor__contenido--camino">
           <section className="conductor__tarjeta" aria-labelledby="conductor-proxima">
             {proxima ? (
               <>
-                <span className="conductor__rotulo">Próxima parada</span>
+                <span className="conductor__rotulo">{aqui ? 'Estás aquí' : 'Próxima parada'}</span>
                 <div className="conductor__fila-grande">
                   <h1 id="conductor-proxima" className="conductor__titulo">
                     {proxima.nombre}
@@ -190,6 +291,8 @@ export function PanelConductor() {
               </>
             )}
           </section>
+
+          <MapaConductor panel={panel} ruta={ruta} posicion={posicion} />
 
           <button
             type="button"
@@ -280,6 +383,12 @@ export function PanelConductor() {
               </li>
             ))}
           </ul>
+        </Hoja>
+      )}
+
+      {hoja === 'ruta' && (
+        <Hoja titulo="Cambiar de ruta" onCerrar={() => setHoja(null)}>
+          <ElegirRuta onElegida={rutaElegida} />
         </Hoja>
       )}
 
@@ -495,6 +604,15 @@ function IconoDeshacer() {
       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
       <path d="M3 3v5h5" />
+    </svg>
+  );
+}
+
+function IconoCambiar() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" />
     </svg>
   );
 }

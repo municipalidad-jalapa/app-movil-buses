@@ -3,7 +3,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ErrorApi } from '../../core/errores';
-import { marcarParadaAtendida, obtenerPanelConductor, type PanelConductor as Panel } from '../../core/panelConductor';
+import {
+  elegirRutaConductor,
+  marcarParadaAtendida,
+  obtenerPanelConductor,
+  obtenerRutaConductor,
+  type PanelConductor as Panel,
+  type RutaDelConductor,
+} from '../../core/panelConductor';
 import { PanelConductor } from './PanelConductor';
 
 vi.mock('../../core/autenticacion/useAuth', () => ({
@@ -13,6 +20,30 @@ vi.mock('../../core/panelConductor', async (original) => ({
   ...(await original<typeof import('../../core/panelConductor')>()),
   obtenerPanelConductor: vi.fn(),
   marcarParadaAtendida: vi.fn(),
+  obtenerRutaConductor: vi.fn(),
+  elegirRutaConductor: vi.fn(),
+}));
+// La ruta con la ubicacion de sus paradas y el bus en vivo, controlables por caso.
+const { RUTA_UBICADA, posicionDelBus } = vi.hoisted(() => ({
+  RUTA_UBICADA: {
+    id: 1,
+    nombre: 'RUTA PRINCIPAL',
+    activa: true,
+    trazado: [],
+    paradas: [
+      { id: 1, nombre: 'Parque Central', latitud: 14.6349, longitud: -89.9811, orden: 1 },
+      { id: 2, nombre: 'Mercado', latitud: 14.6326, longitud: -89.9868, orden: 2 },
+      { id: 3, nombre: 'El Calvario', latitud: 14.6306, longitud: -89.9929, orden: 3 },
+      { id: 4, nombre: 'Terminal', latitud: 14.6297, longitud: -89.9962, orden: 4 },
+    ],
+  },
+  posicionDelBus: vi.fn((): unknown => null),
+}));
+vi.mock('../../hooks/useRutas', () => ({ useRutas: () => ({ rutas: [RUTA_UBICADA] }) }));
+vi.mock('../../hooks/usePosicionBus', () => ({ usePosicionBus: () => ({ posicion: posicionDelBus() }) }));
+// MapLibre no corre en jsdom: el mapa se prueba aparte.
+vi.mock('../../componentes/conductor/MapaConductor', () => ({
+  MapaConductor: ({ panel }: { panel: { rutaNombre: string } }) => <p>Mapa de {panel.rutaNombre}</p>,
 }));
 vi.mock('../../componentes/atrasos/ReportarAtraso', () => ({
   ReportarAtraso: () => <p>Formulario de atraso</p>,
@@ -35,6 +66,15 @@ const PANEL: Panel = {
   ],
 };
 
+const RUTAS: RutaDelConductor = {
+  rutaId: 1,
+  rutaNombre: 'RUTA PRINCIPAL',
+  rutas: [
+    { id: 1, nombre: 'RUTA PRINCIPAL' },
+    { id: 2, nombre: 'RUTA SECUNDARIA' },
+  ],
+};
+
 function abrir() {
   render(
     <MemoryRouter>
@@ -46,8 +86,16 @@ function abrir() {
 beforeEach(() => {
   vi.mocked(obtenerPanelConductor).mockReset().mockResolvedValue(PANEL);
   vi.mocked(marcarParadaAtendida).mockReset();
+  posicionDelBus.mockReset().mockReturnValue(null);
+  vi.mocked(obtenerRutaConductor).mockReset().mockResolvedValue(RUTAS);
+  vi.mocked(elegirRutaConductor).mockReset().mockResolvedValue({ ...RUTAS, rutaId: 2, rutaNombre: 'RUTA SECUNDARIA' });
+  // Ya confirmo la ruta en esta sesion: la mayoria de los casos arranca en el panel.
+  sessionStorage.setItem('ecoruta_conductor_ruta_confirmada', '1');
 });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  sessionStorage.clear();
+});
 
 describe('Panel del conductor en ruta', () => {
   it('en camino muestra la proxima parada, quienes esperan y cuantos van a bordo', async () => {
@@ -143,11 +191,113 @@ describe('Panel del conductor en ruta', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
-  it('sin ruta asignada explica el problema en lenguaje llano', async () => {
-    vi.mocked(obtenerPanelConductor).mockRejectedValue(
-      new ErrorApi(403, 'No tenés una ruta asignada. Pedile a la Municipalidad que te asigne una.'),
-    );
+  it('sin ruta asignada la elige ahi mismo y entra al panel', async () => {
+    vi.mocked(obtenerPanelConductor)
+      .mockRejectedValueOnce(new ErrorApi(403, 'No tenés una ruta asignada.'))
+      .mockResolvedValue({ ...PANEL, rutaId: 2, rutaNombre: 'RUTA SECUNDARIA' });
+    vi.mocked(obtenerRutaConductor).mockResolvedValue({ ...RUTAS, rutaId: null, rutaNombre: null });
     abrir();
-    expect(await screen.findByText(/No tenés una ruta asignada/)).toBeTruthy();
+
+    expect(await screen.findByRole('heading', { name: '¿Qué ruta vas a manejar hoy?' })).toBeTruthy();
+    fireEvent.click(await screen.findByRole('button', { name: /RUTA SECUNDARIA/ }));
+
+    await waitFor(() => expect(elegirRutaConductor).toHaveBeenCalledWith(2));
+    expect(await screen.findByRole('button', { name: 'Cambiar ruta. Ahora: RUTA SECUNDARIA' })).toBeTruthy();
+  });
+
+  it('al entrar confirma la ruta y ve el mapa junto a la proxima parada', async () => {
+    sessionStorage.clear();
+    abrir();
+
+    expect(await screen.findByText('Hoy manejás')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'RUTA PRINCIPAL' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Empezar' }));
+
+    expect(await screen.findByRole('heading', { name: 'Mercado' })).toBeTruthy();
+    expect(screen.getByText('Mapa de RUTA PRINCIPAL')).toBeTruthy();
+    expect(sessionStorage.getItem('ecoruta_conductor_ruta_confirmada')).toBe('1');
+    expect(elegirRutaConductor).not.toHaveBeenCalled();
+  });
+
+  it('al entrar puede cambiar de ruta antes de empezar', async () => {
+    sessionStorage.clear();
+    abrir();
+    fireEvent.click(await screen.findByRole('button', { name: 'Cambiar ruta' }));
+
+    const actual = await screen.findByRole('button', { name: /RUTA PRINCIPAL/ });
+    expect(actual.getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: /RUTA SECUNDARIA/ }));
+
+    await waitFor(() => expect(elegirRutaConductor).toHaveBeenCalledWith(2));
+    expect(await screen.findByRole('heading', { name: 'Mercado' })).toBeTruthy();
+  });
+
+  it('en la jornada cambia de ruta tocando su nombre en la barra', async () => {
+    abrir();
+    fireEvent.click(await screen.findByRole('button', { name: 'Cambiar ruta. Ahora: RUTA PRINCIPAL' }));
+
+    const hoja = screen.getByRole('dialog', { name: 'Cambiar de ruta' });
+    fireEvent.click(await within(hoja).findByRole('button', { name: /RUTA SECUNDARIA/ }));
+
+    await waitFor(() => expect(elegirRutaConductor).toHaveBeenCalledWith(2));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitFor(() => expect(obtenerPanelConductor).toHaveBeenCalledTimes(2));
+  });
+
+  it('con el bus en una parada, esa es la que propone aunque otra llegue antes por el orden', async () => {
+    // A 10 m de El Calvario; el Mercado (2 min) seria la proxima por tiempo.
+    posicionDelBus.mockReturnValue({
+      latitud: 14.6306,
+      longitud: -89.99281,
+      velocidadKmh: 12,
+      timestamp: new Date().toISOString(),
+      vehiculo: 'BUS-01',
+    });
+    abrir();
+
+    expect(await screen.findByRole('heading', { name: 'El Calvario' })).toBeTruthy();
+    expect(screen.getByText('Estás aquí')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Llegué/ }));
+    expect(await screen.findByRole('heading', { name: 'El Calvario' })).toBeTruthy();
+    expect(screen.getByText('Estás en la parada')).toBeTruthy();
+  });
+
+  it('lejos de toda parada o con la posicion vieja, propone la proxima del recorrido', async () => {
+    posicionDelBus.mockReturnValue({
+      latitud: 14.6306,
+      longitud: -89.99281,
+      velocidadKmh: 12,
+      timestamp: new Date(Date.now() - 10 * 60_000).toISOString(),
+      vehiculo: 'BUS-01',
+    });
+    abrir();
+
+    expect(await screen.findByRole('heading', { name: 'Mercado' })).toBeTruthy();
+    expect(screen.getByText('Próxima parada')).toBeTruthy();
+  });
+
+  it('el bus detenido donde lo ubica el GPS abre la parada solo', async () => {
+    vi.mocked(obtenerPanelConductor).mockResolvedValue({ ...PANEL, estadoBus: 'DETENIDO_EN_PARADA' });
+    posicionDelBus.mockReturnValue({
+      latitud: 14.6306,
+      longitud: -89.99281,
+      velocidadKmh: 0,
+      timestamp: new Date().toISOString(),
+      vehiculo: 'BUS-01',
+    });
+    abrir();
+
+    expect(await screen.findByText('Estás en la parada')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'El Calvario' })).toBeTruthy();
+  });
+
+  it('si no se pudo cambiar de ruta lo dice y no cierra la hoja', async () => {
+    vi.mocked(elegirRutaConductor).mockRejectedValue(new ErrorApi(422, 'Esa ruta no está publicada.'));
+    abrir();
+    fireEvent.click(await screen.findByRole('button', { name: 'Cambiar ruta. Ahora: RUTA PRINCIPAL' }));
+    fireEvent.click(await screen.findByRole('button', { name: /RUTA SECUNDARIA/ }));
+
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(screen.getByRole('dialog', { name: 'Cambiar de ruta' })).toBeTruthy();
   });
 });
