@@ -289,6 +289,41 @@
   cursor: pointer;
 }
 
+/*
+ * "Enviar opinion" siempre a la vista: el formulario es mas alto que muchas
+ * pantallas y el boton quedaba abajo del todo, fuera de la vista o bajo el
+ * teclado. Pegado al borde inferior de la hoja; lo que sube por detras se
+ * tapa con una franja del mismo fondo.
+ */
+.opinion-hoja > .opinion-primario {
+  position: sticky;
+  bottom: 0;
+  flex-shrink: 0;
+}
+
+/* Franjas del fondo de la hoja, fuera del boton: arriba un degradado, abajo
+   el relleno inferior de la hoja (ahi se asomaba lo que seguia). */
+.opinion-hoja > .opinion-primario::before,
+.opinion-hoja > .opinion-primario::after {
+  content: '';
+  position: absolute;
+  left: -18px;
+  right: -18px;
+  pointer-events: none;
+}
+
+.opinion-hoja > .opinion-primario::before {
+  top: -20px;
+  bottom: 100%;
+  background: linear-gradient(to bottom, transparent, var(--superficie-base));
+}
+
+.opinion-hoja > .opinion-primario::after {
+  top: 100%;
+  bottom: calc(-22px - var(--seguro-abajo));
+  background: var(--superficie-base);
+}
+
 .opinion-primario:disabled {
   background: var(--superficie-hundida);
   color: var(--tinta-secundaria);
