@@ -19,7 +19,8 @@ import { OpinionesPanel } from './paginas/admin/OpinionesPanel';
 import { AvisoDeDemora } from './componentes/atrasos/AvisoDeDemora';
 import { PuertaDelPasajero } from './componentes/sesionPasajero/PuertaDelPasajero';
 import { SesionPasajeroProvider } from './core/pasajero/SesionPasajeroProvider';
-import { CorregirRutas } from './paginas/admin/CorregirRutas';
+import { EditorRuta } from './paginas/admin/EditorRuta';
+import { Rutas } from './paginas/admin/Rutas';
 import { Vehiculos } from './paginas/admin/Vehiculos';
 import { ExportarDatos } from './paginas/admin/ExportarDatos';
 import { LoginConductor } from './paginas/conductor/LoginConductor';
@@ -120,12 +121,20 @@ export function App() {
                       </RutaProtegidaAdmin>
                     }
                   />
-                  {/* QA 5.6: corregir el trazado y las paradas de una ruta. */}
+                  {/* Informe de QA: la lista de rutas y el creador (lapiz, paradas, publicar). */}
                   <Route
                     path="rutas"
                     element={
                       <RutaProtegidaAdmin>
-                        <CorregirRutas />
+                        <Rutas />
+                      </RutaProtegidaAdmin>
+                    }
+                  />
+                  <Route
+                    path="rutas/:rutaId"
+                    element={
+                      <RutaProtegidaAdmin>
+                        <EditorRuta />
                       </RutaProtegidaAdmin>
                     }
                   />

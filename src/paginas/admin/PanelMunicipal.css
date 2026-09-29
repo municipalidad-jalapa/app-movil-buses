@@ -428,27 +428,54 @@
   background: var(--superficie-base);
 }
 
-@media (max-width: 640px) {
+/* La hamburguesa solo existe en el telefono. */
+.panel-cabecera__menu {
+  display: none;
+}
+
+.panel-cabecera__marca {
+  min-width: 0;
+}
+
+/* Por debajo de 1600 px no caben el rotulo y el correo junto a las siete secciones. */
+@media (max-width: 1599px) {
   .panel-cabecera {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 12px 16px;
+    padding: 0 16px;
   }
 
-  .panel-cabecera__marca {
-    flex-wrap: wrap;
-    min-width: 0;
+  .panel-cabecera__separador,
+  .panel-cabecera__seccion,
+  .panel-cabecera__correo {
+    display: none;
+  }
+}
+
+/* Telefono y tablet vertical: hamburguesa + marca; lo demas va en el cajon. */
+@media (max-width: 1023px) {
+  .panel-cabecera {
+    min-height: 56px;
+    padding: 0 8px 0 4px;
+  }
+
+  .panel-cabecera__menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--sobre-marca);
+    cursor: pointer;
   }
 
   .panel-cabecera__usuario {
-    justify-content: space-between;
-    min-width: 0;
+    display: none;
   }
+}
 
-  .panel-cabecera__correo {
-    overflow-wrap: anywhere;
-  }
-
+@media (max-width: 640px) {
   .panel-principal {
     min-width: 0;
     padding: 20px 16px;

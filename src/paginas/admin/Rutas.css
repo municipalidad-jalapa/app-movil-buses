@@ -1,0 +1,290 @@
+/* Las rutas del panel municipal: lista, nueva y eliminar. Filas en escritorio, tarjetas en el telefono. */
+
+.rutas__nueva {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  padding: 20px 24px;
+  border: 2px solid var(--verde-jumay);
+  border-radius: var(--radio-tarjeta);
+  background: var(--verde-jumay-superficie);
+}
+
+.rutas__nueva-textos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 300px;
+}
+
+.rutas__nueva-textos .panel-h2,
+.rutas__nueva-textos .panel-apoyo {
+  margin: 0;
+}
+
+.rutas__nueva-campo {
+  flex-grow: 1;
+}
+
+.rutas__lista {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+  list-style: none;
+}
+
+.rutas__fila {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.6fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 0.8fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 20px;
+  border-top: 1px solid var(--borde-sutil);
+  font-size: 15px;
+}
+
+.rutas__fila:first-child {
+  border-top: 0;
+}
+
+.rutas__nombre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.rutas__titulo {
+  margin: 0;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rutas__estado {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: var(--radio-pastilla);
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rutas__estado--publicada {
+  background: var(--verde-jumay-superficie);
+  color: var(--acento-texto);
+}
+
+.rutas__paso,
+.rutas__dato {
+  color: var(--tinta-secundaria);
+}
+
+.rutas__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.rutas__acciones .panel-boton {
+  padding: 0 18px;
+  text-decoration: none;
+}
+
+.rutas__eliminar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pastilla);
+  background: transparent;
+  color: var(--alerta-texto);
+  cursor: pointer;
+}
+
+.rutas__eliminar:focus-visible {
+  outline: 3px solid var(--rojo-santa-marta-superficie);
+  outline-offset: 2px;
+}
+
+/* ---------- Confirmar eliminacion ---------- */
+.rutas__velo {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(28 26 23 / 55%);
+}
+
+.rutas__dialogo {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: min(560px, 100%);
+  box-sizing: border-box;
+  padding: 28px;
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-base);
+  box-shadow: 0 20px 48px rgb(28 26 23 / 35%);
+}
+
+.rutas__dialogo-cabeza {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.rutas__dialogo-cabeza .panel-h2 {
+  margin: 0;
+}
+
+.rutas__dialogo-icono {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radio-pastilla);
+  background: var(--rojo-santa-marta-superficie);
+  color: var(--alerta-texto);
+}
+
+.rutas__consecuencias {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--tinta-cuerpo);
+}
+
+.rutas__codigo {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--superficie-hundida);
+  color: var(--tinta);
+}
+
+.rutas__dialogo-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.rutas__boton-peligro {
+  border: 0;
+  background: var(--rojo-santa-marta);
+  color: var(--sobre-marca);
+  font-weight: 700;
+}
+
+/*
+ * ---------- Tablet y telefono: cada ruta es una tarjeta ----------
+ * En la tabla, por debajo de 1100 px la columna del nombre quedaba en
+ * «RUTA…» (informe de QA).
+ */
+@media (max-width: 1100px) {
+  .rutas__lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    gap: 12px;
+    overflow: visible;
+    border: 0;
+  }
+
+  .rutas__fila {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 14px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-tarjeta);
+  }
+
+  .rutas__fila:first-child {
+    border-top: 1px solid var(--borde);
+  }
+
+  .rutas__fila--borrador {
+    border-color: var(--amarillo-volcan);
+    background: var(--amarillo-volcan-superficie);
+  }
+
+  .rutas__nombre {
+    flex-basis: 100%;
+    justify-content: space-between;
+  }
+
+  .rutas__paso {
+    flex-basis: 100%;
+    font-size: 13px;
+  }
+
+  .rutas__dato {
+    font-size: 13px;
+  }
+
+  .rutas__acciones {
+    flex-basis: 100%;
+    margin-top: 6px;
+  }
+
+  .rutas__acciones .panel-boton {
+    flex-grow: 1;
+  }
+
+  .rutas__titulo {
+    white-space: normal;
+  }
+
+  .rutas__dialogo {
+    padding: 20px;
+  }
+
+  .rutas__dialogo-acciones {
+    flex-direction: column-reverse;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .rutas__nueva {
+    border-color: var(--verde-jumay-apagado);
+  }
+
+  .rutas__estado--publicada {
+    background: var(--verde-jumay-apagado);
+    color: var(--sobre-marca);
+  }
+
+  .rutas__fila--borrador {
+    background: transparent;
+  }
+}
+
+@media (max-width: 767px) {
+  .rutas__nueva {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+  }
+
+  .rutas__nueva-textos {
+    width: auto;
+  }
+}

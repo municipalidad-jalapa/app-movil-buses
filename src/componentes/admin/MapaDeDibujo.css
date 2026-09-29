@@ -1,0 +1,111 @@
+/* El mapa del creador de rutas: lapiz, paradas y menu del clic derecho. */
+
+.mapa-dibujo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--superficie-mapa);
+}
+
+.mapa-dibujo__lienzo {
+  position: absolute;
+  inset: 0;
+}
+
+.mapa-dibujo--sin-mapa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  color: var(--tinta-secundaria);
+  text-align: center;
+}
+
+/* Con el lapiz el dedo dibuja: el navegador no desplaza la pagina. */
+.mapa-dibujo__lienzo--lapiz {
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.mapa-dibujo__inicio {
+  padding: 2px 8px;
+  border-radius: var(--radio-etiqueta);
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+  font-size: 13px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+/* El final del recorrido: de aqui sigue el siguiente trazo. */
+.mapa-dibujo__fin {
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border: 3px solid var(--verde-jumay);
+  border-radius: var(--radio-pastilla);
+  background: var(--amarillo-volcan);
+  box-shadow: 0 0 0 6px rgb(242 183 5 / 35%);
+  pointer-events: none;
+}
+
+.mapa-dibujo__parada {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+  border: 3px solid var(--sobre-marca);
+  border-radius: var(--radio-pastilla);
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+  font-family: var(--fuente);
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 1px 4px rgb(34 32 28 / 35%);
+}
+
+.mapa-dibujo__menu {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  width: 210px;
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--superficie-base);
+  box-shadow: 0 10px 24px rgb(28 26 23 / 30%);
+  transform: translate(8px, 8px);
+}
+
+.mapa-dibujo__opcion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tinta-secundaria);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mapa-dibujo__opcion--principal {
+  background: var(--verde-jumay-superficie);
+  color: var(--tinta);
+  font-weight: 700;
+}
+
+.mapa-dibujo__opcion--principal svg {
+  color: var(--verde-jumay);
+}
