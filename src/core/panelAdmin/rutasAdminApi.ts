@@ -72,6 +72,14 @@ export async function agregarParada(
   return apiClient.post<Ruta>(`/api/v1/admin/rutas/${rutaId}/paradas`, datos, { token, intentos: 1 });
 }
 
+/**
+ * Saca la parada del recorrido; las siguientes suben un lugar. El historial se
+ * conserva y las reservas vigentes en ella se cancelan.
+ */
+export async function eliminarParada(token: string, rutaId: number, paradaId: number): Promise<Ruta | null> {
+  return apiClient.delete<Ruta>(`/api/v1/admin/rutas/${rutaId}/paradas/${paradaId}`, { token, intentos: 1 });
+}
+
 /** Publicar pide al menos 2 paradas y el trazado. */
 export async function publicarRuta(token: string, rutaId: number, activa: boolean): Promise<Ruta | null> {
   return apiClient.put<Ruta>(`/api/v1/admin/rutas/${rutaId}/publicacion`, { activa }, { token, intentos: 1 });

@@ -112,6 +112,11 @@ export function MapaOpenStreetMap({
   const marcadoresParada = useRef<Marker[]>([]);
   /** La ruta que ya se encuadro. Al elegir otra, se vuelve a encuadrar. */
   const rutaEncuadrada = useRef<number | null>(null);
+  /** La ruta de este render, para reencuadrar desde el observador de tamano. */
+  const rutaActual = useRef(ruta);
+  useEffect(() => {
+    rutaActual.current = ruta;
+  }, [ruta]);
   const elegidaAlAbrir = useRef(paradaElegidaId);
   // El manejador cambia en cada render; los marcadores llaman siempre al ultimo.
   const alElegir = useRef(onElegirParada);
@@ -203,7 +208,32 @@ export function MapaOpenStreetMap({
     instancia.addControl(new AttributionControl({ compact: false }), 'bottom-left');
     mapa.current = instancia;
 
+    // MapLibre solo se entera de los cambios de tamano de la ventana, no de
+    // los de su contenedor: en el panel del conductor la columna del mapa se
+    // acomoda despues de crearlo y el lienzo quedaba con el ancho viejo (una
+    // franja pintada y el resto vacio). Mientras nadie haya movido el mapa, la
+    // ruta se vuelve a encuadrar con el tamano nuevo.
+    let movidoAMano = false;
+    instancia.on('dragstart', () => {
+      movidoAMano = true;
+    });
+    instancia.on('zoomstart', (e) => {
+      if ((e as { originalEvent?: unknown }).originalEvent) movidoAMano = true;
+    });
+    const observador =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            instancia.resize();
+            const actual = rutaActual.current;
+            if (!movidoAMano && actual && rutaEncuadrada.current === actual.id && elegidaAlAbrir.current == null) {
+              encuadrarRuta(instancia, actual, 0, margenesActuales());
+            }
+          });
+    observador?.observe(contenedor.current);
+
     return () => {
+      observador?.disconnect();
       instancia.remove();
       mapa.current = null;
       marcadorBus.current = null;
