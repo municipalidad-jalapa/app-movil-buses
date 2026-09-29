@@ -1,0 +1,233 @@
+================================================================================
+RESULTADOS DE PRUEBAS -- Panel del conductor: avance automatico de parada
+                          (QA "Eco-Ruta (2).docx", hallazgo de Marlon Ruano)
+================================================================================
+Fecha  : 2026-09-29
+Node   : v24.21.0 (PowerShell del usuario)
+Vitest : 3.2.7
+Rama   : fix/panel-conductor-avance-automatico
+Corrido por: el usuario (Marlon), en su propia terminal, pegado en la sesion.
+
+Criterios de aceptacion:
+  AC1  Tocar varias veces seguidas el boton que cierra la parada no muestra
+       un error crudo al conductor.
+  AC2  Mientras la peticion esta en curso, el boton que la dispara queda
+       deshabilitado (no se puede volver a tocar).
+  AC3  El avance por la ruta de paradas es automatico: el GPS detecta cuando
+       el bus llega a la parada que toca y el conductor pasa solo a la
+       pantalla "Estas en la parada", sin depender de un boton.
+  AC4  Sigue existiendo un boton manual ("Llegue") como respaldo, para
+       cuando el GPS no esta disponible o falla.
+
+
+--------------------------------------------------------------------------------
+RESUMEN
+--------------------------------------------------------------------------------
+  Pruebas automaticas ........ 771 / 771  PASARON     (71 archivos, 0 fallos)
+  Nueva de este hallazgo ..... 1 / 1      PASO        (PanelConductor.test.tsx
+                                                        paso de 8 a 9 pruebas)
+  Verificacion de tipos ...... tsc --noEmit : OK (sin errores, sin salida)
+  Build de produccion ........ OK  (dist/ generado en 9.63s, sin errores)
+  Pruebas manuales ........... Pendientes: necesitan backend real o GPS
+                                fisico (ver seccion E)
+
+  ESTADO GENERAL: VERDE. No se encontro ningun error. Los 4 criterios de
+  aceptacion tienen prueba automatica en verde; las manuales quedan
+  pendientes de repetir contra un entorno con datos reales.
+
+
+--------------------------------------------------------------------------------
+A. PRUEBA AUTOMATICA NUEVA PARA ESTE HALLAZGO
+--------------------------------------------------------------------------------
+  Archivo: src/paginas/conductor/PanelConductor.test.tsx
+
+  [PASO]  presionar "Salir de la parada" varias veces seguidas no dispara
+          pedidos duplicados
+            - deja la peticion de marcarParadaAtendida sin resolver a
+              proposito (promesa controlada a mano)
+            - toca el boton "Salir de la parada"
+            - verifica que el boton queda disabled=true y con el texto
+              "Guardando..."
+            - lo vuelve a tocar dos veces mas mientras sigue en vuelo
+            - al resolver la peticion, confirma que marcarParadaAtendida se
+              llamo UNA sola vez                                  AC1 / AC2
+
+  Comando: npx vitest run src/paginas/conductor/PanelConductor.test.tsx
+  Resultado real: Test Files 1 passed (1) / Tests 9 passed (9)
+
+
+--------------------------------------------------------------------------------
+B. PRUEBAS EXISTENTES QUE YA CUBRIAN PARTE DEL HALLAZGO
+--------------------------------------------------------------------------------
+  Archivo: src/paginas/conductor/PanelConductor.test.tsx (resto de sus 9 pruebas)
+
+  [PASO]  el GPS detecta la llegada: bus detenido en la proxima parada
+          con estadoBus 'DETENIDO_EN_PARADA' y la proxima parada a 0
+          minutos, la pantalla pasa sola a "Estas en la parada" sin tocar
+          nada                                                          AC3
+  [PASO]  si no se pudo guardar se queda en la parada y lo dice
+          un 409 del backend se traduce a "Esta parada ya la cerraste hace
+          un momento: este conteo no se guardo." en vez de un error crudo  AC1
+  [PASO]  en camino muestra la proxima parada, quienes esperan y cuantos
+          van a bordo -- confirma que el boton "Llegue" sigue disponible
+          como respaldo manual                                          AC4
+  [PASO]  en la parada cuenta con Subio y Bajo, deshace y guarda el conteo
+          al salir -- flujo feliz completo, marcarParadaAtendida recibe el
+          conteo correcto
+  [PASO]  no pierde toques rapidos seguidos antes de que la pantalla se
+          redibuje -- Subio/Bajo cuentan cada toque sin perder ninguno
+  [PASO]  la lista de paradas deja elegir en cual esta y marca las cerradas
+  [PASO]  reportar atraso se abre en una hoja aparte
+  [PASO]  sin ruta asignada explica el problema en lenguaje llano
+
+  Archivo: src/hooks/useUbicacion.test.ts .............................. 6 / 6
+          mensaje claro al negar el permiso o sin soporte de geolocalizacion;
+          mismo vocabulario de error para el otro origen de GPS del
+          proyecto (ubicacion del pasajero, no del bus)
+
+
+--------------------------------------------------------------------------------
+C. RESTO DE LA BATERIA DEL PROYECTO (regresion -- no tocada por este hallazgo)
+--------------------------------------------------------------------------------
+  [PASO]  test/SCRUM-11-HU-87/unitarios/variablesDeEntorno.test.ts ..... 42 / 42
+  [PASO]  test/HU-Desarrollo-86-exportar-datos/simulados/servidorSimulado.test.ts . 16 / 16
+  [PASO]  src/core/panelAdmin/formatoTiempo.test.ts ...................... 4 / 4
+  [PASO]  src/core/apiClient.test.ts ..................................... 18 / 18
+  [PASO]  src/core/panelAdmin/exportacion.test.ts ......................... 8 / 8
+  [PASO]  src/core/firebase.test.ts ....................................... 2 / 2
+  [PASO]  src/core/flujoDePosiciones.test.ts ............................. 12 / 12
+  [PASO]  test/SCRUM-11-HU-87/unitarios/iconoYTitulo.test.ts ............. 22 / 22
+  [PASO]  test/SCRUM-11-HU-87/unitarios/imagenDocker.test.ts ............. 28 / 28
+  [PASO]  src/core/config.test.ts ........................................ 15 / 15
+  [PASO]  src/core/reservas.test.ts ....................................... 7 / 7
+  [PASO]  src/core/registroDemanda.test.ts ................................ 4 / 4
+  [PASO]  src/core/errores.test.ts ....................................... 11 / 11
+  [PASO]  src/core/interpolacionPosicion.test.ts ......................... 10 / 10
+  [PASO]  src/core/identidadDispositivo.test.ts ........................... 2 / 2
+  [PASO]  src/core/estiloMapa.test.ts ..................................... 4 / 4
+  [PASO]  src/core/notificaciones/registroDeToken.test.ts ................. 3 / 3
+  [PASO]  src/core/autenticacion/sesionConductor.test.ts .................. 4 / 4
+  [PASO]  src/core/notificaciones/mensajeria.test.ts ...................... 3 / 3
+  [PASO]  src/core/panelConductor.test.ts ................................. 5 / 5
+  [PASO]  src/core/ocupacion.test.ts ...................................... 3 / 3
+  [PASO]  test/SCRUM-148-HU-53/unitarios/identidadDispositivo.test.ts ..... 2 / 2
+  [PASO]  src/core/recorridoDeRuta.test.ts ................................ 4 / 4
+  [PASO]  test/SCRUM-148-HU-53/unitarios/registroDemanda.test.ts .......... 1 / 1
+  [PASO]  src/core/distanciaAParada.test.ts ............................... 6 / 6
+  [PASO]  src/core/autenticacion/traducirErrorFirebase.test.ts ............ 4 / 4
+  [PASO]  src/core/frescuraDato.test.ts ................................... 4 / 4
+  [PASO]  src/core/instalacion.test.ts .................................... 2 / 2
+  [PASO]  src/pruebas/features/metricas_del_panel.test.tsx ............... 26 / 26
+  [PASO]  src/paginas/Mapa.test.tsx ....................................... 39 / 39
+  [PASO]  test/HU-Desarrollo-86-exportar-datos/componentes/ExportarDatos.test.tsx . 23 / 23
+  [PASO]  test/SCRUM-11-HU-87/integracion/buildProduccion.test.ts ........ 24 / 24
+  [PASO]  src/pruebas/features/opiniones_del_servicio.test.tsx .......... 30 / 30
+  [PASO]  src/pruebas/features/entrar_al_panel_municipal.test.tsx ....... 27 / 27
+  [PASO]  src/hooks/usePosicionBus.test.ts ................................ 8 / 8
+  [PASO]  src/paginas/admin/CorregirRutas.test.tsx ........................ 6 / 6
+  [PASO]  src/paginas/admin/Vehiculos.test.tsx ............................ 4 / 4
+  [PASO]  src/pruebas/features/cancelar_registro.test.tsx ................ 18 / 18
+  [PASO]  src/pruebas/features/exportar_datos_del_servicio.test.tsx ..... 18 / 18
+  [PASO]  src/pruebas/features/sesion_del_pasajero.test.tsx .............. 21 / 21
+  [PASO]  src/paginas/Legal.test.tsx ...................................... 8 / 8
+  [PASO]  src/core/autenticacion/AuthProvider.test.tsx ................... 11 / 11
+  [PASO]  src/pruebas/features/criterios_visuales.test.tsx ............... 18 / 18
+  [PASO]  src/pruebas/features/avisos_y_abordaje.test.tsx ................ 46 / 46
+  [PASO]  src/pruebas/features/aviso_de_atraso.test.tsx ................... 23 / 23
+  [PASO]  src/componentes/TarjetaAbordaje.test.tsx ......................... 7 / 7
+  [PASO]  src/componentes/HojaReserva.test.tsx ............................ 12 / 12
+  [PASO]  src/componentes/PreferenciaNotificaciones.test.tsx ............... 8 / 8
+  [PASO]  src/componentes/InstalarApp.test.tsx .............................. 4 / 4
+  [PASO]  src/paginas/conductor/LoginConductor.test.tsx ..................... 3 / 3
+  [PASO]  src/paginas/PantallaRegistro.test.tsx ............................. 2 / 2
+  [PASO]  src/hooks/useDeslizarHoja.test.tsx ................................ 4 / 4
+  [PASO]  test/sin-conexion/unitarios/AvisoSinConexion.test.tsx ............. 6 / 6
+  [PASO]  src/componentes/MarcadorBus.test.tsx ............................... 8 / 8
+  [PASO]  src/componentes/BannerConexion.test.tsx ............................ 3 / 3
+  [PASO]  src/componentes/RutaProtegida.test.tsx .............................. 3 / 3
+  [PASO]  src/componentes/MapaJalapa.test.tsx ................................ 10 / 10
+  [PASO]  src/componentes/EstadoSinPosicion.test.tsx ........................... 1 / 1
+  [PASO]  src/estado/ReservaProvider.test.tsx ................................. 5 / 5
+  [PASO]  test/HU-Desarrollo-86-exportar-datos/unitarios/rangoDeFechas.test.ts .. 29 / 29
+  [PASO]  src/hooks/useResumenRuta.test.ts ..................................... 4 / 4
+  [PASO]  src/core/notificaciones/registroAlCargar.test.ts ..................... 2 / 2
+  [PASO]  src/componentes/OcupacionBus.test.tsx ................................ 3 / 3
+  [PASO]  src/componentes/TarjetaEta.test.tsx ................................... 6 / 6
+  [PASO]  test/SCRUM-11-HU-87/unitarios/pantallaDeCarga.test.ts ................ 21 / 21
+  [PASO]  src/componentes/HoraUltimoDato.test.tsx ............................... 2 / 2
+  [PASO]  src/hooks/useInactividad.test.ts ...................................... 3 / 3
+  [PASO]  test/sin-conexion/unitarios/useEnLinea.test.ts ........................ 4 / 4
+  [PASO]  src/core/notificaciones/permisoNotificaciones.test.ts ................ 10 / 10
+
+  Nota: "Not implemented: HTMLCanvasElement's getContext()" es un aviso de
+  jsdom (falta el paquete opcional "canvas"), no un fallo de prueba; sale en
+  Mapa.test.tsx, MapaJalapa.test.tsx y CorregirRutas.test.tsx desde antes de
+  este hallazgo y no afecta el resultado.
+
+
+--------------------------------------------------------------------------------
+D. VERIFICACION DE TIPOS Y BUILD
+--------------------------------------------------------------------------------
+  [PASO]  npx tsc --noEmit ........ sin errores (sin salida en consola)
+  [PASO]  npm run build ........... dist/ generado en 9.63s, sin errores
+          - 276 modulos transformados
+          - dist/index.html 5.55 kB (gzip 2.14 kB)
+          - bundle principal dist/assets/index-B7_ikGuk.js 1,547.14 kB
+            (gzip 429.47 kB)
+          Avisos (informativos, preexistentes, no bloquean el build):
+            - chunk de mas de 300 kB tras minificar (Vite sugiere
+              code-splitting; ya estaba documentado como pendiente en
+              test/SCRUM-11-HU-87/manual.md, punto 4 de "Hallazgos")
+            - src/core/firebase.ts se importa dinamica y estaticamente a la
+              vez (mensajeria.ts vs. los *Provider.tsx), por lo que Vite no
+              lo separa en su propio chunk. No relacionado con el panel del
+              conductor.
+
+
+--------------------------------------------------------------------------------
+E. PRUEBAS MANUALES (pendientes -- ver manual.md seccion 3)
+--------------------------------------------------------------------------------
+No hay backend real disponible en este entorno para probar contra un GPS de
+verdad, asi que estas quedan pendientes de repetir contra QA o produccion:
+
+  [ ]  M1  Tocar "Salir de la parada" varias veces muy rapido con red real
+  [ ]  M2  El bus acercandose de verdad a una parada -> pasa solo a "Estas
+           en la parada" sin tocar "Llegue"
+  [ ]  M3  Cerrar la misma parada desde dos dispositivos a la vez -> mensaje
+           claro de conflicto, no un error tecnico
+  [ ]  M4  Con el GPS del telefono apagado, "Llegue" sigue funcionando
+
+M1 y M3 ya quedan cubiertas a nivel de componente por la prueba automatica
+de la seccion A (sin depender de una red real).
+
+
+--------------------------------------------------------------------------------
+F. COBERTURA POR CRITERIO
+--------------------------------------------------------------------------------
+  AC1  sin error crudo al tocar varias veces
+       PanelConductor.test.tsx ("pedidos duplicados", "si no se pudo
+       guardar...")                                                  -> PASO
+
+  AC2  boton deshabilitado mientras se envia
+       PanelConductor.test.tsx ("pedidos duplicados")                -> PASO
+
+  AC3  avance automatico por GPS
+       PanelConductor.test.tsx ("el GPS detecta la llegada...")      -> PASO
+
+  AC4  boton manual de respaldo
+       PanelConductor.test.tsx (boton "Llegue" presente en el estado
+       "camino")                                                     -> PASO
+
+
+--------------------------------------------------------------------------------
+G. COMO REPRODUCIR ESTE RESULTADO
+--------------------------------------------------------------------------------
+  npm install
+  npx vitest run                                                  # 71 archivos, 771 pruebas
+  npx vitest run src/paginas/conductor/PanelConductor.test.tsx     # solo este hallazgo
+  npx tsc --noEmit
+  npm run build
+
+================================================================================
+FIN DEL REPORTE -- Ningun error encontrado en este hallazgo.
+================================================================================

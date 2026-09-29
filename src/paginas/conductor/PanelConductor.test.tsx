@@ -111,6 +111,31 @@ describe('Panel del conductor en ruta', () => {
     expect(screen.getByRole('button', { name: /Subió/ })).toBeTruthy();
   });
 
+  it('presionar "Salir de la parada" varias veces seguidas no dispara pedidos duplicados', async () => {
+    let resolver: (valor: { reservasCerradas: number; marcadaEn: string }) => void = () => {};
+    vi.mocked(marcarParadaAtendida).mockReturnValue(
+      new Promise((resolve) => {
+        resolver = resolve;
+      }),
+    );
+    abrir();
+    fireEvent.click(await screen.findByRole('button', { name: /Llegué/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Salir de la parada/ }));
+
+    // Mientras la peticion esta en vuelo el boton queda deshabilitado: tocarlo
+    // de nuevo no dispara un segundo pedido ni el 409 de "ya la cerraste".
+    const enVuelo = screen.getByRole('button', { name: /Guardando/ }) as HTMLButtonElement;
+    expect(enVuelo.disabled).toBe(true);
+    fireEvent.click(enVuelo);
+    fireEvent.click(enVuelo);
+
+    await act(async () => {
+      resolver({ reservasCerradas: 0, marcadaEn: '2026-09-23T15:05:00Z' });
+    });
+
+    expect(marcarParadaAtendida).toHaveBeenCalledTimes(1);
+  });
+
   it('el GPS detecta la llegada: bus detenido en la proxima parada', async () => {
     vi.mocked(obtenerPanelConductor).mockResolvedValue({
       ...PANEL,
