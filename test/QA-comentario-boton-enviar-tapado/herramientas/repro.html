@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QA: boton Enviar vs pie legal</title>
+<link rel="stylesheet" href="/src/estilos/tema.css" />
+<link rel="stylesheet" href="/src/componentes/Layout.css" />
+<link rel="stylesheet" href="/src/componentes/PieLegal.css" />
+<link rel="stylesheet" href="/src/componentes/opiniones/OpinarSobreElServicio.css" />
+<style>
+  /*
+   * Simula un competidor con z-index alto (p. ej. el menu de acceso, que usa
+   * 41) para demostrar que el arreglo (60) le sigue ganando a cualquier otra
+   * capa del layout, no solo al pie legal (que no tiene z-index propio y ya
+   * perdia antes del arreglo).
+   */
+  .competidor {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 160px;
+    z-index: 41;
+    background: rgba(140, 43, 34, 0.01); /* casi invisible: solo para el test */
+    pointer-events: auto;
+  }
+</style>
+</head>
+<body style="margin:0">
+  <div class="apl apl--a-sangre">
+    <header class="apl__encabezado">
+      <span style="color:#fff">EcoRuta</span>
+    </header>
+    <main class="apl__contenido apl__contenido--a-sangre" style="position:relative">
+      <div style="flex:1;background:#ccc"></div>
+
+      <div class="opinion-velo">
+        <form class="opinion-hoja" role="dialog">
+          <div class="opinion-manija" aria-hidden="true"><span></span></div>
+          <h2 class="opinion-titulo">Tu opinión sobre el servicio</h2>
+          <label class="opinion-campo">
+            Cuéntanos qué pasó
+            <textarea rows="4" id="comentario">Escribiendo un comentario para simular el flujo real de QA...</textarea>
+          </label>
+          <div class="opinion-pie">
+            <span>Escribe un texto, elige estrellas o ambos.</span>
+          </div>
+          <button type="submit" class="opinion-primario" id="btn-enviar">Enviar opinión</button>
+        </form>
+      </div>
+    </main>
+    <footer class="pie-legal">
+      <nav class="pie-legal__enlaces" aria-label="Información legal">
+        <a href="#">Política de privacidad</a>
+        <span aria-hidden="true">·</span>
+        <a href="#">Aviso legal</a>
+      </nav>
+      <p class="pie-legal__municipalidad">Municipalidad de Jalapa</p>
+    </footer>
+  </div>
+  <div class="competidor" id="competidor"></div>
+  <script>
+    // Devuelve si, en el centro del boton "Enviar", el elemento que realmente
+    // recibiria el toque es el boton (o algo que lo tapa: el pie legal o el
+    // competidor de z-index alto).
+    window.diagnostico = () => {
+      const btn = document.getElementById('btn-enviar');
+      const rectBtn = btn.getBoundingClientRect();
+      const rectPie = document.querySelector('.pie-legal').getBoundingClientRect();
+      const cx = (rectBtn.left + rectBtn.right) / 2;
+      const cy = (rectBtn.top + rectBtn.bottom) / 2;
+      const enElCentro = document.elementFromPoint(cx, cy);
+      return {
+        solapaConElPie: rectBtn.bottom > rectPie.top && rectBtn.top < rectPie.bottom,
+        elementoEnElCentro: enElCentro ? (enElCentro.id || enElCentro.className) : null,
+        botonGanaLaPelea: enElCentro === btn,
+      };
+    };
+  </script>
+</body>
+</html>
