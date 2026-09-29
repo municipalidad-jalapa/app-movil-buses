@@ -256,7 +256,10 @@ export function MapaDeDibujo(props: Props) {
     const dibuja = props.herramienta === 'lapiz' && props.editable;
     if (dibuja) instancia.dragPan.disable();
     else instancia.dragPan.enable();
-    instancia.getCanvasContainer().classList.toggle('mapa-dibujo__lienzo--lapiz', dibuja);
+    // Los cursores propios (MapaDeDibujo.css) cuelgan de estas dos clases.
+    const lienzo = instancia.getCanvasContainer();
+    lienzo.classList.toggle('mapa-dibujo__lienzo--lapiz', dibuja);
+    lienzo.classList.toggle('mapa-dibujo__lienzo--mano', !dibuja);
   }, [props.herramienta, props.editable, listo]);
 
   // La linea del recorrido.
