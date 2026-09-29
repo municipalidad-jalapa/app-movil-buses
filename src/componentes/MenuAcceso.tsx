@@ -5,18 +5,14 @@ import { IconoPersona, IconoSalirCuenta, LogoGoogle } from './sesionPasajero/Ico
 import './MenuAcceso.css';
 
 /**
- * Menu de acceso por rol, en la cabecera junto a la marca.
+ * Menu de acceso del pasajero, en la cabecera junto a la marca.
  *
- * Un unico punto de entrada a las tres caras del sistema: el pasajero (el mapa
- * a sangre), el conductor (su login) y la administracion. Existe porque cada
- * rol vive en una ruta distinta y no habia forma de llegar a las de conductor
- * o admin sin escribir la URL a mano.
+ * Muestra la cuenta opcional del pasajero o el modo invitado (SCRUM-26, B.1)
+ * y el regreso al mapa.
  *
- * Administrador abre el panel municipal (SCRUM-173). En la app del pasajero el
- * menu muestra ademas su cuenta opcional o el modo invitado (SCRUM-26, B.1).
- * QA 5.6: el enlace de administracion apuntaba
- * a Swagger en el host de la API, que en QA es el mismo del frontend, y
- * terminaba en "Pagina no encontrada".
+ * Correccion de QA: el menu ya no enlaza al login del conductor ni al panel
+ * municipal; un pasajero no debe ver esas opciones. El personal entra por
+ * `/tools` (paginas/Herramientas.tsx), que ofrece las tres caras del sistema.
  */
 export function MenuAcceso() {
   const [abierto, setAbierto] = useState(false);
@@ -144,19 +140,6 @@ export function MenuAcceso() {
           <Link className="menu-acceso__opcion" role="menuitem" to="/" onClick={() => setAbierto(false)}>
             <span className="menu-acceso__titulo">Pasajero</span>
             <span className="menu-acceso__ayuda">Mira donde viene tu bus</span>
-          </Link>
-          <Link
-            className="menu-acceso__opcion"
-            role="menuitem"
-            to="/conductor/login"
-            onClick={() => setAbierto(false)}
-          >
-            <span className="menu-acceso__titulo">Conductor</span>
-            <span className="menu-acceso__ayuda">Inicia tu jornada</span>
-          </Link>
-          <Link className="menu-acceso__opcion" role="menuitem" to="/admin" onClick={() => setAbierto(false)}>
-            <span className="menu-acceso__titulo">Administrador</span>
-            <span className="menu-acceso__ayuda">Panel municipal</span>
           </Link>
         </div>
       )}
