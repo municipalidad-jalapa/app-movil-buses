@@ -89,3 +89,19 @@ D. PRUEBAS MANUALES  (navegador, localhost:5173 + backend en docker compose)
   [OK]         M3/M8  /tools responde 200 desde el servidor de Vite
   [PENDIENTE]  M2, M4, M5, M6, M7  -> recorrer en el navegador antes del merge
                    (pasos en manual.md, seccion 3)
+
+
+--------------------------------------------------------------------------------
+E. CI DE GITHUB  (prueba intermitente heredada de develop)
+--------------------------------------------------------------------------------
+  En el CI fallo 1 prueba ajena a esta historia (802 / 803):
+    src/paginas/admin/CorregirRutas.test.tsx
+      > elimina una parada despues de confirmar
+  Causa: la lista de paradas se actualiza en un useEffect posterior al
+  mensaje "Parada ... eliminada". La prueba revisaba la lista justo al
+  aparecer el mensaje; en el runner de CI (mas lento) el efecto a veces no
+  habia corrido. La app se comporta bien; era la prueba la que no esperaba.
+  Correccion: esperar con waitFor a que el boton desaparezca. Sin cambios en
+  el componente.
+  Verificacion local: CorregirRutas.test.tsx 10 / 10 corridas en verde;
+  suite completa 803 / 803.

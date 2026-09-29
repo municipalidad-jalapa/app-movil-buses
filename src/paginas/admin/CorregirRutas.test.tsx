@@ -112,7 +112,9 @@ describe('Corregir rutas en el panel municipal (QA 5.6)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sí, eliminar' }));
     await screen.findByText('Parada «1a Calle - Mercado» eliminada del recorrido.');
     expect(eliminarParada).toHaveBeenCalledWith('t-admin', 1, 2);
-    expect(screen.queryByRole('button', { name: /Mercado/ })).toBeNull();
+    // La lista se actualiza en un efecto posterior al mensaje: en CI (mas lento)
+    // puede no haber corrido todavia cuando aparece el aviso.
+    await waitFor(() => expect(screen.queryByRole('button', { name: /Mercado/ })).toBeNull());
   });
 
   it('cancelar no elimina la parada', async () => {
