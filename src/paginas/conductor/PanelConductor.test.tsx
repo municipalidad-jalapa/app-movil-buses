@@ -170,8 +170,7 @@ describe('Panel del conductor en ruta', () => {
     expect(screen.getByRole('button', { name: 'Subió. Van 1' })).toBeTruthy();
   });
 
- fix/panel-conductor-avance-automatico
-  it('presionar "Salir de la parada" varias veces seguidas no dispara pedidos duplicados', async () => {
+  it('presionar "Siguiente parada" varias veces seguidas no dispara pedidos duplicados', async () => {
     let resolver: (valor: { reservasCerradas: number; marcadaEn: string }) => void = () => {};
     vi.mocked(marcarParadaAtendida).mockReturnValue(
       new Promise((resolve) => {
@@ -179,12 +178,12 @@ describe('Panel del conductor en ruta', () => {
       }),
     );
     abrir();
-    fireEvent.click(await screen.findByRole('button', { name: /Llegué/ }));
-    fireEvent.click(screen.getByRole('button', { name: /Salir de la parada/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /^Subió/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente parada' }));
 
-    // Mientras la peticion esta en vuelo el boton queda deshabilitado: tocarlo
-    // de nuevo no dispara un segundo pedido ni el 409 de "ya la cerraste".
-    const enVuelo = screen.getByRole('button', { name: /Guardando/ }) as HTMLButtonElement;
+    // Mientras la peticion esta en vuelo el boton queda deshabilitado ("Guardando…"):
+    // tocarlo de nuevo no dispara un segundo pedido.
+    const enVuelo = screen.getByRole('button', { name: 'Guardando…' }) as HTMLButtonElement;
     expect(enVuelo.disabled).toBe(true);
     fireEvent.click(enVuelo);
     fireEvent.click(enVuelo);
@@ -196,13 +195,6 @@ describe('Panel del conductor en ruta', () => {
     expect(marcarParadaAtendida).toHaveBeenCalledTimes(1);
   });
 
-  it('el GPS detecta la llegada: bus detenido en la proxima parada', async () => {
-    vi.mocked(obtenerPanelConductor).mockResolvedValue({
-      ...PANEL,
-      estadoBus: 'DETENIDO_EN_PARADA',
-      paradas: PANEL.paradas.map((p) => (p.paradaId === 2 ? { ...p, minutos: 0 } : p)),
-    });
-
   it('con el bus en una parada, esa es la que cuenta aunque otra llegue antes por el orden', async () => {
     posicionDelBus.mockReturnValue(busEnElCalvario());
     abrir();
@@ -213,7 +205,6 @@ describe('Panel del conductor en ruta', () => {
 
   it('lejos de toda parada o con la posicion vieja, propone la proxima del recorrido', async () => {
     posicionDelBus.mockReturnValue(busEnElCalvario(10));
- develop
     abrir();
 
     expect(await screen.findByRole('heading', { name: 'Mercado' })).toBeTruthy();
