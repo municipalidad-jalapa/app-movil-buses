@@ -5,12 +5,14 @@ import { IconoPersona, IconoSalirCuenta, LogoGoogle } from './sesionPasajero/Ico
 import './MenuAcceso.css';
 
 /**
- * Menu de acceso en la cabecera, junto a la marca: la cuenta opcional del
- * pasajero o el modo invitado (SCRUM-26, B.1) y la vuelta al mapa.
+ * Menu de acceso del pasajero, en la cabecera junto a la marca.
  *
- * El conductor y la Municipalidad NO entran desde aqui: el mapa es del
- * pasajero y esas opciones lo confundian. Cada uno entra por su enlace
- * directo: /conductor/login y /admin.
+ * Muestra la cuenta opcional del pasajero o el modo invitado (SCRUM-26, B.1)
+ * y el regreso al mapa.
+ *
+ * Correccion de QA: el menu ya no enlaza al login del conductor ni al panel
+ * municipal; un pasajero no debe ver esas opciones. El personal entra por
+ * `/tools` (paginas/Herramientas.tsx), que ofrece las tres caras del sistema.
  */
 export function MenuAcceso() {
   const [abierto, setAbierto] = useState(false);
