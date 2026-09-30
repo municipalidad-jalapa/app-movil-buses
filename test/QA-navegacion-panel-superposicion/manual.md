@@ -140,3 +140,11 @@ npm run build                                         # build de produccion
 ```
 
 Ver `resultados.txt` en esta misma carpeta para el resultado real de la última corrida.
+
+## Actualización: rediseño responsive del panel
+
+El rediseño del panel municipal (rama `correcciones-panel-de-administracion`) reemplazó
+la fila deslizable de pestañas del teléfono por un cajón lateral: por debajo de 1024 px
+`.panel-navegacion` no se muestra y las secciones van en `.panel-cajon`, una por renglón.
+El bloque `@media (max-width: 640px)` ya no existe; `unitarios/navegacionPanelResponsive.test.ts`
+ahora comprueba el cajón y sigue prohibiendo la combinación `flex: 1 1 0` + `min-width: 0`.

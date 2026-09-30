@@ -1,0 +1,127 @@
+/* El mapa del creador de rutas: lapiz, paradas y menu del clic derecho. */
+
+.mapa-dibujo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--superficie-mapa);
+}
+
+.mapa-dibujo__lienzo {
+  position: absolute;
+  inset: 0;
+}
+
+.mapa-dibujo--sin-mapa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  color: var(--tinta-secundaria);
+  text-align: center;
+}
+
+/*
+ * Cursores propios de las dos herramientas, SOLO sobre el lienzo del mapa de
+ * dibujo: el lapiz (la punta es el punto que dibuja) y la mano, que se cierra
+ * al arrastrar. Los selectores llevan mas peso que los de MapLibre
+ * (.maplibregl-canvas-container.maplibregl-interactive), que si no ganan y
+ * ponen su propio cursor y su touch-action.
+ */
+.mapa-dibujo .maplibregl-canvas-container.mapa-dibujo__lienzo--lapiz,
+.mapa-dibujo .maplibregl-canvas-container.mapa-dibujo__lienzo--lapiz:active {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M4 28l1.6-6.4L21 6.2a2.4 2.4 0 0 1 3.4 0l1.4 1.4a2.4 2.4 0 0 1 0 3.4L10.4 26.4z' fill='none' stroke='rgb%28251,247,240%29' stroke-width='5'/%3E%3Cpath d='M4 28l1.6-6.4L21 6.2a2.4 2.4 0 0 1 3.4 0l1.4 1.4a2.4 2.4 0 0 1 0 3.4L10.4 26.4z' fill='rgb%28242,183,5%29' stroke='rgb%2828,26,23%29' stroke-width='1.8'/%3E%3Cpath d='M18.6 8.6l4.8 4.8' stroke='rgb%2828,26,23%29' stroke-width='1.8'/%3E%3Cpath d='M4 28l1.6-6.4 4.8 4.8z' fill='rgb%2816,64,42%29' stroke='rgb%2828,26,23%29' stroke-width='1.4'/%3E%3C/g%3E%3C/svg%3E") 4 28, crosshair;
+  /* Un dedo dibuja: el navegador no se queda con el gesto. */
+  touch-action: none;
+}
+
+.mapa-dibujo .maplibregl-canvas-container.mapa-dibujo__lienzo--mano {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'%3E%3Cg stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M7 11V6a1.5 1.5 0 0 1 3 0v4M10 10V4.5a1.5 1.5 0 0 1 3 0V10M13 10V5.5a1.5 1.5 0 0 1 3 0V11M16 11V8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3.5 14a1.5 1.5 0 0 1 2.5-1.7L7 14z' fill='rgb%28251,247,240%29' stroke='rgb%28251,247,240%29' stroke-width='3.4'/%3E%3Cpath d='M7 11V6a1.5 1.5 0 0 1 3 0v4M10 10V4.5a1.5 1.5 0 0 1 3 0V10M13 10V5.5a1.5 1.5 0 0 1 3 0V11M16 11V8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3.5 14a1.5 1.5 0 0 1 2.5-1.7L7 14' fill='none' stroke='rgb%2828,26,23%29' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E") 16 16, grab;
+}
+
+.mapa-dibujo .maplibregl-canvas-container.mapa-dibujo__lienzo--mano:active {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'%3E%3Cg stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M7 12.5V11a1.5 1.5 0 0 1 3 0v.5M10 11.5V10a1.5 1.5 0 0 1 3 0v1.5M13 11.5V10.5a1.5 1.5 0 0 1 3 0V12M16 12a1.5 1.5 0 0 1 3 0v2.5a6.5 6.5 0 0 1-6.5 6.5H11a6 6 0 0 1-5-2.7L4.2 15.6a1.5 1.5 0 0 1 2.5-1.7L7 14.3z' fill='rgb%28251,247,240%29' stroke='rgb%28251,247,240%29' stroke-width='3.4'/%3E%3Cpath d='M7 12.5V11a1.5 1.5 0 0 1 3 0v.5M10 11.5V10a1.5 1.5 0 0 1 3 0v1.5M13 11.5V10.5a1.5 1.5 0 0 1 3 0V12M16 12a1.5 1.5 0 0 1 3 0v2.5a6.5 6.5 0 0 1-6.5 6.5H11a6 6 0 0 1-5-2.7L4.2 15.6a1.5 1.5 0 0 1 2.5-1.7L7 14.3' fill='none' stroke='rgb%2828,26,23%29' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E") 16 16, grabbing;
+}
+
+.mapa-dibujo__inicio {
+  padding: 2px 8px;
+  border-radius: var(--radio-etiqueta);
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+  font-size: 13px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+/* El final del recorrido: de aqui sigue el siguiente trazo. */
+.mapa-dibujo__fin {
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border: 3px solid var(--verde-jumay);
+  border-radius: var(--radio-pastilla);
+  background: var(--amarillo-volcan);
+  box-shadow: 0 0 0 6px rgb(242 183 5 / 35%);
+  pointer-events: none;
+}
+
+.mapa-dibujo__parada {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+  border: 3px solid var(--sobre-marca);
+  border-radius: var(--radio-pastilla);
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+  font-family: var(--fuente);
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 1px 4px rgb(34 32 28 / 35%);
+}
+
+.mapa-dibujo__menu {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  width: 210px;
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--superficie-base);
+  box-shadow: 0 10px 24px rgb(28 26 23 / 30%);
+  transform: translate(8px, 8px);
+}
+
+.mapa-dibujo__opcion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tinta-secundaria);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mapa-dibujo__opcion--principal {
+  background: var(--verde-jumay-superficie);
+  color: var(--tinta);
+  font-weight: 700;
+}
+
+.mapa-dibujo__opcion--principal svg {
+  color: var(--verde-jumay);
+}

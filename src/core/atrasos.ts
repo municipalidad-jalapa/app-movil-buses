@@ -56,13 +56,4 @@ export async function retirarAtraso(): Promise<void> {
   await apiClient.delete('/api/v1/conductor/atrasos/vigente', { intentos: 1 });
 }
 
-/** El texto del comentario llega neutralizado del backend; se muestra como se escribió. */
-export function textoPlano(texto: string | null): string {
-  if (!texto) return '';
-  return texto
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#39;', "'")
-    .replaceAll('&amp;', '&');
-}
+export { textoPlano } from './textoPlano';
