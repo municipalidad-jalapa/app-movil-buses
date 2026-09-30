@@ -9,6 +9,7 @@ import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
 import { ReservaProvider } from './estado/ReservaProvider';
 import { RutaElegidaProvider } from './estado/RutaElegidaProvider';
 import { AvisoLegal } from './paginas/AvisoLegal';
+import { Herramientas } from './paginas/Herramientas';
 import { Mapa } from './paginas/Mapa';
 import { NoEncontrada } from './paginas/NoEncontrada';
 import { Privacidad } from './paginas/Privacidad';
@@ -76,6 +77,9 @@ export function App() {
               </Layout>
             }
           />
+
+          {/* Correccion de QA: el acceso del personal sale del menu del pasajero. */}
+          <Route path="/tools" element={<Herramientas />} />
 
           <Route path="/conductor/login" element={<LoginConductor />} />
 

@@ -222,6 +222,31 @@ describe('Panel del conductor en ruta', () => {
     );
   });
 
+  it('presionar "Siguiente parada" varias veces seguidas no dispara pedidos duplicados', async () => {
+    let resolver: (valor: { reservasCerradas: number; marcadaEn: string }) => void = () => {};
+    vi.mocked(marcarParadaAtendida).mockReturnValue(
+      new Promise((resolve) => {
+        resolver = resolve;
+      }),
+    );
+    abrir();
+    fireEvent.click(await screen.findByRole('button', { name: /^Subió/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente parada' }));
+
+    // Mientras la peticion esta en vuelo el boton queda deshabilitado ("Guardando…"):
+    // tocarlo de nuevo no dispara un segundo pedido.
+    const enVuelo = screen.getByRole('button', { name: 'Guardando…' }) as HTMLButtonElement;
+    expect(enVuelo.disabled).toBe(true);
+    fireEvent.click(enVuelo);
+    fireEvent.click(enVuelo);
+
+    await act(async () => {
+      resolver({ reservasCerradas: 0, marcadaEn: '2026-09-23T15:05:00Z' });
+    });
+
+    expect(marcarParadaAtendida).toHaveBeenCalledTimes(1);
+  });
+
   it('con el bus en una parada, esa es la que cuenta aunque otra llegue antes por el orden', async () => {
     posicionDelBus.mockReturnValue(busEnElCalvario());
     abrir();

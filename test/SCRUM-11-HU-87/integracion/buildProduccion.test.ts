@@ -23,7 +23,10 @@ const entorno = {
   VITE_FIREBASE_AUTH_DOMAIN: 'ecoruta-prod.firebaseapp.com',
   VITE_FIREBASE_PROJECT_ID: 'ecoruta-prod',
   VITE_FIREBASE_APP_ID: '1:123:web:abc',
-  VITE_AUTH_CONDUCTOR_SIMULADO: undefined,
+  // 'false' y no undefined: una variable undefined no llega al proceso y Vite
+  // tomaba la del .env local (VITE_AUTH_CONDUCTOR_SIMULADO=true en desarrollo),
+  // con lo que la prueba fallaba en cualquier maquina con el simulador encendido.
+  VITE_AUTH_CONDUCTOR_SIMULADO: 'false',
   NODE_ENV: 'production',
 };
 
