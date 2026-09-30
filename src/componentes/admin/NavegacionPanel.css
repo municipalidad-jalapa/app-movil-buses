@@ -33,14 +33,19 @@
     flex: 1 1 100%;
     width: 100%;
     margin-left: 0;
+    /* QA: con las 7 secciones repartidas a partes iguales, las etiquetas mas
+       largas ("Pasajeros subidos", "Estado del servicio") no cabian en su
+       columna y, sin permiso para partirse, se desbordaban sobre la pestaña
+       vecina (las letras se sobreponian). En vez de encoger el texto, la fila
+       se desliza: cada pestaña conserva su ancho natural en una sola linea. */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .panel-navegacion__enlace {
-    flex: 1 1 0;
-    justify-content: center;
-    min-width: 0;
-    padding: 8px 4px;
+    flex: 0 0 auto;
+    padding: 8px 14px;
     font-size: 13px;
-    text-align: center;
+    white-space: nowrap;
   }
 }
