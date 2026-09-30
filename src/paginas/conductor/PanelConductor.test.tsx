@@ -170,6 +170,58 @@ describe('Panel del conductor en ruta', () => {
     expect(screen.getByRole('button', { name: 'Subió. Van 1' })).toBeTruthy();
   });
 
+  it('Bajó se apaga cuando ya no queda nadie a bordo y lo dice', async () => {
+    vi.mocked(obtenerPanelConductor).mockResolvedValue({ ...PANEL, aBordo: 1, capacidad: 30 });
+    abrir();
+
+    fireEvent.click(await screen.findByRole('button', { name: /^Bajó/ }));
+
+    const bajo = screen.getByRole('button', { name: 'Bajó. Van 1. No hay nadie a bordo' }) as HTMLButtonElement;
+    expect(bajo.disabled).toBe(true);
+    expect(within(bajo).getByText('No hay nadie a bordo')).toBeTruthy();
+
+    // Si sube alguien, se puede volver a bajar.
+    fireEvent.click(screen.getByRole('button', { name: /^Subió/ }));
+    expect((screen.getByRole('button', { name: 'Bajó. Van 1' }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('al empezar el dia sin nadie a bordo Bajó arranca apagado', async () => {
+    vi.mocked(obtenerPanelConductor).mockResolvedValue({ ...PANEL, aBordo: 0, capacidad: 30 });
+    abrir();
+    const bajo = (await screen.findByRole('button', { name: 'Bajó. Van 0. No hay nadie a bordo' })) as HTMLButtonElement;
+    expect(bajo.disabled).toBe(true);
+  });
+
+  it('Subió se apaga al llegar a la capacidad del bus, aun con toques rapidos', async () => {
+    vi.mocked(obtenerPanelConductor).mockResolvedValue({ ...PANEL, aBordo: 28, capacidad: 30 });
+    abrir();
+    const subio = await screen.findByRole('button', { name: /^Subió/ });
+    act(() => {
+      subio.click();
+      subio.click();
+      subio.click();
+      subio.click();
+    });
+
+    const lleno = screen.getByRole('button', { name: 'Subió. Van 2. Bus lleno' }) as HTMLButtonElement;
+    expect(lleno.disabled).toBe(true);
+    expect(within(lleno).getByText('Bus lleno')).toBeTruthy();
+    expect(screen.getByText('30')).toBeTruthy();
+
+    // Al bajar alguien hay lugar otra vez.
+    fireEvent.click(screen.getByRole('button', { name: /^Bajó/ }));
+    expect((screen.getByRole('button', { name: 'Subió. Van 2' }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('si el panel no trae la capacidad el tope de Subió es 25', async () => {
+    vi.mocked(obtenerPanelConductor).mockResolvedValue({ ...PANEL, aBordo: 24 });
+    abrir();
+    fireEvent.click(await screen.findByRole('button', { name: /^Subió/ }));
+    expect((screen.getByRole('button', { name: 'Subió. Van 1. Bus lleno' }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+
   it('presionar "Siguiente parada" varias veces seguidas no dispara pedidos duplicados', async () => {
     let resolver: (valor: { reservasCerradas: number; marcadaEn: string }) => void = () => {};
     vi.mocked(marcarParadaAtendida).mockReturnValue(

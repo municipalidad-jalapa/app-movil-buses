@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CAPACIDAD_POR_DEFECTO,
+  limitesDelConteo,
   paradaDondeEstaElBus,
   posicionVigente,
   proximaParada,
@@ -107,5 +109,26 @@ describe('panel del conductor: en que parada esta el bus', () => {
     const bus = { latitud: 1, longitud: 1, velocidadKmh: 0, vehiculo: 'BUS-01' };
     expect(posicionVigente({ ...bus, timestamp: '2026-09-26T15:09:00Z' }, ahora)).not.toBeNull();
     expect(posicionVigente({ ...bus, timestamp: '2026-09-26T15:07:00Z' }, ahora)).toBeNull();
+  });
+});
+
+describe('panel del conductor: limites de Subió y Bajó (QA)', () => {
+  it('sin nadie a bordo no se puede bajar', () => {
+    expect(limitesDelConteo(0, 30)).toEqual({ capacidad: 30, puedeSubir: true, puedeBajar: false });
+  });
+
+  it('con el bus lleno no se puede subir', () => {
+    expect(limitesDelConteo(30, 30)).toEqual({ capacidad: 30, puedeSubir: false, puedeBajar: true });
+  });
+
+  it('si el bus ya iba por encima de su capacidad solo se puede bajar', () => {
+    expect(limitesDelConteo(32, 30)).toMatchObject({ puedeSubir: false, puedeBajar: true });
+  });
+
+  it('sin capacidad cargada el tope es 25', () => {
+    expect(CAPACIDAD_POR_DEFECTO).toBe(25);
+    expect(limitesDelConteo(24)).toMatchObject({ capacidad: 25, puedeSubir: true });
+    expect(limitesDelConteo(25, null)).toMatchObject({ capacidad: 25, puedeSubir: false });
+    expect(limitesDelConteo(25, 0)).toMatchObject({ capacidad: 25, puedeSubir: false });
   });
 });
