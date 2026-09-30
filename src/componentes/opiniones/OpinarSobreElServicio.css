@@ -27,7 +27,15 @@
 .opinion-velo {
   position: fixed;
   inset: 0;
-  z-index: 40;
+  /*
+   * QA: al escribir un comentario, el boton "Enviar opinion" quedaba tapado
+   * por el pie legal ("Politica de privacidad"), que en modo oscuro se ve
+   * casi negro (--superficie-base: #1a1712). El pie no lleva z-index propio,
+   * asi que cualquier valor positivo ya gana, pero se deja explicito y por
+   * encima de TODO lo del layout (encabezado, menu, pie) para que un z-index
+   * nuevo en otro componente no vuelva a tapar esta hoja por accidente.
+   */
+  z-index: 60;
   display: flex;
   align-items: flex-end;
   justify-content: center;

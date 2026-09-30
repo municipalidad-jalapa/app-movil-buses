@@ -1,0 +1,124 @@
+================================================================================
+RESULTADOS DE PRUEBAS -- Boton "Enviar" tapado por el pie legal
+                          (QA "Eco-Ruta (2).docx")
+================================================================================
+Fecha  : 2026-09-29
+Node   : v24.21.0
+Vitest : 3.2.7
+Playwright: 1.63.0 (instalado aparte con --no-save, no es dependencia)
+Rama   : feature/qa-menu-panel-letras-superpuestas (se corrigio aqui mismo,
+         junto con el hallazgo del menu que ya traia esta rama)
+
+Hallazgo de QA:
+  "Al escribir un comentario, el boton 'ENVIAR' queda oculto por el panel
+  negro de politica de privacidad y no es posible enviarlo."
+
+
+--------------------------------------------------------------------------------
+RESUMEN
+--------------------------------------------------------------------------------
+  Verificacion con navegador real ... 8 / 8    PASARON  (Playwright, ver A)
+  Pruebas automaticas del proyecto .. 784 / 784 PASARON  (73 archivos, 0 fallos)
+  Verificacion de tipos ............. tsc --noEmit : OK (sin errores)
+  Build de produccion ............... OK (dist/ generado en 14.79s)
+
+  ESTADO GENERAL: VERDE.
+
+
+--------------------------------------------------------------------------------
+A. DIAGNOSTICO Y VERIFICACION DEL ARREGLO (navegador real, no jsdom)
+--------------------------------------------------------------------------------
+jsdom no pinta CSS real (no hay stacking context ni z-index), asi que se uso
+Chromium via Playwright contra el CSS real del proyecto (Layout.css,
+PieLegal.css, OpinarSobreElServicio.css), con el mismo esqueleto de clases
+que arma la app real. Ver test/QA-comentario-boton-enviar-tapado/manual.md
+para el detalle completo del diagnostico.
+
+Comando: node test/QA-comentario-boton-enviar-tapado/herramientas/verificar-boton-enviar.mjs
+
+  [PASO]  [claro, iPhone SE 375x667] con el arreglo (z-index: 60): el boton
+          "Enviar" recibe el toque
+  [PASO]  [claro, iPhone SE 375x667] sin el arreglo (z-index: 40): un
+          competidor con z-index 41 SI tapa el boton (confirma el motivo)
+  [PASO]  [claro, Android chico 360x640] con el arreglo: el boton recibe el
+          toque
+  [PASO]  [claro, Android chico 360x640] sin el arreglo: el competidor gana
+  [PASO]  [oscuro -- el pie se ve casi negro --, iPhone SE] con el arreglo:
+          el boton recibe el toque
+  [PASO]  [oscuro, iPhone SE] sin el arreglo: el competidor gana
+  [PASO]  [oscuro, Android chico] con el arreglo: el boton recibe el toque
+  [PASO]  [oscuro, Android chico] sin el arreglo: el competidor gana
+
+  Resultado real: 8/8 -- "Resultado: todo paso."
+
+Que prueba cada mitad:
+  - "con el arreglo" prueba que HOY (z-index: 60 en .opinion-velo) el boton
+    "Enviar" gana la pelea de capas en las 4 combinaciones claro/oscuro x
+    telefono chico, incluso con un competidor de z-index 41 (simula el menu
+    de acceso, que usa ese valor real en MenuAcceso.css) montado encima.
+  - "sin el arreglo" prueba que el z-index viejo (40) SI se puede perder
+    ante un competidor de z-index 41 -- confirma que el hallazgo de QA era
+    real (no un fantasma) y que el arreglo no es cosmetico.
+
+Nota sobre alcance: el repro usa el CSS real del proyecto pero con marcado
+escrito a mano (no monta React ni pide datos a un backend); no hay forma
+practica de montar la pantalla del mapa completa (necesita Firebase real,
+rutas, GPS) solo para revisar un z-index. El repro reproduce fielmente la
+jerarquia real de clases (.apl.apl--a-sangre > .apl__contenido--a-sangre +
+.opinion-velo/.opinion-hoja + .pie-legal) tal como la arma Layout.tsx +
+OpinarSobreElServicio.tsx en produccion.
+
+
+--------------------------------------------------------------------------------
+B. PRUEBAS AUTOMATICAS DEL PROYECTO (regresion -- CSS puro, sin tests nuevos)
+--------------------------------------------------------------------------------
+Este hallazgo no cambio logica de ningun componente (solo un valor de
+z-index y un comentario), asi que no aplica agregar una prueba de Vitest
+nueva: la cobertura real esta en la seccion A. Se corrio toda la bateria
+para confirmar que nada se rompio:
+
+  Comando: npx vitest run
+  Resultado real: Test Files 73 passed (73) / Tests 784 passed (784)
+
+  Nota: la primera corrida de esta sesion (antes de este resultado) salio
+  con 1 archivo en rojo por una corrida de vite dev que habia quedado
+  colgada de las pruebas manuales de la seccion A (puerto 5183 ocupado /
+  proceso zombie). Se mato el proceso viejo (taskkill) y la siguiente
+  corrida, limpia, dio 73/73 sin fallos. No fue un problema del cambio de
+  CSS.
+
+
+--------------------------------------------------------------------------------
+C. VERIFICACION DE TIPOS Y BUILD
+--------------------------------------------------------------------------------
+  [PASO]  npx tsc --noEmit ........ sin errores
+  [PASO]  npm run build ........... dist/ generado en 14.79s, sin errores
+          (mismo aviso preexistente de chunk > 300 kB, no relacionado)
+
+
+--------------------------------------------------------------------------------
+D. PRUEBAS MANUALES (pendientes -- dispositivo real)
+--------------------------------------------------------------------------------
+  [ ]  M1  Android real, modo oscuro, "Opinar" -> "Comentario", escribir
+           hasta que salga el teclado: el boton "Enviar opinión" se ve y se
+           puede tocar
+  [ ]  M2  Lo mismo en iPhone (Safari)
+
+Ambas quedan cubiertas a nivel de CSS real (sin dispositivo fisico) por la
+seccion A.
+
+
+--------------------------------------------------------------------------------
+E. COMO REPRODUCIR ESTE RESULTADO
+--------------------------------------------------------------------------------
+  npm install
+  npx vitest run
+  npx tsc --noEmit
+  npm run build
+  npm install --no-save playwright
+  npx playwright install chromium
+  node test/QA-comentario-boton-enviar-tapado/herramientas/verificar-boton-enviar.mjs
+
+================================================================================
+FIN DEL REPORTE -- Ningun error encontrado en este hallazgo.
+================================================================================

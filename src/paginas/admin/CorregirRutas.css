@@ -199,3 +199,22 @@
 .corregir-rutas__nueva .panel-campo {
   flex: 1 1 280px;
 }
+
+/* Eliminar parada: accion destructiva, en el color de alerta del tema. */
+.corregir-rutas__eliminar {
+  color: var(--alerta-texto);
+  border-color: currentColor;
+}
+
+.corregir-rutas__confirmar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  padding: var(--esp-3);
+  border-radius: var(--radio-control);
+  background: var(--rojo-santa-marta-superficie);
+}
+
+.corregir-rutas__confirmar .panel-ayuda {
+  margin: 0;
+}
