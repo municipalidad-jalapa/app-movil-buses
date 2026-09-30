@@ -11,9 +11,10 @@ const reglas = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
   .filter(({ cuerpo }) => /cursor:\s*url\(/.test(cuerpo));
 
 describe('cursores del mapa de dibujo', () => {
-  it('hay uno para el lápiz y dos para la mano (abierta y arrastrando)', () => {
+  it('hay uno para el lápiz, uno para el borrador y dos para la mano (abierta y arrastrando)', () => {
     const cursores = reglas.map((r) => r.selector);
     expect(cursores.some((s) => s.includes('mapa-dibujo__lienzo--lapiz'))).toBe(true);
+    expect(cursores.some((s) => s.includes('mapa-dibujo__lienzo--borrador'))).toBe(true);
     expect(cursores.some((s) => s.includes('mapa-dibujo__lienzo--mano') && !s.includes(':active'))).toBe(true);
     expect(cursores.some((s) => s.includes('mapa-dibujo__lienzo--mano:active'))).toBe(true);
   });
@@ -25,6 +26,13 @@ describe('cursores del mapa de dibujo', () => {
         // peso que hace falta frente a .maplibregl-canvas-container.maplibregl-interactive.
         expect(parte.trim()).toMatch(/^\.mapa-dibujo \.maplibregl-canvas-container\.mapa-dibujo__lienzo--/);
       }
+    }
+  });
+
+  it('con el lápiz y el borrador el dedo no mueve la página', () => {
+    for (const herramienta of ['lapiz', 'borrador']) {
+      const regla = reglas.find((r) => r.selector.includes(`mapa-dibujo__lienzo--${herramienta}`));
+      expect(regla?.cuerpo).toMatch(/touch-action:\s*none/);
     }
   });
 

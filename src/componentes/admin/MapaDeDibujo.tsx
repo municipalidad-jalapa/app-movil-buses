@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import { AttributionControl, GeoJSONSource, LngLatBounds, Map as MapaLibre, Marker, NavigationControl } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { estiloOpenStreetMap } from '../../core/estiloMapa';
+import { borrar, metrosEntre } from '../../core/panelAdmin/geometriaRuta';
 import type { PuntoGeo } from '../../core/panelAdmin/rutasAdminApi';
 import { soportaMapa } from '../../core/soporteDeMapa';
 import './MapaDeDibujo.css';
@@ -14,6 +15,8 @@ import './MapaDeDibujo.css';
  *       se entrega a quien lo ajusta a las calles. Cerca del borde el mapa se
  *       corre solo para seguir dibujando una ruta larga. Con dos dedos el mapa
  *       se mueve y se acerca igual que siempre.</li>
+ *   <li><b>Borrador</b>: se pasa por encima de lo que sobra; lo que se va se
+ *       marca en rojo y al soltar se entrega a quien lo quita.</li>
  *   <li><b>Mano</b>: el mapa se arrastra; las paradas tambien.</li>
  *   <li><b>Clic derecho</b> (o mantener presionado en pantallas tactiles):
  *       «Crear parada aquí».</li>
@@ -22,7 +25,7 @@ import './MapaDeDibujo.css';
  * <p>El estado vive en la pantalla: este componente dibuja y avisa.
  */
 
-export type Herramienta = 'lapiz' | 'mano';
+export type Herramienta = 'lapiz' | 'borrador' | 'mano';
 
 export interface ParadaEnMapa extends PuntoGeo {
   id: number;
@@ -44,6 +47,8 @@ interface Props {
   /** false en "Revisar y publicar": el mapa solo se mira. */
   editable: boolean;
   onTrazo: (puntos: PuntoGeo[]) => void;
+  /** Por donde paso el borrador y su radio, en metros. */
+  onBorrar: (goma: PuntoGeo[], radio: number) => void;
   onCrearParada: (punto: PuntoGeo) => void;
   onMoverParada: (id: number, punto: PuntoGeo) => void;
   /** Cambia al abrir otra ruta: el mapa se vuelve a encuadrar. */
@@ -54,6 +59,7 @@ interface Props {
 const VERDE = '#10402A';
 const AMARILLO = '#F2B705';
 const CREMA = '#FBF7F0';
+const ROJO = '#8C2B22';
 const CENTRO_JALAPA: [number, number] = [-89.9885, 14.6355];
 
 /** Distancia al borde, en px, a la que el mapa empieza a correrse solo. */
@@ -62,6 +68,8 @@ const BORDE_PX = 56;
 const PASO_PX = 14;
 /** Mantener presionado, en ms, para abrir el menu en pantallas tactiles. */
 const PRESION_MS = 600;
+/** Radio del borrador, en px: el circulo de su cursor (MapaDeDibujo.css). */
+const RADIO_GOMA_PX = 15;
 
 interface Menu {
   x: number;
@@ -107,6 +115,7 @@ export function MapaDeDibujo(props: Props) {
     const preparar = () => {
       if (!instancia.isStyleLoaded() || instancia.getSource('trazado')) return;
       for (const id of ['trazado', 'crudo']) instancia.addSource(id, { type: 'geojson', data: linea([]) });
+      instancia.addSource('borrado', { type: 'geojson', data: lineas([]) });
       instancia.addLayer({
         id: 'trazado-contorno',
         type: 'line',
@@ -120,6 +129,13 @@ export function MapaDeDibujo(props: Props) {
         source: 'trazado',
         layout: { 'line-join': 'round', 'line-cap': 'round' },
         paint: { 'line-color': VERDE, 'line-width': 5 },
+      });
+      instancia.addLayer({
+        id: 'borrado-linea',
+        type: 'line',
+        source: 'borrado',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': ROJO, 'line-width': 7 },
       });
       instancia.addLayer({
         id: 'crudo-linea',
@@ -140,6 +156,8 @@ export function MapaDeDibujo(props: Props) {
     const lienzo = instancia.getCanvasContainer();
     const activos = new Set<number>();
     let trazo: PuntoGeo[] | null = null;
+    let goma: { puntos: PuntoGeo[]; radio: number } | null = null;
+    let cuadro = 0;
     let presion: { x: number; y: number; temporizador: number } | null = null;
 
     // Las medidas salen del contenedor del mapa: el del lienzo mide 0 de alto.
@@ -154,6 +172,16 @@ export function MapaDeDibujo(props: Props) {
     };
     const pintarCrudo = (puntos: PuntoGeo[]) =>
       (instancia.getSource('crudo') as GeoJSONSource | undefined)?.setData(linea(puntos));
+    const pintarBorrado = (partes: PuntoGeo[][]) =>
+      (instancia.getSource('borrado') as GeoJSONSource | undefined)?.setData(lineas(partes));
+    // Lo que se va a borrar se recalcula una vez por cuadro, no con cada movimiento.
+    const marcarBorrado = () => {
+      if (cuadro) return;
+      cuadro = window.requestAnimationFrame(() => {
+        cuadro = 0;
+        if (goma) pintarBorrado(borrar(ultimo.current.trazado, goma.puntos, goma.radio)?.borrados ?? []);
+      });
+    };
     const soltarPresion = () => {
       if (presion) window.clearTimeout(presion.temporizador);
       presion = null;
@@ -161,6 +189,10 @@ export function MapaDeDibujo(props: Props) {
     const cancelarTrazo = () => {
       trazo = null;
       pintarCrudo(ultimo.current.pendiente ?? []);
+      if (goma) {
+        goma = null;
+        pintarBorrado([]);
+      }
     };
     const abrirMenu = (xy: [number, number]) => {
       if (!ultimo.current.editable) return;
@@ -189,19 +221,32 @@ export function MapaDeDibujo(props: Props) {
           }, PRESION_MS),
         };
       }
-      const { herramienta, editable, pendiente } = ultimo.current;
+      const { herramienta, editable, pendiente, trazado } = ultimo.current;
       if (herramienta === 'lapiz' && editable && !pendiente) {
         trazo = [aPunto(xy)];
         lienzo.setPointerCapture?.(e.pointerId);
+      }
+      if (herramienta === 'borrador' && editable && !pendiente && trazado.length) {
+        // El radio en metros depende del acercamiento: se mide al empezar.
+        const centro = aPunto(xy);
+        goma = { puntos: [centro], radio: metrosEntre(centro, aPunto([xy[0] + RADIO_GOMA_PX, xy[1]])) };
+        lienzo.setPointerCapture?.(e.pointerId);
+        marcarBorrado();
       }
     };
 
     const alMover = (e: PointerEvent) => {
       const xy = enPantalla(e);
       if (presion && Math.hypot(xy[0] - presion.x, xy[1] - presion.y) > 10) soltarPresion();
-      if (!trazo || activos.size > 1) return;
-      trazo.push(aPunto(xy));
-      pintarCrudo(trazo);
+      if ((!trazo && !goma) || activos.size > 1) return;
+      if (trazo) {
+        trazo.push(aPunto(xy));
+        pintarCrudo(trazo);
+      }
+      if (goma) {
+        goma.puntos.push(aPunto(xy));
+        marcarBorrado();
+      }
       // Ruta larga: cerca del borde el mapa se corre solo para seguir dibujando.
       const { width, height } = marco.getBoundingClientRect();
       const dx = xy[0] < BORDE_PX ? -PASO_PX : xy[0] > width - BORDE_PX ? PASO_PX : 0;
@@ -212,6 +257,13 @@ export function MapaDeDibujo(props: Props) {
     const alSubir = (e: PointerEvent) => {
       activos.delete(e.pointerId);
       soltarPresion();
+      if (goma) {
+        const { puntos, radio } = goma;
+        goma = null;
+        // Lo marcado en rojo sigue a la vista hasta que el recorrido cambia.
+        if (borrar(ultimo.current.trazado, puntos, radio)) ultimo.current.onBorrar(puntos, radio);
+        else pintarBorrado([]);
+      }
       if (!trazo) return;
       const hecho = trazo;
       trazo = null;
@@ -239,6 +291,7 @@ export function MapaDeDibujo(props: Props) {
 
     return () => {
       soltarPresion();
+      window.cancelAnimationFrame(cuadro);
       lienzo.removeEventListener('pointerdown', alBajar);
       lienzo.removeEventListener('pointermove', alMover);
       lienzo.removeEventListener('pointerup', alSubir);
@@ -249,17 +302,19 @@ export function MapaDeDibujo(props: Props) {
     };
   }, []);
 
-  // Con el lapiz, un dedo (o el mouse) dibuja: el mapa no se arrastra.
+  // Con el lapiz o el borrador, un dedo (o el mouse) dibuja o borra: el mapa
+  // no se arrastra.
   useEffect(() => {
     const instancia = mapa.current;
     if (!instancia) return;
-    const dibuja = props.herramienta === 'lapiz' && props.editable;
-    if (dibuja) instancia.dragPan.disable();
-    else instancia.dragPan.enable();
-    // Los cursores propios (MapaDeDibujo.css) cuelgan de estas dos clases.
+    const herramienta = props.editable ? props.herramienta : 'mano';
+    if (herramienta === 'mano') instancia.dragPan.enable();
+    else instancia.dragPan.disable();
+    // Los cursores propios (MapaDeDibujo.css) cuelgan de estas clases.
     const lienzo = instancia.getCanvasContainer();
-    lienzo.classList.toggle('mapa-dibujo__lienzo--lapiz', dibuja);
-    lienzo.classList.toggle('mapa-dibujo__lienzo--mano', !dibuja);
+    for (const h of ['lapiz', 'borrador', 'mano'] as const) {
+      lienzo.classList.toggle(`mapa-dibujo__lienzo--${h}`, h === herramienta);
+    }
   }, [props.herramienta, props.editable, listo]);
 
   // La linea del recorrido.
@@ -285,6 +340,14 @@ export function MapaDeDibujo(props: Props) {
       marcadoresExtremos.current.push(new Marker({ element: e }).setLngLat([fin.longitud, fin.latitud]).addTo(instancia));
     }
   }, [props.trazado, listo]);
+
+  // Lo marcado por el borrador se quita cuando el recorrido ya cambio o cuando
+  // no hay nada ajustandose (unir un hueco en medio va por la red).
+  useEffect(() => {
+    const instancia = mapa.current;
+    if (!listo || !instancia || props.pendiente) return;
+    (instancia.getSource('borrado') as GeoJSONSource | undefined)?.setData(lineas([]));
+  }, [props.trazado, props.pendiente, listo]);
 
   // El trazo a mano que se esta ajustando.
   useEffect(() => {
@@ -380,6 +443,17 @@ function linea(puntos: PuntoGeo[]) {
     type: 'Feature' as const,
     properties: {},
     geometry: { type: 'LineString' as const, coordinates: puntos.map((p) => [p.longitud, p.latitud]) },
+  };
+}
+
+function lineas(partes: PuntoGeo[][]) {
+  return {
+    type: 'Feature' as const,
+    properties: {},
+    geometry: {
+      type: 'MultiLineString' as const,
+      coordinates: partes.map((puntos) => puntos.map((p) => [p.longitud, p.latitud])),
+    },
   };
 }
 

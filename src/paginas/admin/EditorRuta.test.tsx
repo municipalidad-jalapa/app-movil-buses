@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AuthAdminContext, type EstadoAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
+import { largoEnMetros } from '../../core/panelAdmin/geometriaRuta';
 import {
   agregarParada,
   ajustarACalles,
@@ -17,11 +18,13 @@ import type { Ruta } from '../../core/tipos';
 import { EditorRuta } from './EditorRuta';
 
 // MapLibre no corre en jsdom: el mapa se reemplaza por uno que guarda sus props
-// para disparar a mano un trazo o un clic derecho.
+// para disparar a mano un trazo, una pasada del borrador o un clic derecho.
 const mapa = vi.hoisted(() => ({
   props: null as null | {
     trazado: PuntoGeo[];
+    herramienta: string;
     onTrazo: (p: PuntoGeo[]) => void;
+    onBorrar: (goma: PuntoGeo[], radio: number) => void;
     onCrearParada: (p: PuntoGeo) => void;
   },
 }));
@@ -112,6 +115,64 @@ describe('Editor de una ruta', () => {
     await act(async () => mapa.props!.onTrazo([{ latitud: 14.631, longitud: -89.98 }, C, C]));
 
     expect(await screen.findByText(/quedó como lo dibujaste/)).toBeTruthy();
+  });
+
+  it('el borrador recorta lo que sobra al final y lo guarda', async () => {
+    abrir();
+    await screen.findByText('Mapa con 2 puntos');
+    const boton = screen.getByRole('button', { name: 'Borrador' });
+    fireEvent.click(boton);
+    expect(boton.getAttribute('aria-pressed')).toBe('true');
+    expect(mapa.props!.herramienta).toBe('borrador');
+
+    // Pasa sobre el final (B) con un borrador de 100 m.
+    act(() => mapa.props!.onBorrar([B], 100));
+
+    await waitFor(() => expect(guardarTrazado).toHaveBeenCalled(), { timeout: 2000 });
+    const [, , guardado] = vi.mocked(guardarTrazado).mock.calls.at(-1)!;
+    expect(guardado[0]).toEqual(A);
+    expect(largoEnMetros(guardado)).toBeCloseTo(largoEnMetros([A, B]) - 100, 0);
+    // Una punta no deja hueco: no hace falta ir a las calles.
+    expect(ajustarACalles).not.toHaveBeenCalled();
+  });
+
+  it('borrar en medio vuelve a unir los dos pedazos por las calles', async () => {
+    const mitad = { latitud: 14.63, longitud: (A.longitud + B.longitud) / 2 };
+    const vuelta = { latitud: 14.6304, longitud: mitad.longitud };
+    vi.mocked(ajustarACalles).mockImplementation(async (_t, [fin, inicio]) => ({ puntos: [fin, vuelta, inicio], ajustado: true }));
+    abrir();
+    await screen.findByText('Mapa con 2 puntos');
+    fireEvent.click(screen.getByRole('button', { name: 'Borrador' }));
+
+    await act(async () => mapa.props!.onBorrar([mitad], 50));
+
+    // Se pide solo el hueco: desde donde termina un pedazo hasta donde empieza el otro.
+    const [, hueco] = vi.mocked(ajustarACalles).mock.calls[0];
+    expect(hueco).toHaveLength(2);
+    expect(largoEnMetros(hueco)).toBeCloseTo(100, 0);
+    expect(await screen.findByText('Mapa con 5 puntos')).toBeTruthy();
+    await waitFor(() => expect(guardarTrazado).toHaveBeenCalled(), { timeout: 2000 });
+    const [, , guardado] = vi.mocked(guardarTrazado).mock.calls.at(-1)!;
+    expect(guardado[0]).toEqual(A);
+    expect(guardado.at(-1)).toEqual(B);
+    expect(guardado).toContainEqual(vuelta);
+
+    // Deshacer devuelve lo borrado.
+    fireEvent.click(screen.getByRole('button', { name: 'Deshacer' }));
+    expect(await screen.findByText('Mapa con 2 puntos')).toBeTruthy();
+  });
+
+  it('si el hueco no se puede volver a unir, no se borra nada', async () => {
+    vi.mocked(ajustarACalles).mockRejectedValue(new Error('sin red'));
+    abrir();
+    await screen.findByText('Mapa con 2 puntos');
+    fireEvent.click(screen.getByRole('button', { name: 'Borrador' }));
+
+    await act(async () => mapa.props!.onBorrar([{ latitud: 14.63, longitud: (A.longitud + B.longitud) / 2 }], 50));
+
+    expect(await screen.findByText(/No se borró nada/)).toBeTruthy();
+    expect(screen.getByText('Mapa con 2 puntos')).toBeTruthy();
+    expect(guardarTrazado).not.toHaveBeenCalled();
   });
 
   it('deshacer vuelve al recorrido anterior y también se guarda', async () => {

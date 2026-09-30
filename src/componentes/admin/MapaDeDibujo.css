@@ -1,4 +1,4 @@
-/* El mapa del creador de rutas: lapiz, paradas y menu del clic derecho. */
+/* El mapa del creador de rutas: lapiz, borrador, paradas y menu del clic derecho. */
 
 .mapa-dibujo {
   position: relative;
@@ -24,9 +24,9 @@
 }
 
 /*
- * Cursores propios de las dos herramientas, SOLO sobre el lienzo del mapa de
- * dibujo: el lapiz (la punta es el punto que dibuja) y la mano, que se cierra
- * al arrastrar. Los selectores llevan mas peso que los de MapLibre
+ * Cursores propios de las herramientas, SOLO sobre el lienzo del mapa de
+ * dibujo: el lapiz (la punta es el punto que dibuja), el borrador (el circulo
+ * es lo que borra) y la mano, que se cierra al arrastrar. Los selectores llevan mas peso que los de MapLibre
  * (.maplibregl-canvas-container.maplibregl-interactive), que si no ganan y
  * ponen su propio cursor y su touch-action.
  */
@@ -34,6 +34,13 @@
 .mapa-dibujo .maplibregl-canvas-container.mapa-dibujo__lienzo--lapiz:active {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M4 28l1.6-6.4L21 6.2a2.4 2.4 0 0 1 3.4 0l1.4 1.4a2.4 2.4 0 0 1 0 3.4L10.4 26.4z' fill='none' stroke='rgb%28251,247,240%29' stroke-width='5'/%3E%3Cpath d='M4 28l1.6-6.4L21 6.2a2.4 2.4 0 0 1 3.4 0l1.4 1.4a2.4 2.4 0 0 1 0 3.4L10.4 26.4z' fill='rgb%28242,183,5%29' stroke='rgb%2828,26,23%29' stroke-width='1.8'/%3E%3Cpath d='M18.6 8.6l4.8 4.8' stroke='rgb%2828,26,23%29' stroke-width='1.8'/%3E%3Cpath d='M4 28l1.6-6.4 4.8 4.8z' fill='rgb%2816,64,42%29' stroke='rgb%2828,26,23%29' stroke-width='1.4'/%3E%3C/g%3E%3C/svg%3E") 4 28, crosshair;
   /* Un dedo dibuja: el navegador no se queda con el gesto. */
+  touch-action: none;
+}
+
+.mapa-dibujo .maplibregl-canvas-container.mapa-dibujo__lienzo--borrador,
+.mapa-dibujo .maplibregl-canvas-container.mapa-dibujo__lienzo--borrador:active {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14.5' fill='rgba%28140,43,34,0.12%29' stroke='rgb%28251,247,240%29' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='14.5' fill='none' stroke='rgb%28140,43,34%29' stroke-width='1.5'/%3E%3Cg stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M13 22l-3.5-3.5 7.5-7.5 5 5-6 6z' fill='rgb%28240,180,171%29' stroke='rgb%2828,26,23%29' stroke-width='1.4'/%3E%3Cpath d='M13 22l-3.5-3.5 3-3 5 5-1.5 1.5z' fill='rgb%28251,247,240%29' stroke='rgb%2828,26,23%29' stroke-width='1.4'/%3E%3C/g%3E%3C/svg%3E") 16 16, crosshair;
+  /* Un dedo borra: el navegador no se queda con el gesto. */
   touch-action: none;
 }
 

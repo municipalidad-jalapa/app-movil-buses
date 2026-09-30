@@ -111,6 +111,153 @@ export function simplificar(puntos: PuntoGeo[], toleranciaMetros = 6): PuntoGeo[
   return izquierda.slice(0, -1).concat(derecha);
 }
 
+/** Lo que deja el borrador: lo que queda del recorrido y lo que se va. */
+export interface Borrado {
+  /** Los pedazos que quedan, en orden. Si hay mas de uno, se borro algo en medio. */
+  quedan: PuntoGeo[][];
+  /** Los pedazos que se van: se marcan mientras se pasa el borrador. */
+  borrados: PuntoGeo[][];
+}
+
+/**
+ * Pasa el borrador sobre el recorrido. `goma` es por donde paso el puntero y
+ * `radio` el tamaño del borrador, en metros. Los tramos se cortan justo donde
+ * entra y sale el circulo: una calle larga, sin vertices cerca, tambien se
+ * borra. Un pedazo que queda mas corto que el borrador es un resto, se va.
+ *
+ * @return null si el borrador no toco el recorrido
+ */
+export function borrar(trazado: PuntoGeo[], goma: PuntoGeo[], radio: number): Borrado | null {
+  if (trazado.length === 0 || goma.length === 0) return null;
+  const origen = trazado[0];
+  const plano = (p: PuntoGeo): [number, number] => [
+    (p.longitud - origen.longitud) * METROS_POR_GRADO_LONGITUD,
+    (p.latitud - origen.latitud) * METROS_POR_GRADO_LATITUD,
+  ];
+
+  // Un movimiento rapido deja huecos entre muestras del puntero: se rellenan
+  // para que el borrador pase parejo, como una franja.
+  const centros: [number, number][] = [];
+  for (const p of goma) {
+    const c = plano(p);
+    const previo = centros.at(-1);
+    if (previo) {
+      const pasos = Math.ceil(Math.hypot(c[0] - previo[0], c[1] - previo[1]) / (radio / 2));
+      for (let k = 1; k < pasos; k++) {
+        centros.push([previo[0] + ((c[0] - previo[0]) * k) / pasos, previo[1] + ((c[1] - previo[1]) * k) / pasos]);
+      }
+    }
+    centros.push(c);
+  }
+  const r2 = radio * radio;
+
+  if (trazado.length === 1) {
+    const [x, y] = plano(trazado[0]);
+    return centros.some(([cx, cy]) => (x - cx) ** 2 + (y - cy) ** 2 <= r2) ? { quedan: [], borrados: [] } : null;
+  }
+
+  // Cada tramo se parte en pedazos que quedan y que se van; recorridos en
+  // orden, pedazos seguidos del mismo tipo se juntan.
+  const pedazos: { borrado: boolean; puntos: PuntoGeo[] }[] = [];
+  let toco = false;
+  for (let i = 1; i < trazado.length; i++) {
+    const a = trazado[i - 1];
+    const b = trazado[i];
+    const [ax, ay] = plano(a);
+    const [bx, by] = plano(b);
+    const dx = bx - ax;
+    const dy = by - ay;
+    const largo2 = dx * dx + dy * dy;
+
+    // Donde el tramo entra al circulo de cada centro: a + t(b - a), t en [0, 1].
+    const fuera: [number, number][] = [];
+    for (const [cx, cy] of centros) {
+      if (cx < Math.min(ax, bx) - radio || cx > Math.max(ax, bx) + radio) continue;
+      if (cy < Math.min(ay, by) - radio || cy > Math.max(ay, by) + radio) continue;
+      const fx = ax - cx;
+      const fy = ay - cy;
+      if (largo2 === 0) {
+        if (fx * fx + fy * fy <= r2) fuera.push([0, 1]);
+        continue;
+      }
+      const mitad = fx * dx + fy * dy;
+      const disc = mitad * mitad - largo2 * (fx * fx + fy * fy - r2);
+      if (disc < 0) continue;
+      const raiz = Math.sqrt(disc);
+      const t1 = Math.max(0, (-mitad - raiz) / largo2);
+      const t2 = Math.min(1, (-mitad + raiz) / largo2);
+      if (t2 - t1 > 1e-9) fuera.push([t1, t2]);
+    }
+    fuera.sort((x, y) => x[0] - y[0]);
+
+    const en = (t: number): PuntoGeo =>
+      t <= 0 ? a : t >= 1 ? b : { latitud: a.latitud + (b.latitud - a.latitud) * t, longitud: a.longitud + (b.longitud - a.longitud) * t };
+    const sumar = (desde: number, hasta: number, borrado: boolean) => {
+      if (hasta - desde <= 1e-9) return;
+      const ultimo = pedazos.at(-1);
+      if (ultimo && ultimo.borrado === borrado) ultimo.puntos.push(en(hasta));
+      else pedazos.push({ borrado, puntos: [en(desde), en(hasta)] });
+    };
+
+    let t = 0;
+    for (const [desde, hasta] of fuera) {
+      if (hasta <= t) continue;
+      toco = true;
+      sumar(t, Math.max(t, desde), false);
+      sumar(Math.max(t, desde), hasta, true);
+      t = hasta;
+    }
+    sumar(t, 1, false);
+  }
+  if (!toco) return null;
+
+  return {
+    quedan: pedazos.filter((p) => !p.borrado && largoEnMetros(p.puntos) >= Math.max(1, radio)).map((p) => p.puntos),
+    borrados: pedazos.filter((p) => p.borrado).map((p) => p.puntos),
+  };
+}
+
+/** Hasta donde se busca, desde la costura, un cruce que haya quedado atras. */
+const LARGO_COSTURA_METROS = 300;
+/** A esta distancia un cruce del camino de union esta sobre el recorrido. */
+const SOBRE_LA_LINEA_METROS = 2;
+
+/**
+ * Une dos pedazos del recorrido por el camino que dio el ajuste a calles. Ese
+ * camino sale y llega a cruces: si el de salida quedo atras, sobre el final de
+ * `antes`, `antes` se recorta hasta ahi para que el bus no haga una ida y
+ * vuelta; igual con el de llegada sobre el principio de `despues`.
+ */
+export function coser(antes: PuntoGeo[], camino: PuntoGeo[], despues: PuntoGeo[]): PuntoGeo[] {
+  const salida = camino[0];
+  const llegada = camino.at(-1);
+  let a = antes;
+  let b = despues;
+  if (salida) {
+    let recorrido = 0;
+    for (let i = a.length - 1; i > 0 && recorrido <= LARGO_COSTURA_METROS; i--) {
+      const p = proyectar([a[i - 1], a[i]], salida);
+      if (p && p.distancia <= SOBRE_LA_LINEA_METROS) {
+        a = [...a.slice(0, i), p.punto];
+        break;
+      }
+      recorrido += metrosEntre(a[i - 1], a[i]);
+    }
+  }
+  if (llegada) {
+    let recorrido = 0;
+    for (let i = 1; i < b.length && recorrido <= LARGO_COSTURA_METROS; i++) {
+      const p = proyectar([b[i - 1], b[i]], llegada);
+      if (p && p.distancia <= SOBRE_LA_LINEA_METROS) {
+        b = [p.punto, ...b.slice(i)];
+        break;
+      }
+      recorrido += metrosEntre(b[i - 1], b[i]);
+    }
+  }
+  return continuar(continuar(a, camino), b);
+}
+
 export type PasoDeRuta = 'recorrido' | 'paradas' | 'lista' | 'publicada';
 
 /** En que va una ruta, para la lista del panel. */

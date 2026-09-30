@@ -737,6 +737,24 @@
   }
 }
 
+/* Telefono angosto: las tres herramientas y los tres iconos no entran con su
+   nombre; queda el icono y el nombre sigue para el lector de pantalla. */
+@media (max-width: 479px) {
+  .editor__herramienta {
+    width: 44px;
+    padding: 0;
+  }
+
+  .editor__herramienta-texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .editor__estado--publicada {
     background: var(--verde-jumay-apagado);

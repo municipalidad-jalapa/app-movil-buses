@@ -9,9 +9,12 @@ import { MarcoPanel } from '../../componentes/admin/MarcoPanel';
 import { ErrorApi } from '../../core/errores';
 import { useAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
 import {
+  borrar,
   continuar,
+  coser,
   largoEnMetros,
   lugarDeParada,
+  metrosEntre,
   paradasLejos,
   proyectar,
   simplificar,
@@ -44,8 +47,10 @@ export const ESPERA_GUARDADO_MS = 700;
  *
  * <p>Paso 2, recorrido y paradas: el lapiz dibuja a mano y cada trazo se
  * ajusta a las calles y se suma al final del recorrido, asi el orden nunca se
- * rompe; clic derecho (o mantener presionado) crea una parada donde se marco,
- * pegada a la linea y numerada segun el recorrido. Paso 3: revisar y publicar.
+ * rompe; el borrador quita lo que sobra y, si deja un hueco en medio, lo vuelve
+ * a unir por las calles; clic derecho (o mantener presionado) crea una parada
+ * donde se marco, pegada a la linea y numerada segun el recorrido. Paso 3:
+ * revisar y publicar.
  *
  * <p>No hay boton de guardar: el recorrido se guarda solo tras cada cambio y
  * las paradas al crearlas, moverlas o renombrarlas. El indicador lo dice.
@@ -199,6 +204,46 @@ export function EditorRuta() {
       cambiarTrazado(continuar(trazadoActual.current, tramo));
     } catch (causa) {
       manejarError(causa, 'No pudimos ajustar el tramo a las calles. Probá de nuevo.');
+    } finally {
+      setPendiente(null);
+    }
+  }
+
+  // --- El borrador ----------------------------------------------------------
+  async function alBorrar(goma: PuntoGeo[], radio: number) {
+    if (!token) return;
+    const borrado = borrar(trazadoActual.current, goma, radio);
+    if (!borrado) return;
+    setAviso(null);
+    const [primero, ...siguientes] = borrado.quedan;
+    // Se borro una punta (o todo): el recorrido queda recortado ahi.
+    if (!siguientes.length) {
+      cambiarTrazado(primero ?? []);
+      return;
+    }
+    // Se borro en medio: el recorrido es una sola linea, los pedazos se vuelven
+    // a unir por las calles. Mientras, el hueco se ve punteado.
+    setPendiente(borrado.quedan.slice(1).flatMap((pedazo, i) => [borrado.quedan[i].at(-1)!, pedazo[0]]));
+    try {
+      let unido = primero;
+      let enRecta = false;
+      for (const pedazo of siguientes) {
+        const hueco = [unido.at(-1)!, pedazo[0]];
+        if (metrosEntre(hueco[0], hueco[1]) < 2) {
+          unido = continuar(unido, pedazo);
+          continue;
+        }
+        const respuesta = await ajustarACalles(token, hueco);
+        const ajustado = respuesta?.ajustado === true;
+        if (!ajustado) enRecta = true;
+        unido = coser(unido, ajustado ? respuesta.puntos : hueco, pedazo);
+      }
+      if (enRecta) {
+        setAviso({ tipo: 'info', texto: 'El hueco no se pudo unir por calles conocidas: quedó en línea recta.' });
+      }
+      cambiarTrazado(unido);
+    } catch (causa) {
+      manejarError(causa, 'No pudimos volver a unir el recorrido. No se borró nada, probá de nuevo.');
     } finally {
       setPendiente(null);
     }
@@ -373,6 +418,7 @@ export function EditorRuta() {
               herramienta={editable ? herramienta : 'mano'}
               editable={editable}
               onTrazo={(crudo) => void alTrazar(crudo)}
+              onBorrar={(goma, radio) => void alBorrar(goma, radio)}
               onCrearParada={(punto) => void crearParada(punto)}
               onMoverParada={(pid, punto) => void moverParada(pid, punto)}
               claveEncuadre={ruta.id}
@@ -385,13 +431,19 @@ export function EditorRuta() {
                   onClick={() => setHerramienta('lapiz')}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
                     strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z" /><path d="M14 6l3 3" /></svg>
-                  Lápiz
+                  <span className="editor__herramienta-texto">Lápiz</span>
+                </button>
+                <button type="button" aria-pressed={herramienta === 'borrador'} className="editor__herramienta"
+                  onClick={() => setHerramienta('borrador')}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+                    strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 20l-5-5L14 5l6 6-9 9" /><path d="M9 20h11" /><path d="M8.5 10.5l5 5" /></svg>
+                  <span className="editor__herramienta-texto">Borrador</span>
                 </button>
                 <button type="button" aria-pressed={herramienta === 'mano'} className="editor__herramienta"
                   onClick={() => setHerramienta('mano')}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
                     strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 11V6a1.5 1.5 0 0 1 3 0v4M10 10V4.5a1.5 1.5 0 0 1 3 0V10M13 10V5.5a1.5 1.5 0 0 1 3 0V11M16 11V8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3.5 14a1.5 1.5 0 0 1 2.5-1.7L7 14" /></svg>
-                  Mano
+                  <span className="editor__herramienta-texto">Mano</span>
                 </button>
                 <span className="editor__separador" aria-hidden="true" />
                 <button type="button" className="editor__icono" aria-label="Deshacer" onClick={deshacer}
@@ -414,9 +466,11 @@ export function EditorRuta() {
             {editable && (
               <p className="editor__pista" aria-live="polite">
                 {pendiente
-                  ? 'Ajustando el trazo a las calles…'
+                  ? 'Ajustando el recorrido a las calles…'
                   : herramienta === 'mano'
                     ? 'Arrastrá el mapa o una parada. Volvé al Lápiz para seguir dibujando.'
+                    : herramienta === 'borrador'
+                      ? 'Pasá el Borrador por encima de lo que sobra: lo marcado en rojo se quita al soltar.'
                     : trazado.length
                       ? 'Arrastrá con el Lápiz para seguir desde el punto amarillo. Clic derecho o mantener presionado: crear parada.'
                       : 'Con el Lápiz, arrastrá por las calles desde donde arranca el bus.'}
@@ -447,6 +501,7 @@ export function EditorRuta() {
                   <h2 id="editor-como">Cómo se arma</h2>
                   <ul>
                     <li><strong>Lápiz:</strong> arrastrá por donde pasa el bus. Al soltar, el trazo se ajusta a las calles y se suma al final.</li>
+                    <li><strong>Borrador:</strong> pasalo por lo que sobra. Si borrás en medio, los dos pedazos se vuelven a unir por las calles.</li>
                     <li><strong>Ruta larga:</strong> al llegar al borde el mapa se corre solo. También podés usar la Mano o dos dedos.</li>
                     <li><strong>Clic derecho</strong> (o mantener presionado) → <strong>Crear parada aquí</strong>. Se numera sola según el recorrido.</li>
                   </ul>
