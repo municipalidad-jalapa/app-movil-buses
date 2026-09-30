@@ -7,6 +7,7 @@ import { MapaConductor } from '../../componentes/conductor/MapaConductor';
 import { MensajeError } from '../../componentes/MensajeError';
 import { useAuth } from '../../core/autenticacion/useAuth';
 import {
+  limitesDelConteo,
   paradaDondeEstaElBus,
   posicionVigente,
   proximaParada,
@@ -78,14 +79,21 @@ export function PanelConductor() {
 
   const subieron = historial.filter((m) => m === 'sube').length;
   const bajaron = historial.length - subieron;
-  const aBordo = Math.max(0, (panel?.aBordo ?? 0) + subieron - bajaron);
+  const aBordo = aBordoCon(panel?.aBordo ?? 0, historial);
+  const limites = limitesDelConteo(aBordo, panel?.capacidad);
 
   function mover(movimiento: Movimiento) {
     if (!actual) return;
     setFijadaId((id) => id ?? actual.paradaId);
     setCierre(null);
     setFallo(null);
-    setHistorial((h) => [...h, movimiento]);
+    // El tope se revisa sobre el historial mas reciente: dos toques rapidos
+    // antes de redibujar no pueden pasarse del limite.
+    setHistorial((h) => {
+      const { puedeSubir, puedeBajar } = limitesDelConteo(aBordoCon(panel?.aBordo ?? 0, h), panel?.capacidad);
+      if (movimiento === 'sube' ? !puedeSubir : !puedeBajar) return h;
+      return [...h, movimiento];
+    });
   }
 
   async function siguienteParada() {
@@ -211,23 +219,25 @@ export function PanelConductor() {
                   type="button"
                   className="conductor__boton-conteo conductor__boton-conteo--sube"
                   onClick={() => mover('sube')}
-                  disabled={enviando}
-                  aria-label={`Subió. Van ${subieron}`}
+                  disabled={enviando || !limites.puedeSubir}
+                  aria-label={`Subió. Van ${subieron}${limites.puedeSubir ? '' : '. Bus lleno'}`}
                 >
                   <IconoFlecha arriba />
                   <span className="conductor__boton-texto">Subió</span>
                   <span className="conductor__boton-cifra tabular">{subieron}</span>
+                  {!limites.puedeSubir && <span className="conductor__boton-aviso">Bus lleno</span>}
                 </button>
                 <button
                   type="button"
                   className="conductor__boton-conteo conductor__boton-conteo--baja"
                   onClick={() => mover('baja')}
-                  disabled={enviando}
-                  aria-label={`Bajó. Van ${bajaron}`}
+                  disabled={enviando || !limites.puedeBajar}
+                  aria-label={`Bajó. Van ${bajaron}${limites.puedeBajar ? '' : '. No hay nadie a bordo'}`}
                 >
                   <IconoFlecha />
                   <span className="conductor__boton-texto">Bajó</span>
                   <span className="conductor__boton-cifra tabular">{bajaron}</span>
+                  {!limites.puedeBajar && <span className="conductor__boton-aviso">No hay nadie a bordo</span>}
                 </button>
               </div>
 
@@ -370,6 +380,12 @@ function Cifra({ valor, rotulo }: { valor: number; rotulo: string }) {
       <span className="conductor__cifra-rotulo">{rotulo}</span>
     </span>
   );
+}
+
+/** Los que iban a bordo al llegar mas lo contado en esta parada; nunca negativo. */
+function aBordoCon(alLlegar: number, historial: Movimiento[]): number {
+  const suben = historial.filter((m) => m === 'sube').length;
+  return Math.max(0, alLlegar + suben - (historial.length - suben));
 }
 
 function textoEsperan(n: number): string {

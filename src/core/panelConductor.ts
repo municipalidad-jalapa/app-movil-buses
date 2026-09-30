@@ -35,6 +35,8 @@ export interface PanelConductor {
   aBordo?: number;
   /** Vuelta del dia que se muestra (1, 2, ...): atendidaEn es de esta vuelta. */
   vuelta?: number;
+  /** Tope de personas a bordo: la del bus, o la de por defecto si no la cargaron. */
+  capacidad?: number;
 }
 
 /** Lo que el piloto conto en la parada, incluidos los que no avisaron por la app. */
@@ -51,6 +53,27 @@ export interface RespuestaAtencion {
 }
 
 export const RUTA_PANEL_CONDUCTOR = '/api/v1/conductor/panel';
+
+/**
+ * Tope si el panel no trae la capacidad. Es el mismo valor que
+ * `ecoruta.bus.capacidad-por-defecto` del backend.
+ */
+export const CAPACIDAD_POR_DEFECTO = 25;
+
+export interface LimitesDelConteo {
+  capacidad: number;
+  puedeSubir: boolean;
+  puedeBajar: boolean;
+}
+
+/**
+ * QA, panel del conductor: "Bajó" no deja el contador por debajo de 0 y
+ * "Subió" no pasa la capacidad del bus.
+ */
+export function limitesDelConteo(aBordo: number, capacidad?: number | null): LimitesDelConteo {
+  const tope = capacidad && capacidad > 0 ? capacidad : CAPACIDAD_POR_DEFECTO;
+  return { capacidad: tope, puedeSubir: aBordo < tope, puedeBajar: aBordo > 0 };
+}
 
 export function obtenerPanelConductor(signal?: AbortSignal) {
   return apiClient.get<PanelConductor>(RUTA_PANEL_CONDUCTOR, { signal, intentos: 1 });
