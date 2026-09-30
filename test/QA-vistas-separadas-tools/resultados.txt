@@ -1,0 +1,107 @@
+================================================================================
+RESULTADOS DE PRUEBAS -- Vistas separadas para el pasajero y el personal (/tools)
+================================================================================
+Fecha  : 2026-09-29 11:14 (America/Guatemala)
+Node   : v24.19.0
+Vitest : 3.2.7
+SO     : Windows 10 Pro 19045
+Rama   : feature/qa-vistas-separadas-tools (sobre develop 182346a)
+
+Criterios de aceptacion:
+  C1  El menu del pasajero (invitado o con cuenta) no ofrece Conductor ni
+      Administrador.
+  C2  /tools ofrece las tres opciones y cada una lleva a su pantalla.
+  C3  La seguridad no depende de la vista (backend: AccesoPorRolIT).
+
+
+--------------------------------------------------------------------------------
+RESUMEN
+--------------------------------------------------------------------------------
+  Pruebas automaticas ........ 803 / 803  PASARON     (74 archivos, 0 fallos)
+  Nuevas de esta historia .... 19 / 19    PASARON     (6 escenarios, 1 archivo)
+  Verificacion de tipos ...... tsc --noEmit : OK (sin errores)
+  Build de produccion ........ OK  (lo corre buildProduccion.test.ts, 24/24)
+  Prueba de que detecta el defecto: con el MenuAcceso viejo, 2 pasos FALLAN
+                                    (los de C1), como se espera.
+
+  ESTADO GENERAL: VERDE.
+
+
+--------------------------------------------------------------------------------
+A. PRUEBAS NUEVAS  (src/pruebas/features/acceso_del_personal.test.tsx)
+--------------------------------------------------------------------------------
+  [PASO]  Escenario: El menu del invitado no ofrece el acceso del personal (C1)
+    [PASO]  Dado que entro a la aplicacion como invitado
+    [PASO]  Cuando abro el menu
+    [PASO]  Entonces veo las opciones "Pasajero" e "Iniciar sesion"
+    [PASO]  Y no veo las opciones "Conductor" ni "Administrador"
+
+  [PASO]  Escenario: El menu del pasajero con cuenta no ofrece el acceso del personal (C1)
+    [PASO]  Dado que tengo la sesion iniciada con Google
+    [PASO]  Cuando abro el menu
+    [PASO]  Entonces veo la opcion "Cerrar sesion"
+    [PASO]  Y no veo las opciones "Conductor" ni "Administrador"
+
+  [PASO]  Escenario: La ruta /tools ofrece las tres opciones de acceso (C2)
+    [PASO]  Dado que abro "/tools"
+    [PASO]  Entonces veo "Pasajero", "Conductor" y "Administrador"
+            (en ese orden, con href /, /conductor/login y /admin)
+
+  [PASO]  Escenario: Desde /tools el conductor llega a su inicio de sesion (C2)
+  [PASO]  Escenario: Desde /tools el administrador llega al panel municipal (C2)
+  [PASO]  Escenario: Desde /tools el pasajero vuelve al mapa (C2)
+          (3 pasos cada uno: Dado / Cuando / Entonces)
+
+
+--------------------------------------------------------------------------------
+B. CONTRAPRUEBA  (la prueba detecta el defecto original)
+--------------------------------------------------------------------------------
+  Con src/componentes/MenuAcceso.tsx en su version anterior (git stash):
+    [FALLA]  El menu del invitado ... > Y no veo las opciones "Conductor" ni "Administrador"
+    [FALLA]  El menu del pasajero con cuenta ... > Y no veo las opciones "Conductor" ni "Administrador"
+    [PASO]   El resto (los de /tools no dependen del menu)
+  Con el cambio aplicado: 19 / 19 pasan.
+
+
+--------------------------------------------------------------------------------
+C. SUITE COMPLETA  (npm test)
+--------------------------------------------------------------------------------
+  Primera corrida (sobre main):     788 / 789
+  Segunda corrida (sobre develop):  802 / 803
+    El unico fallo, en ambas, era PREEXISTENTE y ajeno a esta historia:
+      test/SCRUM-11-HU-87/integracion/buildProduccion.test.ts
+        > el simulador del conductor no quedo encendido
+    Causa: la prueba "quitaba" VITE_AUTH_CONDUCTOR_SIMULADO poniendola en
+    undefined; una variable undefined no llega al proceso hijo y Vite tomaba
+    la del .env local (true en desarrollo). Fallaba en cualquier maquina con
+    el simulador encendido, que es la configuracion recomendada en local.
+    Correccion: pasar 'false' explicito (la app solo lo activa con 'true').
+    La prueba sigue detectando si el simulador queda forzado en el build.
+
+  Corrida final (con la correccion):  803 / 803  PASARON
+
+
+--------------------------------------------------------------------------------
+D. PRUEBAS MANUALES  (navegador, localhost:5173 + backend en docker compose)
+--------------------------------------------------------------------------------
+  [OK]         M1  Menu del invitado sin Conductor ni Administrador
+                   (verificado en Chrome, captura del 2026-09-29)
+  [OK]         M3/M8  /tools responde 200 desde el servidor de Vite
+  [PENDIENTE]  M2, M4, M5, M6, M7  -> recorrer en el navegador antes del merge
+                   (pasos en manual.md, seccion 3)
+
+
+--------------------------------------------------------------------------------
+E. CI DE GITHUB  (prueba intermitente heredada de develop)
+--------------------------------------------------------------------------------
+  En el CI fallo 1 prueba ajena a esta historia (802 / 803):
+    src/paginas/admin/CorregirRutas.test.tsx
+      > elimina una parada despues de confirmar
+  Causa: la lista de paradas se actualiza en un useEffect posterior al
+  mensaje "Parada ... eliminada". La prueba revisaba la lista justo al
+  aparecer el mensaje; en el runner de CI (mas lento) el efecto a veces no
+  habia corrido. La app se comporta bien; era la prueba la que no esperaba.
+  Correccion: esperar con waitFor a que el boton desaparezca. Sin cambios en
+  el componente.
+  Verificacion local: CorregirRutas.test.tsx 10 / 10 corridas en verde;
+  suite completa 803 / 803.
