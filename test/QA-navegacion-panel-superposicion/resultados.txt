@@ -1,0 +1,130 @@
+================================================================================
+RESULTADOS DE PRUEBAS -- QA "En el menu, las letras se sobreponen"
+================================================================================
+Fecha  : 2026-09-28 23:32
+Node   : v24.21.0
+Vitest : 3.2.7
+Rama   : main
+Commit base : 7f308c9 (con cambios locales sin commit de esta correccion)
+
+Archivo corregido:
+  src/componentes/admin/NavegacionPanel.css  (bloque @media max-width: 640px)
+
+Criterios de aceptacion:
+  AC1  En un telefono (<=640px) ninguna pestaña de NavegacionPanel invade a la vecina.
+  AC2  Las 7 secciones del panel siguen siendo alcanzables aunque no quepan todas a la vez.
+  AC3  El cambio es solo de maquetacion (CSS): no rompe ninguna prueba existente.
+
+
+--------------------------------------------------------------------------------
+RESUMEN
+--------------------------------------------------------------------------------
+  Prueba nueva de esta correccion ... 3 / 3     PASARON   (1 archivo nuevo)
+  Bateria completa del proyecto ..... 773 / 773 PASARON   (72 archivos, 0 fallos)
+  Verificacion de tipos ............. tsc --noEmit : OK (sin errores)
+  Build de produccion ............... OK  (dist/ generado, sin errores)
+  Pruebas manuales/visuales ......... 2 de 4 verificadas (ver detalle abajo)
+
+  ESTADO GENERAL: VERDE. La correccion tiene prueba automatica en verde y no
+  rompio ninguna otra prueba del proyecto.
+
+
+--------------------------------------------------------------------------------
+A. PRUEBA AUTOMATICA NUEVA  (test/QA-navegacion-panel-superposicion/unitarios/)
+--------------------------------------------------------------------------------
+  [PASO]  navegacionPanelResponsive.test.ts ............................. 3 / 3
+    [PASO]  cada pestaña se queda en una sola linea (no se encoge por debajo
+            de su texto)                                                   AC1
+    [PASO]  la fila de pestañas se desliza en vez de partir el texto       AC2
+    [PASO]  ninguna pestaña vuelve a usar min-width: 0 con flex: 1 1 0 (la
+            combinacion que causaba el desborde)                          AC1
+
+  Comando: npx vitest run test/QA-navegacion-panel-superposicion
+  Resultado real: Test Files 1 passed (1) / Tests 3 passed (3)
+
+  Verificacion de que la prueba detecta de verdad el bug (no es una prueba
+  vacia): se corrio contra el CSS ANTERIOR al arreglo (git stash del
+  archivo, sin tocar el historial) y las 3 pruebas FALLARON mostrando
+  "min-width: 0" y "flex: 1 1 0" -- exactamente la causa del desborde.
+  Restaurado el arreglo (git stash pop), las 3 vuelven a pasar.
+
+
+--------------------------------------------------------------------------------
+B. BATERIA COMPLETA DEL PROYECTO (regresion)
+--------------------------------------------------------------------------------
+  Comando: npm test
+
+  Primera corrida:  Test Files 70 passed | 1 failed (71)
+                     Tests      769 passed | 1 failed (770)
+
+  [FALLO intermitente, AJENO a esta correccion]
+    test/HU-Desarrollo-86-exportar-datos/componentes/ExportarDatos.test.tsx
+    "401: cierra la sesion y manda al login"
+    -> No encontro el heading "Login del panel" a tiempo (carrera de timing
+       bajo carga de toda la bateria en paralelo).
+    -> Re-corrido en aislado (npx vitest run ese archivo solo): 23 / 23 PASO.
+    -> Re-corrida toda la bateria de nuevo: 773 / 773 PASO, sin ese fallo.
+    -> No toca NavegacionPanel.css, PanelMunicipal.css ni ningun archivo de
+       esta correccion. Es un flake preexistente de timing, no algo que esta
+       correccion haya introducido.
+
+  Segunda corrida (limpia): Test Files 72 passed (72)
+                             Tests      773 passed (773)
+
+  ESTADO: VERDE. Ningun archivo tocado por esta correccion aparece en ningun
+  fallo, intermitente o no.
+
+
+--------------------------------------------------------------------------------
+C. VERIFICACION DE TIPOS Y BUILD
+--------------------------------------------------------------------------------
+  [PASO]  npx tsc --noEmit ........ sin errores
+  [PASO]  npm run build ........... dist/ generado correctamente
+          Nota: aviso de tamano de chunk (MapLibre + Firebase, preexistente,
+          no relacionado a esta correccion). Es una advertencia, no un error.
+
+
+--------------------------------------------------------------------------------
+D. PRUEBAS MANUALES / VISUALES  (ver manual.md seccion 2)
+--------------------------------------------------------------------------------
+  [OK]      M1  Reproduccion del CSS real "antes" a 390px
+                -> "Pasajeros subidos", "Estado del servicio" y "Exportar
+                   datos" se desbordan sobre la pestaña vecina. Confirma el
+                   bug tal como lo describio QA.
+  [OK]      M2  Reproduccion del CSS real "despues" a 390px
+                -> Cada pestaña en una sola linea; la fila se desliza; nada
+                   se superpone.
+  [ ]       M3  /admin real en un telefono o ventana angosta -- pendiente,
+                necesita sesion real de administrador (Firebase) y un
+                navegador; no disponibles en este entorno.
+  [ ]       M4  Recorrido con teclado/lector de pantalla de las 7 pestañas
+                -- pendiente de verificar a mano.
+
+
+--------------------------------------------------------------------------------
+E. COBERTURA POR CRITERIO
+--------------------------------------------------------------------------------
+  AC1  ninguna pestaña invade a la vecina
+       navegacionPanelResponsive.test.ts (2 pruebas)                    -> PASO
+       M1, M2 (visual)                                                  -> OK
+
+  AC2  las 7 secciones siguen alcanzables
+       navegacionPanelResponsive.test.ts (overflow-x: auto)             -> PASO
+       M2 (visual)                                                      -> OK
+
+  AC3  no rompe nada existente
+       Bateria completa del proyecto (773/773)                          -> PASO
+
+
+--------------------------------------------------------------------------------
+F. COMO REPRODUCIR ESTE RESULTADO
+--------------------------------------------------------------------------------
+  npm install
+  npm test                                              # 72 archivos, 773 pruebas
+  npx vitest run test/QA-navegacion-panel-superposicion # solo esta correccion
+  npx tsc --noEmit
+  npm run build
+
+================================================================================
+FIN DEL REPORTE -- Ningun error encontrado en esta correccion.
+================================================================================

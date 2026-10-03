@@ -1,0 +1,778 @@
+/*
+ * El editor de una ruta (informe de QA). Escritorio: mapa + panel lateral.
+ * Tablet: el panel se oculta para dibujar a lo ancho. Telefono: mapa a
+ * pantalla completa y el panel como hoja inferior.
+ */
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 64px);
+  min-height: 560px;
+}
+
+/* ---------- Barra: volver, nombre, pasos, guardado ---------- */
+.editor__barra {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 32px;
+  border-bottom: 1px solid var(--borde-sutil);
+}
+
+.editor__atras {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pastilla);
+  color: var(--acento-texto);
+}
+
+.editor__titulo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.editor__nombre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.editor__nombre h1 {
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--fuente-titulos);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--tinta);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor__estado {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: var(--radio-pastilla);
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.editor__estado--publicada {
+  background: var(--verde-jumay-superficie);
+  color: var(--acento-texto);
+}
+
+.editor__pasos {
+  display: flex;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tinta-tenue);
+}
+
+.editor__paso {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* El numero va fijo en data-n: en tablet los otros pasos se ocultan. */
+.editor__paso::before {
+  content: attr(data-n);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border: 2px solid var(--borde);
+  border-radius: var(--radio-pastilla);
+  font-size: 13px;
+}
+
+.editor__paso--hecho {
+  color: var(--acento-texto);
+}
+
+.editor__paso--hecho::before {
+  content: '✓';
+  border-color: var(--verde-jumay);
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+}
+
+.editor__paso--actual {
+  color: var(--tinta);
+  font-weight: 800;
+}
+
+.editor__paso--actual::before {
+  border-color: var(--amarillo-volcan);
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+}
+
+.editor__guardado {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--acento-texto);
+}
+
+.editor__guardado--error {
+  color: var(--alerta-texto);
+}
+
+.editor__guardado button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid currentColor;
+  border-radius: var(--radio-pastilla);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.editor__siguiente {
+  flex-shrink: 0;
+}
+
+.editor__aviso {
+  position: relative;
+  margin: 12px 32px 0;
+  padding-right: 48px;
+}
+
+.editor__cerrar-aviso {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 22px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+/* ---------- Cuerpo: mapa + panel ---------- */
+.editor__cuerpo {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  min-height: 0;
+  padding: 16px 32px 20px;
+}
+
+.editor--sin-panel .editor__cuerpo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.editor--sin-panel .editor__panel {
+  display: none;
+}
+
+.editor__mapa {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+}
+
+.editor__herramientas {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 16px;
+  background: var(--superficie-base);
+  box-shadow: 0 2px 10px rgb(34 32 28 / 22%);
+}
+
+.editor__herramienta,
+.editor__icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--tinta);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editor__herramienta {
+  padding: 0 14px;
+}
+
+.editor__herramienta svg,
+.editor__icono svg {
+  flex-shrink: 0;
+}
+
+.editor__icono {
+  width: 44px;
+  padding: 0;
+}
+
+.editor__icono:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.editor__herramienta[aria-pressed='true'] {
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+}
+
+.editor__separador {
+  width: 1px;
+  height: 28px;
+  margin: 0 4px;
+  background: var(--borde);
+}
+
+.editor__pista {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 2;
+  max-width: min(480px, calc(100% - 140px));
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--conductor-fondo);
+  color: var(--conductor-tinta);
+  font-size: 14px;
+  line-height: 20px;
+  pointer-events: none;
+}
+
+.editor__mostrar-panel {
+  display: none;
+}
+
+.editor--sin-panel .editor__mostrar-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  display: block;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pastilla);
+  background: var(--superficie-base);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editor__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Solo en telefono (asa de la hoja) y tablet (ocultar el panel). */
+.editor__asa,
+.editor__ocultar-panel,
+.editor__siguiente-movil {
+  display: none;
+}
+
+.editor__bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+}
+
+.editor__bloque h2 {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--tinta);
+}
+
+.editor__bloque-cabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--tinta-tenue);
+}
+
+.editor__como {
+  background: var(--superficie-suave);
+}
+
+.editor__como ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--tinta-cuerpo);
+}
+
+.editor__vacio {
+  margin: 0;
+  font-size: 14px;
+  color: var(--tinta-secundaria);
+}
+
+.editor__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.editor__parada {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--superficie-suave);
+}
+
+.editor__parada--nueva {
+  border-color: var(--amarillo-volcan);
+  background: var(--amarillo-volcan-superficie);
+}
+
+.editor__orden {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radio-pastilla);
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.editor__parada--nueva .editor__orden {
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+}
+
+.editor__campo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tinta-tenue);
+}
+
+.editor__campo input {
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--superficie-base);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.editor__campo input:focus {
+  outline: 3px solid var(--verde-jumay-superficie);
+  border-color: var(--acento-texto);
+}
+
+.editor__quitar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--alerta-texto);
+  cursor: pointer;
+}
+
+.editor__empezar {
+  min-height: 44px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-pastilla);
+  background: transparent;
+  color: var(--alerta-texto);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editor__empezar:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.editor__chequeo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.editor__chequeo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--tinta);
+}
+
+.editor__chequeo-item > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.editor__marca {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radio-pastilla);
+  background: var(--superficie-hundida);
+  color: var(--tinta);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.editor__marca--bien {
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+}
+
+.editor__marca--aviso {
+  background: var(--amarillo-volcan);
+  color: var(--amarillo-volcan-tinta);
+}
+
+.editor__ayuda {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--tinta-secundaria);
+}
+
+.editor select {
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-control);
+  background: var(--superficie-base);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 15px;
+}
+
+.editor__nota {
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: var(--radio-tarjeta);
+  background: var(--verde-jumay-superficie);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--tinta-cuerpo);
+}
+
+.editor__publicar {
+  width: 100%;
+  text-decoration: none;
+}
+
+.editor__volver-lista {
+  align-self: flex-start;
+  text-decoration: none;
+}
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1439px) {
+  .editor__barra {
+    padding: 10px 16px;
+  }
+
+  .editor__cuerpo {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 12px;
+    padding: 12px 16px 16px;
+  }
+
+  .editor__aviso {
+    margin: 10px 16px 0;
+  }
+
+  .editor__ocultar-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    flex-shrink: 0;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-pastilla);
+    background: transparent;
+    color: var(--tinta);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .editor__pasos .editor__paso:not(.editor__paso--actual) {
+    display: none;
+  }
+}
+
+/* ---------- Telefono: mapa a pantalla completa, panel como hoja ---------- */
+@media (max-width: 767px) {
+  .editor {
+    height: calc(100dvh - 56px);
+    min-height: 0;
+  }
+
+  .editor__barra {
+    gap: 8px;
+    padding: 6px 8px;
+  }
+
+  .editor__nombre h1 {
+    font-size: 18px;
+  }
+
+  /* En el telefono basta la nube con la marca: el nombre de la ruta no se corta. */
+  .editor__guardado-texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .editor__siguiente {
+    display: none;
+  }
+
+  .editor__aviso {
+    position: absolute;
+    top: 118px;
+    left: 8px;
+    right: 8px;
+    z-index: 20;
+    margin: 0;
+  }
+
+  .editor__cuerpo {
+    position: relative;
+    display: block;
+    padding: 0;
+  }
+
+  .editor__mapa {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .editor__herramientas {
+    top: auto;
+    bottom: 152px;
+    left: 12px;
+  }
+
+  .editor__herramienta {
+    padding: 0 10px;
+  }
+
+  .editor__pista {
+    top: 12px;
+    bottom: auto;
+    left: 12px;
+    right: 12px;
+    max-width: none;
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  /* En el telefono se acerca con dos dedos: sin los botones de zoom, que
+     quedaban bajo la barra de herramientas. */
+  .editor__mapa .maplibregl-ctrl-group {
+    display: none;
+  }
+
+  .editor__mapa .maplibregl-ctrl-bottom-right {
+    bottom: 136px;
+  }
+
+  .editor__panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    max-height: 136px;
+    box-sizing: border-box;
+    padding: 0 16px calc(16px + var(--seguro-abajo));
+    border-radius: var(--radio-hoja);
+    background: var(--superficie-base);
+    box-shadow: 0 -4px 16px rgb(34 32 28 / 20%);
+  }
+
+  .editor__panel--abierto {
+    max-height: 72dvh;
+  }
+
+  .editor__panel:not(.editor__panel--abierto) > :not(.editor__asa):not(.editor__siguiente-movil) {
+    display: none;
+  }
+
+  .editor__asa {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-height: 56px;
+    padding: 8px 0 4px;
+    border: 0;
+    background: transparent;
+    color: var(--tinta-secundaria);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .editor__asa-linea {
+    width: 44px;
+    height: 5px;
+    border-radius: var(--radio-pastilla);
+    background: var(--borde-manija);
+  }
+
+  .editor__resumen strong {
+    font-family: var(--fuente-titulos);
+    font-size: 18px;
+    color: var(--tinta);
+  }
+
+  .editor__ocultar-panel,
+  .editor__como {
+    display: none;
+  }
+
+  .editor__siguiente-movil {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  /* En revisar, lo que queda a mano abajo es publicar, no volver. */
+  .editor__volver-movil {
+    position: static;
+  }
+}
+
+/* Telefono angosto: las tres herramientas y los tres iconos no entran con su
+   nombre; queda el icono y el nombre sigue para el lector de pantalla. */
+@media (max-width: 479px) {
+  .editor__herramienta {
+    width: 44px;
+    padding: 0;
+  }
+
+  .editor__herramienta-texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .editor__estado--publicada {
+    background: var(--verde-jumay-apagado);
+    color: var(--sobre-marca);
+  }
+
+  .editor__herramienta[aria-pressed='true'],
+  .editor__paso--hecho::before,
+  .editor__orden,
+  .editor__marca--bien {
+    background: var(--verde-jumay-apagado);
+  }
+
+  .editor__parada--nueva {
+    background: transparent;
+  }
+
+  .editor__nota {
+    background: var(--superficie-suave);
+  }
+}

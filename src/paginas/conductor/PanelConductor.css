@@ -253,6 +253,14 @@
   text-align: center;
 }
 
+/* QA: por que el boton esta apagado, siempre con texto (DESIGN.md §12). */
+.conductor__boton-aviso {
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 800;
+  text-align: center;
+}
+
 .conductor__boton-conteo--sube {
   background: var(--amarillo-volcan);
   color: var(--amarillo-volcan-tinta);

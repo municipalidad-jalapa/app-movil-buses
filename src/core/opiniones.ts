@@ -155,16 +155,4 @@ export async function marcarAtendida(
   return respuesta;
 }
 
-/**
- * El backend neutraliza el texto (&lt; &gt; &amp; ...). React ya escapa al
- * pintar, asi que se decodifica a texto plano para no mostrar "&lt;" literal:
- * sigue saliendo como texto, jamas como HTML.
- */
-export function textoPlano(neutralizado: string): string {
-  return neutralizado
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#39;', "'")
-    .replaceAll('&amp;', '&');
-}
+export { textoPlano } from './textoPlano';

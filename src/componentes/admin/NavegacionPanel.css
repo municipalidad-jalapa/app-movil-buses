@@ -1,19 +1,24 @@
-/* Secciones del panel municipal en la cabecera (SCRUM-26, A.3). */
+/*
+ * Secciones del panel municipal (SCRUM-26, A.3), responsive.
+ * Escritorio: todas en linea. Tablet: principales + «Más». Telefono: cajon.
+ */
 
 .panel-navegacion {
   display: flex;
   align-items: stretch;
-  margin-left: 16px;
   align-self: stretch;
+  min-width: 0;
+  margin-left: 16px;
 }
 
 .panel-navegacion__enlace {
   display: inline-flex;
   align-items: center;
   min-height: 48px;
-  padding: 0 16px;
+  padding: 0 14px;
   color: var(--verde-jumay-suave);
   font-size: 15px;
+  white-space: nowrap;
   text-decoration: none;
 }
 
@@ -23,24 +28,211 @@
   box-shadow: inset 0 -3px 0 var(--amarillo-volcan);
 }
 
-.panel-navegacion__enlace:focus-visible {
+.panel-navegacion__enlace:focus-visible,
+.panel-navegacion__mas:focus-visible {
   outline: 3px solid var(--verde-jumay-superficie);
   outline-offset: -3px;
 }
 
-@media (max-width: 640px) {
-  .panel-navegacion {
-    flex: 1 1 100%;
-    width: 100%;
-    margin-left: 0;
+.panel-navegacion__grupo {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Escritorio: las secundarias van en linea y «Más» no se ve. */
+.panel-navegacion__mas {
+  display: none;
+}
+
+.panel-navegacion__secundarias {
+  display: flex;
+  align-items: stretch;
+}
+
+/* ---------- Tablet y escritorio chico: las secundarias pasan a «Más» ---------- */
+@media (max-width: 1439px) {
+  .panel-navegacion__enlace {
+    padding: 0 12px;
   }
 
-  .panel-navegacion__enlace {
-    flex: 1 1 0;
-    justify-content: center;
-    min-width: 0;
-    padding: 8px 4px;
-    font-size: 13px;
-    text-align: center;
+  .panel-navegacion__mas {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 48px;
+    padding: 0 12px;
+    border: 0;
+    background: transparent;
+    color: var(--verde-jumay-suave);
+    font: inherit;
+    font-size: 15px;
+    cursor: pointer;
   }
+
+  .panel-navegacion__mas[aria-expanded='true'] {
+    background: var(--verde-jumay-fuerte);
+    color: var(--sobre-marca);
+  }
+
+  .panel-navegacion__secundarias {
+    display: none;
+  }
+
+  .panel-navegacion__secundarias--abiertas {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    min-width: 220px;
+    padding: 6px;
+    border: 1px solid var(--borde);
+    border-radius: 0 0 12px 12px;
+    background: var(--superficie-base);
+    box-shadow: 0 10px 24px rgb(28 26 23 / 25%);
+  }
+
+  .panel-navegacion__secundarias--abiertas .panel-navegacion__enlace {
+    border-radius: 8px;
+    color: var(--tinta);
+  }
+
+  .panel-navegacion__secundarias--abiertas .panel-navegacion__enlace--activo {
+    background: var(--verde-jumay-superficie);
+    color: var(--acento-texto);
+    box-shadow: none;
+  }
+}
+
+/*
+ * ---------- Telefono y tablet vertical: la cabecera no lleva secciones; van en el cajon ----------
+ * A 768 px las cuatro secciones, «Más» y «Cerrar sesión» no caben: «Cerrar
+ * sesión» tapaba «Más» y el clic caia en cerrar la sesion (informe de QA).
+ */
+@media (max-width: 1023px) {
+  .panel-navegacion {
+    display: none;
+  }
+}
+
+/* ---------- Cajon lateral del telefono ---------- */
+.panel-cajon {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgb(28 26 23 / 55%);
+}
+
+.panel-cajon__hoja {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: min(304px, 86vw);
+  height: 100%;
+  box-sizing: border-box;
+  padding: calc(8px + var(--seguro-arriba)) 12px calc(20px + var(--seguro-abajo));
+  overflow-y: auto;
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+  box-shadow: 8px 0 24px rgb(28 26 23 / 35%);
+}
+
+.panel-cajon__cabecera {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding-left: 6px;
+}
+
+.panel-cajon__marca {
+  font-family: var(--fuente-titulos);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.panel-cajon__cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sobre-marca);
+  cursor: pointer;
+}
+
+.panel-cajon__rotulo {
+  padding: 6px 12px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--verde-jumay-suave);
+}
+
+.panel-cajon__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel-cajon__enlace {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 12px;
+  border-radius: 12px;
+  color: var(--sobre-marca);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.panel-cajon__enlace svg {
+  flex-shrink: 0;
+}
+
+.panel-cajon__enlace--activo {
+  background: var(--verde-jumay-fuerte);
+  font-weight: 800;
+}
+
+.panel-cajon__enlace--activo svg {
+  color: var(--amarillo-volcan);
+}
+
+.panel-cajon__pie {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding: 14px 12px 0;
+  border-top: 1px solid var(--verde-jumay-apagado);
+}
+
+.panel-cajon__correo {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  color: var(--verde-jumay-suave);
+}
+
+.panel-cajon__salir {
+  min-height: 48px;
+  border: 1px solid var(--verde-jumay-apagado);
+  border-radius: var(--radio-pastilla);
+  background: transparent;
+  color: var(--sobre-marca);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
 }
