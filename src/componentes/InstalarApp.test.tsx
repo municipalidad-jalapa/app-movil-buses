@@ -54,13 +54,13 @@ describe('InstalarApp', () => {
   it('en la computadora no aparece', async () => {
     comoTelefono('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128');
     await montar();
-    expect(screen.queryByText(/Instalá EcoRuta/)).toBeNull();
+    expect(screen.queryByText(/Instalá Mi Bus Jalapa/)).toBeNull();
   });
 
   it('"Ahora no" la cierra', async () => {
     comoTelefono(ANDROID);
     await montar();
     fireEvent.click(screen.getByRole('button', { name: 'Ahora no' }));
-    expect(screen.queryByText(/Instalá EcoRuta/)).toBeNull();
+    expect(screen.queryByText(/Instalá Mi Bus Jalapa/)).toBeNull();
   });
 });

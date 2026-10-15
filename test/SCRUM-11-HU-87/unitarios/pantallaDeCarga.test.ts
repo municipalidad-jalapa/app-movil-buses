@@ -29,7 +29,7 @@ describe('HU-87 - La pantalla de carga existe antes de que arranque React', () =
   });
 
   it('muestra el nombre, el lema y el estado', () => {
-    expect(pantalla?.querySelector('.pantalla-de-carga__nombre')?.textContent).toBe('EcoRuta');
+    expect(pantalla?.querySelector('.pantalla-de-carga__nombre')?.textContent).toBe('Mi Bus Jalapa');
     expect(pantalla?.querySelector('.pantalla-de-carga__lema')?.textContent).toBe('Bus eléctrico · Jalapa');
     expect(pantalla?.querySelector('.pantalla-de-carga__estado')?.textContent).toBe('Cargando…');
   });

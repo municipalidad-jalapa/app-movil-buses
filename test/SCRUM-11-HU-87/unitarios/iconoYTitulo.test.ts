@@ -29,8 +29,8 @@ describe('HU-87 - Título del sitio', () => {
     expect(html).toMatch(/<html lang="es">/);
   });
 
-  it('el título es el definitivo de EcoRuta', () => {
-    expect(html).toMatch(/<title>EcoRuta — Bus eléctrico de Jalapa<\/title>/);
+  it('el título es el definitivo de Mi Bus Jalapa', () => {
+    expect(html).toMatch(/<title>Mi Bus Jalapa — Bus eléctrico municipal<\/title>/);
   });
 
   it('el título no es el de una plantilla', () => {
@@ -113,8 +113,8 @@ describe('HU-87 - Ícono del sitio', () => {
 
 describe('HU-87 - Manifest de la aplicación', () => {
   it('nombre, idioma y arranque', () => {
-    expect(manifiesto.name).toBe('EcoRuta — Bus eléctrico de Jalapa');
-    expect(manifiesto.short_name).toBe('EcoRuta');
+    expect(manifiesto.name).toBe('Mi Bus Jalapa — Bus eléctrico municipal');
+    expect(manifiesto.short_name).toBe('Mi Bus Jalapa');
     expect(manifiesto.lang).toBe('es');
     expect(manifiesto.start_url).toBe('/');
     expect(manifiesto.display).toBe('standalone');

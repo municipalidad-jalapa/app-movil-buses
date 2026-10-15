@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { MenuAcceso } from './MenuAcceso';
 import { PieLegal } from './PieLegal';
+import { SimboloMarca } from './SimboloMarca';
 import './Layout.css';
 
 interface Props {
@@ -56,30 +57,9 @@ export function Layout({
   return (
     <div className={aSangre ? 'apl apl--a-sangre' : 'apl'}>
       <header className="apl__encabezado">
-        <Link to="/" className="apl__marca" aria-label="EcoRuta, volver al mapa">
-          <svg
-            width="30"
-            height="30"
-            viewBox="0 0 64 64"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <circle
-              cx="32"
-              cy="32"
-              r="31"
-              fill="#FBF7F0"
-            />
-
-            <path
-              d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8"
-              fill="none"
-              stroke="#10402A"
-              strokeWidth="6"
-              strokeLinecap="round"
-            />
-          </svg>
-          <span className="apl__nombre">EcoRuta</span>
+        <Link to="/" className="apl__marca" aria-label="Mi Bus Jalapa, volver al mapa">
+          <SimboloMarca tamano={30} />
+          <span className="apl__nombre">Mi Bus Jalapa</span>
         </Link>
 
         <span className="apl__acciones">

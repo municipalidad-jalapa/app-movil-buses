@@ -29,7 +29,7 @@ const configuracion = {
 const hayConfiguracion = Boolean(configuracion.apiKey && configuracion.messagingSenderId);
 
 /** Nombre visible del remitente. DESIGN.md §10: lenguaje llano, sin tecnicismos. */
-const TITULO_POR_DEFECTO = 'EcoRuta Jalapa';
+const TITULO_POR_DEFECTO = 'Mi Bus Jalapa';
 
 /**
  * Reenvia el aviso a las pestanas abiertas para que React actualice la pantalla.
@@ -141,10 +141,10 @@ self.addEventListener('activate', (evento) => evento.waitUntil(clients.claim()))
 // bus tienen que ser los de ahora.
 const SIN_CONEXION = `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EcoRuta</title><meta name="theme-color" content="#10402a"></head>
+<title>Mi Bus Jalapa</title><meta name="theme-color" content="#10402a"></head>
 <body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#10402a;color:#fbf7f0;font-family:system-ui,sans-serif;text-align:center">
 <main style="padding:24px;max-width:22rem"><h1 style="font-size:22px">Sin conexión</h1>
-<p style="font-size:16px;line-height:1.5">EcoRuta necesita internet para mostrar dónde viene el bus. Volvé a intentar cuando tengas señal.</p>
+<p style="font-size:16px;line-height:1.5">Mi Bus Jalapa necesita internet para mostrar dónde viene el bus. Volvé a intentar cuando tengas señal.</p>
 <button onclick="location.reload()" style="min-height:48px;padding:0 24px;border:0;border-radius:999px;background:#f2b705;color:#241c00;font-size:16px;font-weight:800">Reintentar</button></main>
 </body></html>`;
 

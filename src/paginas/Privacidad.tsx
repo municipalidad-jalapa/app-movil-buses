@@ -11,7 +11,7 @@ export function Privacidad() {
       </div>
 
       <header className="legal__cabecera">
-        <p className="legal__eyebrow">EcoRuta</p>
+        <p className="legal__eyebrow">Mi Bus Jalapa</p>
 
         <h1>Política de privacidad</h1>
 
@@ -47,14 +47,14 @@ export function Privacidad() {
           <h2>Quién es responsable y a qué aplica esta política</h2>
 
           <p>
-            Usted puede usar EcoRuta sin crear una cuenta y sin darnos su nombre.
+            Usted puede usar Mi Bus Jalapa sin crear una cuenta y sin darnos su nombre.
             Esta política explica qué datos trata el servicio, para qué los usa y
             cómo puede ejercer sus derechos sobre ellos.
           </p>
 
           <p>
             La Municipalidad de Jalapa es la responsable de los datos personales
-            que se tratan en EcoRuta, el servicio que muestra en tiempo real dónde
+            que se tratan en Mi Bus Jalapa, el servicio que muestra en tiempo real dónde
             va el bus municipal, permite reservar un lugar en la parada y avisa
             cuando el bus se acerca.
           </p>
@@ -77,7 +77,7 @@ export function Privacidad() {
           <h2>Qué datos recopilamos</h2>
 
           <p>
-            EcoRuta recopila lo mínimo necesario para que el servicio funcione.
+            Mi Bus Jalapa recopila lo mínimo necesario para que el servicio funcione.
             No solicita nombre, número de teléfono ni DPI para utilizar el
             servicio como invitado.
           </p>
@@ -124,9 +124,9 @@ export function Privacidad() {
           <h2>Inicio de sesión con Google</h2>
 
           <p>
-            Iniciar sesión es opcional. Si lo hace, EcoRuta recibe de Google el
+            Iniciar sesión es opcional. Si lo hace, Mi Bus Jalapa recibe de Google el
             identificador de su cuenta, su nombre y su correo electrónico. La
-            contraseña de Google nunca pasa por EcoRuta.
+            contraseña de Google nunca pasa por Mi Bus Jalapa.
           </p>
         </section>
 
@@ -134,7 +134,7 @@ export function Privacidad() {
           <h2>Uso de su ubicación</h2>
 
           <p>
-            EcoRuta utiliza su ubicación únicamente cuando usted reserva un lugar
+            Mi Bus Jalapa utiliza su ubicación únicamente cuando usted reserva un lugar
             en una parada o solicita buscar la parada más cercana. No realiza
             seguimiento continuo ni en segundo plano.
           </p>
@@ -165,7 +165,7 @@ export function Privacidad() {
             continuará funcionando normalmente.
           </p>
 
-          <p>Si las acepta, EcoRuta puede enviar dos avisos por reserva:</p>
+          <p>Si las acepta, Mi Bus Jalapa puede enviar dos avisos por reserva:</p>
 
           <ul>
             <li>Cuando el bus se está acercando a su parada.</li>
@@ -176,7 +176,7 @@ export function Privacidad() {
 
           <p>
             El código generado para las notificaciones se utiliza únicamente para
-            los avisos de EcoRuta y no para publicidad.
+            los avisos de Mi Bus Jalapa y no para publicidad.
           </p>
 
           <p>
@@ -199,7 +199,7 @@ export function Privacidad() {
           </ul>
 
           <p>
-            EcoRuta no utiliza sus datos para publicidad ni para crear perfiles
+            Mi Bus Jalapa no utiliza sus datos para publicidad ni para crear perfiles
             comerciales.
           </p>
         </section>
@@ -207,7 +207,7 @@ export function Privacidad() {
         <section id="navegador">
           <h2>Datos guardados en el navegador</h2>
 
-          <p>EcoRuta puede guardar:</p>
+          <p>Mi Bus Jalapa puede guardar:</p>
 
           <ul>
             <li>El identificador aleatorio del navegador.</li>
@@ -227,7 +227,7 @@ export function Privacidad() {
 
           <p>
             La Municipalidad no vende, alquila ni cede los datos personales.
-            EcoRuta utiliza servicios tecnológicos necesarios para funcionar.
+            Mi Bus Jalapa utiliza servicios tecnológicos necesarios para funcionar.
           </p>
 
           <ul>
@@ -275,7 +275,7 @@ export function Privacidad() {
           <p>Puede solicitar:</p>
 
           <ul>
-            <li>Conocer qué datos suyos tiene EcoRuta.</li>
+            <li>Conocer qué datos suyos tiene Mi Bus Jalapa.</li>
             <li>Corregir o actualizar sus datos.</li>
             <li>Solicitar su eliminación.</li>
             <li>

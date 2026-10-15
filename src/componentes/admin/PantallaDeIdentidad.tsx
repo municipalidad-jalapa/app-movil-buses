@@ -21,9 +21,9 @@ export function PantallaDeIdentidad({
       <aside className="panel-identidad__franja">
         <PatronVoluta />
         <div className="panel-identidad__marca">
-          <SimboloEcoRuta tamano={64} conPuntos />
+          <SimboloEcoRuta tamano={64} />
           <div className="panel-identidad__nombre">
-            <span className="panel-identidad__ecoruta">EcoRuta</span>
+            <span className="panel-identidad__ecoruta">Mi Bus Jalapa</span>
             <span className="panel-identidad__lema">Bus eléctrico · Jalapa</span>
           </div>
         </div>
