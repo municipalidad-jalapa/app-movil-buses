@@ -1,5 +1,6 @@
 import type { EstadoSesionPasajero } from '../../core/pasajero/SesionPasajeroContext';
 import { IconoAlertaSesion, IconoCandado, IconoEspera, IconoPersona, LogoGoogle } from './IconosSesion';
+import { SimboloMarca } from '../SimboloMarca';
 import './SesionPasajero.css';
 
 /**
@@ -25,17 +26,8 @@ export function EntradaPasajero({ sesion }: { sesion: EstadoSesionPasajero }) {
           />
         </svg>
         <span className="entrada__marca">
-          <svg width="44" height="44" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-            <circle cx="32" cy="32" r="31" fill="#FBF7F0" />
-            <path
-              d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8"
-              fill="none"
-              stroke="#10402A"
-              strokeWidth="6"
-              strokeLinecap="round"
-            />
-          </svg>
-          EcoRuta
+          <SimboloMarca tamano={44} />
+          Mi Bus Jalapa
         </span>
         <h1 className="entrada__titulo">Mira dónde viene el bus eléctrico de Jalapa</h1>
         <p className="entrada__bajada">No necesitas cuenta. Elige cómo quieres entrar.</p>
@@ -88,7 +80,7 @@ export function EntradaPasajero({ sesion }: { sesion: EstadoSesionPasajero }) {
         </ul>
         <p className="entrada__privacidad">
           <IconoCandado tamano={18} />
-          Tu contraseña nunca se escribe en EcoRuta: la pide Google.
+          Tu contraseña nunca se escribe en Mi Bus Jalapa: la pide Google.
         </p>
       </section>
     </div>

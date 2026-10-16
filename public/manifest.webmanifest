@@ -1,6 +1,6 @@
 {
-  "name": "EcoRuta — Bus eléctrico de Jalapa",
-  "short_name": "EcoRuta",
+  "name": "Mi Bus Jalapa — Bus eléctrico municipal",
+  "short_name": "Mi Bus Jalapa",
   "description": "Mira dónde viene el bus eléctrico de Jalapa y cuántos faltan para que salga.",
   "lang": "es",
   "start_url": "/",

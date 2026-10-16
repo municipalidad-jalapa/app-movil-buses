@@ -39,7 +39,7 @@ export function InstalarApp() {
       <img className="instalar-app__icono" src="/icon-192.png" alt="" width="48" height="48" />
       <div className="instalar-app__textos">
         <p id="instalar-app-titulo" className="instalar-app__titulo">
-          Instalá EcoRuta en tu teléfono
+          Instalá Mi Bus Jalapa en tu teléfono
         </p>
         <p className="instalar-app__nota">
           Recomendado: sin instalarla no vas a tener todas las funciones, como los avisos del bus con la pantalla

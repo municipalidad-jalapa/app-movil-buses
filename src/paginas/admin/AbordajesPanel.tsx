@@ -115,7 +115,7 @@ export function AbordajesPanel() {
       <header className="panel-cabecera">
         <div className="panel-cabecera__marca">
           <SimboloEcoRuta tamano={30} />
-          <span className="panel-cabecera__ecoruta">EcoRuta</span>
+          <span className="panel-cabecera__ecoruta">Mi Bus Jalapa</span>
           <span className="panel-cabecera__separador" aria-hidden="true" />
           <span className="panel-cabecera__seccion">Panel municipal</span>
           <NavegacionPanel />
