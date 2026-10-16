@@ -72,7 +72,7 @@ describe('HU-87 - npm run build', () => {
   });
 
   it('genera index.html con el título definitivo', () => {
-    expect(contenido('index.html')).toContain('<title>EcoRuta — Bus eléctrico de Jalapa</title>');
+    expect(contenido('index.html')).toContain('<title>Mi Bus Jalapa — Bus eléctrico municipal</title>');
   });
 });
 

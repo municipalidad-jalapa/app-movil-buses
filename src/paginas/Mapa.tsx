@@ -213,7 +213,7 @@ export function Mapa() {
     vibrar();
     void notificarSiNoSeVe({
       titulo: 'Tu aviso está por vencer',
-      cuerpo: '¿Seguís esperando el bus? Abrí EcoRuta y tocá «Sigo esperando».',
+      cuerpo: '¿Seguís esperando el bus? Abrí Mi Bus Jalapa y tocá «Sigo esperando».',
       etiqueta: 'reserva-' + reserva.id + '-vence',
     });
   }, [preguntarSiSigue, reserva]);

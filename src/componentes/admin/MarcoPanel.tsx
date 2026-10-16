@@ -40,9 +40,9 @@ export function MarcoPanel({ children }: { children: ReactNode }) {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"
               strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
           </button>
-          <Link to="/" className="panel-cabecera__inicio" aria-label="EcoRuta, volver al mapa">
+          <Link to="/" className="panel-cabecera__inicio" aria-label="Mi Bus Jalapa, volver al mapa">
             <SimboloEcoRuta tamano={30} />
-            <span className="panel-cabecera__ecoruta">EcoRuta</span>
+            <span className="panel-cabecera__ecoruta">Mi Bus Jalapa</span>
           </Link>
           <span className="panel-cabecera__separador" aria-hidden="true" />
           <span className="panel-cabecera__seccion">Panel municipal</span>

@@ -11,7 +11,7 @@ export function AvisoLegal() {
       </div>
 
       <header className="legal__cabecera">
-        <p className="legal__eyebrow">EcoRuta</p>
+        <p className="legal__eyebrow">Mi Bus Jalapa</p>
         <h1>Aviso legal</h1>
       </header>
 
@@ -20,7 +20,7 @@ export function AvisoLegal() {
           <h2>Responsable del servicio</h2>
 
           <p>
-            EcoRuta es un servicio de seguimiento del transporte público de la
+            Mi Bus Jalapa es un servicio de seguimiento del transporte público de la
             Municipalidad de Jalapa.
           </p>
 
@@ -34,7 +34,7 @@ export function AvisoLegal() {
           <h2>Finalidad del sitio</h2>
 
           <p>
-            EcoRuta permite consultar la ubicación del bus municipal en tiempo
+            Mi Bus Jalapa permite consultar la ubicación del bus municipal en tiempo
             real, conocer información de sus rutas, reservar un lugar en una
             parada y recibir avisos relacionados con el servicio.
           </p>
@@ -59,7 +59,7 @@ export function AvisoLegal() {
           <h2>Información sobre los datos personales</h2>
 
           <p>
-            La información sobre qué datos utiliza EcoRuta, para qué se utilizan,
+            La información sobre qué datos utiliza Mi Bus Jalapa, para qué se utilizan,
             cómo se protegen y cómo ejercer sus derechos se encuentra en la
             Política de privacidad del servicio.
           </p>

@@ -2,30 +2,15 @@
  * Graficos del panel municipal, tomados del canvas «EcoRuta · Panel municipal»
  * (SCRUM-173). Decorativos: aria-hidden, el significado va siempre en texto.
  */
+import { SimboloMarca } from '../SimboloMarca';
 
 interface PropsIcono {
   tamano?: number;
 }
 
-export function SimboloEcoRuta({ tamano = 30, conPuntos = false }: PropsIcono & { conPuntos?: boolean }) {
-  return (
-    <svg width={tamano} height={tamano} viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-      <circle cx="32" cy="32" r="31" fill="#FBF7F0" />
-      <path
-        d="M14 48c0-16 10-28 24-28 7 0 12 5 12 12s-5 11-11 11-10-4-10-10 4-8 8-8"
-        fill="none"
-        stroke="#10402A"
-        strokeWidth="5"
-        strokeLinecap="round"
-      />
-      {conPuntos && (
-        <>
-          <circle cx="14" cy="48" r="6" fill="#8C2B22" />
-          <circle cx="37" cy="43" r="5" fill="#F2B705" />
-        </>
-      )}
-    </svg>
-  );
+/** El simbolo de la marca (Mi Bus Jalapa). Ver `SimboloMarca`. */
+export function SimboloEcoRuta({ tamano = 30 }: PropsIcono) {
+  return <SimboloMarca tamano={tamano} />;
 }
 
 function Trazo({ tamano = 20, grosor = 2.6, children }: PropsIcono & { grosor?: number; children: React.ReactNode }) {

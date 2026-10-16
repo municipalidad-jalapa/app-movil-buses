@@ -124,7 +124,7 @@ describe('HU-89 - Política de privacidad y aviso legal', () => {
 
     expect(
       screen.getByText(
-        /EcoRuta es un servicio de seguimiento del transporte público de la Municipalidad de Jalapa/i,
+        /Mi Bus Jalapa es un servicio de seguimiento del transporte público de la Municipalidad de Jalapa/i,
       ),
     ).toBeTruthy();
   });
