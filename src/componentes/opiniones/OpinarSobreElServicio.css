@@ -295,6 +295,23 @@
  * teclado. Pegado al borde inferior de la hoja; lo que sube por detras se
  * tapa con una franja del mismo fondo.
  */
+.opinion-secundario {
+  align-self: stretch;
+  min-height: var(--tactil-minimo);
+  border: 0;
+  background: transparent;
+  color: var(--acento-texto);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.opinion-secundario:focus-visible {
+  outline: 3px solid var(--verde-jumay-superficie);
+  outline-offset: 2px;
+}
+
 .opinion-hoja > .opinion-primario {
   position: sticky;
   bottom: 0;

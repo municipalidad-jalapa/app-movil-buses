@@ -11,6 +11,7 @@ import { expect, vi, test } from 'vitest';
 
 import { OpinarSobreElServicio } from '../../componentes/opiniones/OpinarSobreElServicio';
 import { ErrorApi } from '../../core/errores';
+import { SesionPasajeroContext, type EstadoSesionPasajero } from '../../core/pasajero/SesionPasajeroContext';
 import { enviarOpinion, listarOpiniones, marcarAtendida, type PaginaDeOpiniones } from '../../core/opiniones';
 import { AuthAdminContext, type EstadoAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
 import { OpinionesPanel } from '../../paginas/admin/OpinionesPanel';
@@ -59,12 +60,35 @@ const PAGINA: PaginaDeOpiniones = {
       conduccion: null,
       // Asi llega del backend: neutralizado.
       texto: '&lt;b&gt;hola&lt;/b&gt;',
+      correo: 'ana@gmail.com',
       atendidaEn: null,
       atendidaPor: null,
     },
   ],
   resumen: { total: 1, promedioPorRuta: [], promedioPorVehiculo: [] },
 };
+
+function sesionDePasajero(conCuenta: boolean): EstadoSesionPasajero {
+  return {
+    modo: conCuenta ? 'cuenta' : 'invitado',
+    sesion: conCuenta ? { token: 'jwt-pasajero', expiraEnMs: Date.now() + 60_000, correo: 'ana@gmail.com' } : null,
+    iniciando: false,
+    error: null,
+    vinculacion: null,
+    entrarComoInvitado: vi.fn(),
+    iniciarConGoogle: vi.fn(async () => undefined),
+    cerrarSesion: vi.fn(),
+    descartarVinculacion: vi.fn(),
+  };
+}
+
+function opinarComo(conCuenta: boolean) {
+  return (
+    <SesionPasajeroContext.Provider value={sesionDePasajero(conCuenta)}>
+      <OpinarSobreElServicio />
+    </SesionPasajeroContext.Provider>
+  );
+}
 
 function sesionAdmin(): EstadoAuthAdmin {
   return {
@@ -90,13 +114,25 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
   AfterEachScenario(() => cleanup());
 
   const mirandoLaRuta = () => {
-    render(<OpinarSobreElServicio />);
+    render(opinarComo(true));
   };
   const abrir = () => {
     fireEvent.click(screen.getByRole('button', { name: 'Opinar sobre el servicio' }));
   };
 
-  Scenario('Opinar desde la pantalla del pasajero sin cuenta y sin elegir la ruta', ({ Given, When, Then }) => {
+  Scenario('Sin sesión, la hoja pide iniciarla antes de opinar', ({ Given, When, Then }) => {
+    Given('que estoy como invitado mirando la ruta', () => {
+      render(opinarComo(false));
+    });
+    When('abro "Opinar"', abrir);
+    Then('se me pide iniciar sesión y no puedo enviar nada', () => {
+      expect(screen.getByRole('heading', { name: 'Inicia sesión para opinar' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Iniciar sesión con Google' })).toBeTruthy();
+      expect(screen.queryByRole('button', { name: 'Enviar opinión' })).toBeNull();
+    });
+  });
+
+  Scenario('Opinar desde la pantalla del pasajero sin elegir la ruta', ({ Given, When, Then }) => {
     Given('que estoy mirando la ruta "Ruta de ejemplo - Centro de Jalapa"', mirandoLaRuta);
     When('abro "Opinar"', abrir);
     Then('veo la ruta "Ruta de ejemplo - Centro de Jalapa" como contexto, sin selector', () => {
@@ -120,10 +156,9 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     });
     Then('se envía una sola vez con 4 estrellas para la ruta 1', async () => {
       await waitFor(() => expect(enviarOpinion).toHaveBeenCalledTimes(1));
-      // Sin sesion de pasajero no viaja ningun token (segundo argumento vacio).
       expect(enviarOpinion).toHaveBeenCalledWith(
         expect.objectContaining({ tipo: 'calificacion', rutaId: 1, estrellas: 4 }),
-        undefined,
+        'jwt-pasajero',
       );
     });
     And('veo "Gracias, recibimos tu opinión"', async () => {
@@ -189,6 +224,14 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     });
   });
 
+  Scenario('El panel muestra el correo de quien opinó', ({ Given, When, Then }) => {
+    Given('que tengo sesión de administrador', () => {});
+    When('abro las opiniones del panel municipal', abrirPanel);
+    Then('veo el correo "ana@gmail.com" en la opinión', async () => {
+      expect(await screen.findByText('ana@gmail.com')).toBeTruthy();
+    });
+  });
+
   Scenario('Marcar una opinión como atendida desde el panel', ({ Given, When, And, Then }) => {
     Given('que tengo sesión de administrador', () => {});
     When('abro las opiniones del panel municipal', abrirPanel);
@@ -208,13 +251,13 @@ test('envía el texto literal y lo muestra sin ejecutar HTML ni decodificar dos 
   vi.mocked(enviarOpinion).mockReset();
   vi.mocked(enviarOpinion).mockResolvedValue({ id: 91, rutaId: 1, vehiculoId: 1 });
   try {
-    render(<OpinarSobreElServicio />);
+    render(opinarComo(true));
     fireEvent.click(screen.getByRole('button', { name: 'Opinar sobre el servicio' }));
     fireEvent.click(screen.getByRole('radio', { name: /Comentario/ }));
     fireEvent.change(screen.getByRole('textbox'), { target: { value: literal } });
     fireEvent.click(screen.getByRole('button', { name: 'Enviar opinión' }));
     await waitFor(() => expect(enviarOpinion).toHaveBeenCalledWith(
-      expect.objectContaining({ texto: literal }), undefined));
+      expect.objectContaining({ texto: literal }), 'jwt-pasajero'));
     cleanup();
     vi.mocked(listarOpiniones).mockResolvedValue({ ...PAGINA,
       opiniones: [{ ...PAGINA.opiniones[0], texto: neutralizado }] });
