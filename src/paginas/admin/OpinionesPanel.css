@@ -95,6 +95,10 @@
   vertical-align: top;
 }
 
+.opiniones-correo {
+  overflow-wrap: anywhere;
+}
+
 .opiniones-chip,
 .opiniones-estado {
   display: inline-flex;

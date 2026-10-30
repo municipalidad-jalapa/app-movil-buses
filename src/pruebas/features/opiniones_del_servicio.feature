@@ -7,7 +7,12 @@ Característica: Opiniones del servicio
   para que la municipalidad sepa cómo funciona cada ruta
 
   @A2-criterio-1 @A2-criterio-5 @A2-criterio-6
-  Escenario: Opinar desde la pantalla del pasajero sin cuenta y sin elegir la ruta
+  Escenario: Sin sesión, la hoja pide iniciarla antes de opinar
+    Dado que estoy como invitado mirando la ruta
+    Cuando abro "Opinar"
+    Entonces se me pide iniciar sesión y no puedo enviar nada
+
+  Escenario: Opinar desde la pantalla del pasajero sin elegir la ruta
     Dado que estoy mirando la ruta "Ruta de ejemplo - Centro de Jalapa"
     Cuando abro "Opinar"
     Entonces veo la ruta "Ruta de ejemplo - Centro de Jalapa" como contexto, sin selector
@@ -45,6 +50,11 @@ Característica: Opiniones del servicio
     Cuando abro las opiniones del panel municipal
     Entonces veo la opinión "<b>hola</b>" escrita tal cual, sin interpretarla
     Y veo "Opiniones del servicio"
+
+  Escenario: El panel muestra el correo de quien opinó
+    Dado que tengo sesión de administrador
+    Cuando abro las opiniones del panel municipal
+    Entonces veo el correo "ana@gmail.com" en la opinión
 
   @A3-criterio-3
   Escenario: Marcar una opinión como atendida desde el panel

@@ -21,9 +21,9 @@ Característica: Sesión opcional del pasajero
   @B1-criterio-3
   Escenario: Iniciar sesión con Google y conservar lo hecho como invitado
     Dado que abro la aplicación por primera vez
-    Y que este teléfono tiene 2 reservas y 1 opinión como invitado
+    Y que este teléfono tiene 2 reservas como invitado
     Cuando inicio sesión con Google
-    Entonces veo "Guardamos en tu cuenta 2 reservas y 1 opinión de este teléfono."
+    Entonces veo "Guardamos en tu cuenta 2 reservas de este teléfono."
     Y el menú muestra mi cuenta
 
   @B1-criterio-8
