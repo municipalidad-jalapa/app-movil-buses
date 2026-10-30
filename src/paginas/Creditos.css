@@ -1,0 +1,160 @@
+/*
+ * Creditos. Canvas «Créditos Mi Bus Jalapa»: la identidad llega a los bordes, asi
+ * que aqui se quita el margen del contenido de Layout.
+ */
+.apl__contenido:has(> .creditos) {
+  max-width: none;
+  padding: 0;
+}
+
+.creditos__identidad {
+  border-bottom: 6px solid var(--rojo-santa-marta);
+  background: var(--verde-jumay);
+  color: var(--sobre-marca);
+}
+
+.creditos__identidad-contenido {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 1200px);
+  margin-inline: auto;
+}
+
+.creditos__presentacion {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: var(--esp-4) var(--esp-4) 0;
+}
+
+.creditos__volver {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tactil-minimo);
+  color: var(--verde-jumay-suave);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.creditos__volver:focus-visible {
+  outline: 3px solid var(--amarillo-volcan);
+  outline-offset: 2px;
+}
+
+.creditos h1 {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: 40px;
+  line-height: 44px;
+  font-weight: 700;
+}
+
+.creditos__presentacion p {
+  max-width: 680px;
+  margin: 0;
+  font-size: 17px;
+  line-height: 26px;
+}
+
+.creditos__volcanes {
+  display: block;
+  width: 100%;
+  height: 110px;
+  margin-top: 8px;
+}
+
+.creditos__equipos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--esp-4);
+  width: min(100%, 1200px);
+  margin-inline: auto;
+  padding: 24px var(--esp-4) 32px;
+}
+
+.creditos__equipo {
+  padding: 20px var(--esp-4) 8px;
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie-suave);
+}
+
+.creditos h2 {
+  margin: 0 0 8px;
+  color: var(--acento-texto);
+  font-family: var(--fuente-titulos);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+}
+
+.creditos ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.creditos li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 0;
+}
+
+.creditos li + li {
+  border-top: 1px solid var(--borde);
+}
+
+.creditos__nombre {
+  color: var(--tinta);
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+.creditos__papel {
+  color: var(--tinta-secundaria);
+  font-size: 15px;
+  line-height: 20px;
+}
+
+@media (min-width: 720px) {
+  .creditos__identidad-contenido {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .creditos__presentacion {
+    flex: 0 1 680px;
+    padding: 12px 40px 32px;
+  }
+
+  .creditos__volcanes {
+    flex: 0 1 520px;
+    min-width: 0;
+    height: 200px;
+    margin-top: 0;
+  }
+
+  .creditos h1 {
+    font-size: 52px;
+    line-height: 56px;
+  }
+
+  .creditos__equipos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    padding: 32px 40px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .creditos__equipos {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

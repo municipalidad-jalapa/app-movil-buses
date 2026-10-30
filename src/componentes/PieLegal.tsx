@@ -17,6 +17,12 @@ export function PieLegal() {
         <Link to="/aviso-legal">
           Aviso legal
         </Link>
+
+        <span aria-hidden="true">·</span>
+
+        <Link to="/creditos">
+          Créditos
+        </Link>
       </nav>
 
       <p className="pie-legal__municipalidad">
