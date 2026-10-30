@@ -289,6 +289,7 @@ export function OpinionesPanel() {
                   <th scope="col">Vehículo</th>
                   <th scope="col">Calificación</th>
                   <th scope="col">Opinión</th>
+                  <th scope="col">Correo</th>
                   <th scope="col">Estado</th>
                 </tr>
               </thead>
@@ -437,6 +438,9 @@ function FilaOpinion({
       <td className="opiniones-texto">
         {/* Texto plano: React lo escapa, jamas se interpreta como HTML. */}
         {opinion.texto ? textoPlano(opinion.texto) : <span className="panel-tabla__secundario">Sin texto</span>}
+      </td>
+      <td className="opiniones-correo">
+        {opinion.correo ? textoPlano(opinion.correo) : <span className="panel-tabla__secundario">Sin correo</span>}
       </td>
       <td>
         {opinion.atendidaEn ? (

@@ -96,7 +96,7 @@ export function MenuAcceso() {
                     </span>
                     <span className="menu-acceso__cuenta-textos">
                       <span className="menu-acceso__cuenta-correo">Estás como invitado</span>
-                      <span className="menu-acceso__cuenta-ayuda">Todo funciona sin cuenta</span>
+                      <span className="menu-acceso__cuenta-ayuda">Para opinar, inicia sesión</span>
                     </span>
                   </>
                 )}
@@ -131,7 +131,7 @@ export function MenuAcceso() {
                   <LogoGoogle />
                   <span className="menu-acceso__textos">
                     <span className="menu-acceso__titulo menu-acceso__titulo--entrar">Iniciar sesión</span>
-                    <span className="menu-acceso__ayuda">Conserva tus reservas y opiniones</span>
+                    <span className="menu-acceso__ayuda">Conserva tus reservas y opina</span>
                   </span>
                 </button>
               )}

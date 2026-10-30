@@ -29,6 +29,7 @@ describe('HU-89 - Política de privacidad y aviso legal', () => {
 
     expect(privacidad.getAttribute('href')).toBe('/privacidad');
     expect(avisoLegal.getAttribute('href')).toBe('/aviso-legal');
+    expect(screen.getByRole('link', { name: 'Créditos' }).getAttribute('href')).toBe('/creditos');
 
     expect(
       screen.getByText('Municipalidad de Jalapa'),

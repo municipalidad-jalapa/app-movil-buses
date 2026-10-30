@@ -9,6 +9,7 @@ import { AuthAdminProvider } from './core/panelAdmin/AuthAdminProvider';
 import { ReservaProvider } from './estado/ReservaProvider';
 import { RutaElegidaProvider } from './estado/RutaElegidaProvider';
 import { AvisoLegal } from './paginas/AvisoLegal';
+import { Creditos } from './paginas/Creditos';
 import { Herramientas } from './paginas/Herramientas';
 import { Mapa } from './paginas/Mapa';
 import { NoEncontrada } from './paginas/NoEncontrada';
@@ -75,6 +76,15 @@ export function App() {
             element={
               <Layout anchoAmplio>
                 <AvisoLegal />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/creditos"
+            element={
+              <Layout anchoAmplio>
+                <Creditos />
               </Layout>
             }
           />

@@ -43,7 +43,8 @@ export const MENSAJE_LIMITE = 'Enviaste varias opiniones seguidas. Intenta de nu
  * Canvas «EcoRuta · Opiniones», pantallas 1 a 4.
  *
  * La ruta sale del contexto: la que el pasajero esta mirando (y que sigue a la
- * parada elegida). No se le pide elegirla. Funciona sin cuenta.
+ * parada elegida). No se le pide elegirla. Opinar exige sesion: sin ella, la hoja
+ * ofrece iniciarla y el panel municipal ve el correo de quien opino.
  */
 /**
  * `redondo`: el acceso va como un boton mas de la columna del mapa (QA), para
@@ -53,6 +54,8 @@ export function OpinarSobreElServicio({ redondo = false }: { redondo?: boolean }
   const { rutaActiva } = useRutaElegida();
   const { reserva } = useReserva();
   const sesionPasajero = useSesionPasajero();
+  const sesion = sesionPasajero?.sesion;
+  const token = sesion && sesion.expiraEnMs > Date.now() ? sesion.token : null;
   const [abierta, setAbierta] = useState(false);
   const [tipo, setTipo] = useState<TipoOpinion | null>(null);
   const [estrellas, setEstrellas] = useState(0);
@@ -102,7 +105,7 @@ export function OpinarSobreElServicio({ redondo = false }: { redondo?: boolean }
   async function alEnviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     // Un doble toque no manda dos veces: la bandera se revisa antes del estado.
-    if (!puedeEnviar || enviandoRef.current || !tipo || !rutaActiva) return;
+    if (!puedeEnviar || enviandoRef.current || !tipo || !rutaActiva || !token) return;
     enviandoRef.current = true;
     setEstado('enviando');
     try {
@@ -115,11 +118,15 @@ export function OpinarSobreElServicio({ redondo = false }: { redondo?: boolean }
         limpieza: porDimension.limpieza || undefined,
         conduccion: porDimension.conduccion || undefined,
         reservaId: reserva && estaVigente(reserva) ? reserva.id : undefined,
-      }, sesionPasajero?.sesion?.token);
+      }, token);
       setEstado('enviada');
     } catch (causa) {
       if (esLimiteDeEnvios(causa)) {
         setEstado('limite');
+      } else if (causa instanceof ErrorApi && causa.status === 401) {
+        // La sesion ya no vale: la hoja pide iniciarla y el texto sigue aqui.
+        sesionPasajero?.cerrarSesion();
+        setEstado('editando');
       } else {
         // El texto no se toca: se puede reintentar tal cual.
         setDetalleError(causa instanceof ErrorApi && causa.status === 422 ? causa.mensajeParaUsuario() : null);
@@ -155,6 +162,47 @@ export function OpinarSobreElServicio({ redondo = false }: { redondo?: boolean }
               <p className="opinion-parrafo">La Municipalidad revisa las opiniones para mejorar el servicio.</p>
               <button type="button" className="opinion-primario" onClick={cerrar}>
                 Volver al mapa
+              </button>
+            </section>
+          ) : !token ? (
+            <section
+              ref={deslizable}
+              className="opinion-hoja opinion-hoja--gracias"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="opinion-sesion-titulo"
+            >
+              <Manija />
+              <h2 id="opinion-sesion-titulo" className="opinion-titulo">
+                Inicia sesión para opinar
+              </h2>
+              <p className="opinion-parrafo">
+                La Municipalidad verá el correo de tu cuenta de Google junto a tu opinión.
+              </p>
+              {sesionPasajero?.error && (
+                <p className="opinion-aviso opinion-aviso--error" role="alert">
+                  <IconoError />
+                  <span>{sesionPasajero.error}</span>
+                </p>
+              )}
+              <button
+                type="button"
+                className="opinion-primario"
+                onClick={() => void sesionPasajero?.iniciarConGoogle()}
+                disabled={sesionPasajero?.iniciando}
+                aria-busy={sesionPasajero?.iniciando}
+              >
+                {sesionPasajero?.iniciando ? (
+                  <>
+                    <IconoGirando />
+                    Abriendo Google…
+                  </>
+                ) : (
+                  'Iniciar sesión con Google'
+                )}
+              </button>
+              <button type="button" className="opinion-secundario" onClick={cerrar}>
+                Ahora no
               </button>
             </section>
           ) : (
@@ -303,6 +351,12 @@ export function OpinarSobreElServicio({ redondo = false }: { redondo?: boolean }
                   quedan {quedan} caracteres
                 </span>
               </div>
+
+              {sesion?.correo && (
+                <p className="opinion-parrafo">
+                  Se envía con tu correo, {sesion.correo}. La Municipalidad lo verá junto a tu opinión.
+                </p>
+              )}
 
               <button
                 type="submit"

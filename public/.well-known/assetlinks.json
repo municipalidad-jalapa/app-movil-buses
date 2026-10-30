@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "gt.muni.jalapa.mibus",
+      "sha256_cert_fingerprints": [
+        "09:8D:03:35:57:77:60:8C:8C:36:D3:2E:AA:D7:39:C7:5E:62:55:F2:9D:D7:81:9F:5B:DF:FE:72:A6:81:55:30"
+      ]
+    }
+  }
+]

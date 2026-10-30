@@ -11,6 +11,7 @@ import { expect, vi, test } from 'vitest';
 import { apiClient } from '../../core/apiClient';
 
 import { OpinarSobreElServicio } from '../../componentes/opiniones/OpinarSobreElServicio';
+import { SesionPasajeroContext, type EstadoSesionPasajero } from '../../core/pasajero/SesionPasajeroContext';
 import { enviarOpinion, listarOpiniones, type PaginaDeOpiniones, type PromedioOpiniones } from '../../core/opiniones';
 import { AuthAdminContext, type EstadoAuthAdmin } from '../../core/panelAdmin/AuthAdminContext';
 import { consultarAbordajes, type ConteoDeAbordajes } from '../../core/panelAdmin/panelAdminApi';
@@ -36,7 +37,6 @@ vi.mock('../../hooks/useRutaElegida', () => ({
   }),
 }));
 vi.mock('../../hooks/useReserva', () => ({ useReserva: () => ({ reserva: null }) }));
-vi.mock('../../core/pasajero/SesionPasajeroContext', () => ({ useSesionPasajero: () => null }));
 vi.mock('../../core/opiniones', async (original) => ({
   ...(await original<typeof import('../../core/opiniones')>()),
   enviarOpinion: vi.fn(),
@@ -119,6 +119,18 @@ function calificar(etiqueta: string, valor: number) {
   );
 }
 
+const CON_CUENTA: EstadoSesionPasajero = {
+  modo: 'cuenta',
+  sesion: { token: 'jwt-pasajero', expiraEnMs: Date.now() + 60 * 60_000, correo: 'ana@gmail.com' },
+  iniciando: false,
+  error: null,
+  vinculacion: null,
+  entrarComoInvitado: vi.fn(),
+  iniciarConGoogle: vi.fn(async () => undefined),
+  cerrarSesion: vi.fn(),
+  descartarVinculacion: vi.fn(),
+};
+
 describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) => {
   BeforeEachScenario(() => {
     vi.mocked(enviarOpinion).mockResolvedValue({ id: 91, rutaId: 1, vehiculoId: 1 });
@@ -133,7 +145,11 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
 
   Scenario('El pasajero puntúa las tres cosas por separado', ({ Given, When, Then, And }) => {
     Given('que abro la hoja para opinar', () => {
-      render(<OpinarSobreElServicio />);
+      render(
+        <SesionPasajeroContext.Provider value={CON_CUENTA}>
+          <OpinarSobreElServicio />
+        </SesionPasajeroContext.Provider>,
+      );
       fireEvent.click(screen.getByRole('button', { name: /Opinar sobre el servicio/ }));
       fireEvent.click(screen.getByRole('radio', { name: 'Calificación' }));
     });
@@ -150,14 +166,18 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     Then('la opinión se envía con las tres valoraciones', () => {
       expect(enviarOpinion).toHaveBeenCalledWith(
         expect.objectContaining({ calidad: 4, limpieza: 2, conduccion: 5, rutaId: 1 }),
-        undefined,
+        'jwt-pasajero',
       );
     });
   });
 
   Scenario('Puntuar una sola dimensión ya es contenido suficiente', ({ Given, When, Then, And }) => {
     Given('que abro la hoja para opinar', () => {
-      render(<OpinarSobreElServicio />);
+      render(
+        <SesionPasajeroContext.Provider value={CON_CUENTA}>
+          <OpinarSobreElServicio />
+        </SesionPasajeroContext.Provider>,
+      );
       fireEvent.click(screen.getByRole('button', { name: /Opinar sobre el servicio/ }));
       fireEvent.click(screen.getByRole('radio', { name: 'Calificación' }));
     });
@@ -172,7 +192,7 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     Then('la opinión se envía solo con la limpieza', () => {
       expect(enviarOpinion).toHaveBeenCalledWith(
         expect.objectContaining({ limpieza: 3, calidad: undefined, conduccion: undefined }),
-        undefined,
+        'jwt-pasajero',
       );
     });
   });

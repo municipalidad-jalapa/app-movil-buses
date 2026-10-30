@@ -16,7 +16,7 @@ export function Privacidad() {
         <h1>Política de privacidad</h1>
 
         <p className="legal__actualizacion">
-          Última actualización: 21 de septiembre de 2026
+          Última actualización: 30 de octubre de 2026
         </p>
       </header>
 
@@ -116,7 +116,9 @@ export function Privacidad() {
 
           <p>
             Solo se obtienen cuando usted decide enviarlas y pueden incluir el
-            tipo de opinión, texto, estrellas, ruta y bus.
+            tipo de opinión, texto, estrellas, ruta y bus. Para opinar debe
+            iniciar sesión con Google: el personal municipal ve su correo
+            electrónico junto a la opinión.
           </p>
         </section>
 
@@ -124,7 +126,8 @@ export function Privacidad() {
           <h2>Inicio de sesión con Google</h2>
 
           <p>
-            Iniciar sesión es opcional. Si lo hace, Mi Bus Jalapa recibe de Google el
+            Iniciar sesión solo es necesario para opinar sobre el servicio. Si lo
+            hace, Mi Bus Jalapa recibe de Google el
             identificador de su cuenta, su nombre y su correo electrónico. La
             contraseña de Google nunca pasa por Mi Bus Jalapa.
           </p>

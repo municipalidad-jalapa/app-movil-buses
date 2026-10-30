@@ -72,10 +72,10 @@ export function EntradaPasajero({ sesion }: { sesion: EstadoSesionPasajero }) {
 
         <ul className="entrada__beneficios">
           <li>
-            <strong>Como invitado</strong> funciona todo: mapa, seguimiento, tiempo estimado, reserva y opinión.
+            <strong>Como invitado</strong> ves el mapa, sigues el bus, consultas el tiempo estimado y reservas.
           </li>
           <li>
-            <strong>Con cuenta</strong> conservas tus reservas y opiniones en cualquier dispositivo.
+            <strong>Con cuenta</strong> además puedes opinar y conservas tus reservas en cualquier dispositivo.
           </li>
         </ul>
         <p className="entrada__privacidad">

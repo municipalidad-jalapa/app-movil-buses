@@ -116,16 +116,16 @@ describeFeature(feature, ({ Scenario, BeforeEachScenario, AfterEachScenario }) =
     Given('que abro la aplicación por primera vez', () => {
       montar();
     });
-    And('que este teléfono tiene 2 reservas y 1 opinión como invitado', () => {
-      vi.mocked(vincularNavegador).mockResolvedValue({ reservasVinculadas: 2, opinionesVinculadas: 1 });
+    And('que este teléfono tiene 2 reservas como invitado', () => {
+      vi.mocked(vincularNavegador).mockResolvedValue({ reservasVinculadas: 2, opinionesVinculadas: 0 });
     });
     When('inicio sesión con Google', async () => {
       await act(async () => {
         fireEvent.click(screen.getByRole('button', { name: /Iniciar sesión/ }));
       });
     });
-    Then('veo "Guardamos en tu cuenta 2 reservas y 1 opinión de este teléfono."', async () => {
-      expect(await screen.findByText('Guardamos en tu cuenta 2 reservas y 1 opinión de este teléfono.')).toBeTruthy();
+    Then('veo "Guardamos en tu cuenta 2 reservas de este teléfono."', async () => {
+      expect(await screen.findByText('Guardamos en tu cuenta 2 reservas de este teléfono.')).toBeTruthy();
       expect(intercambiarTokenPasajero).toHaveBeenCalledWith('id-token-google');
     });
     And('el menú muestra mi cuenta', () => {
