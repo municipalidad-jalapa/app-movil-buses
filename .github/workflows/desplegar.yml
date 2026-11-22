@@ -13,7 +13,6 @@ on:
     branches: [develop, main]
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
@@ -30,12 +29,13 @@ jobs:
       required-build-args: ${{ vars.VITE_REQUIRED_BUILD_ARGS }}
     secrets: inherit
 
-  # Produccion solo construye y publica la imagen: el despliegue del frontend
-  # a produccion nunca estuvo automatizado en GitLab tampoco (queda pendiente,
-  # no se cambia el alcance en esta migracion).
+  # Un solo job: construye, publica y despliega. El environment production pide una aprobacion.
   imagen-produccion:
     if: github.ref == 'refs/heads/main'
-    uses: municipalidad-jalapa/pipeline-templates/.github/workflows/docker-build-push.yml@main
+    permissions:
+      contents: read
+      packages: write
+    uses: municipalidad-jalapa/pipeline-templates/.github/workflows/docker-build-ghcr.yml@main
     with:
       image-name: frontend-app-buses
       environment: production
