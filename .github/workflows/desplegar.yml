@@ -17,38 +17,18 @@ permissions:
   contents: read
 
 jobs:
-  imagen-qa:
+  # QA vive en el servidor de Lightsail (namespace qa): https://qa.mibusjalapa.lat
+  qa:
     if: github.ref == 'refs/heads/develop'
-    uses: municipalidad-jalapa/pipeline-templates/.github/workflows/docker-build-push.yml@main
+    permissions:
+      contents: read
+      packages: write
+    uses: municipalidad-jalapa/pipeline-templates/.github/workflows/docker-build-ghcr.yml@main
     with:
       image-name: frontend-app-buses
       environment: qa
       required-build-args: ${{ vars.VITE_REQUIRED_BUILD_ARGS }}
     secrets: inherit
-
-  desplegar-qa:
-    needs: imagen-qa
-    runs-on: ubuntu-22.04
-    environment: qa
-    concurrency:
-      group: frontend-desplegar-qa
-      cancel-in-progress: false
-    steps:
-      - name: Login en Azure (OIDC)
-        uses: azure/login@v2
-        with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - uses: azure/aks-set-context@v4
-        with:
-          resource-group: rg-buses-jalapa
-          cluster-name: aks-buses-dev
-      - name: Actualizar imagen del Deployment
-        run: |
-          kubectl set image deployment/frontend-app-buses \
-            frontend-app-buses=${{ vars.ACR_LOGIN_SERVER }}/frontend-app-buses:${GITHUB_SHA::8} -n qa
-          kubectl rollout status deployment/frontend-app-buses -n qa --timeout=120s
 
   # Produccion solo construye y publica la imagen: el despliegue del frontend
   # a produccion nunca estuvo automatizado en GitLab tampoco (queda pendiente,
